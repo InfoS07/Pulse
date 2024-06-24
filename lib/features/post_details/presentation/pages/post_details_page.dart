@@ -52,9 +52,15 @@ class PostDetailsPage extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(post.profileImageUrl),
-                    radius: 20,
+                  GestureDetector(
+                    onTap: () {
+                      // Ajouter l'action de navigation
+                      context.push('/otherProfil');
+                    },
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(post.profileImageUrl),
+                      radius: 20,
+                    ),
                   ),
                   SizedBox(width: 8),
                   Column(
@@ -135,20 +141,26 @@ class PostDetailsPage extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Icon(Icons.favorite, color: Colors.green),
-                      SizedBox(width: 4),
-                      Text(
-                        '${post.likes} j\'aime',
-                        style: TextStyle(color: Colors.white),
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/home/details/$postIndex/likes');
+                    },
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Icon(Icons.favorite, color: Colors.green),
+                          SizedBox(width: 4),
+                          Text(
+                            '${post.likes} j\'aime',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
-                      GoRouter.of(context)
-                          .go('/home/details/$postIndex/comments');
+                      context.push('/home/details/$postIndex/comments');
                     },
                     child: Container(
                       child: Row(

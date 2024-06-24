@@ -2,15 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
-import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
-class ProfilPage extends StatefulWidget {
+class ProfilOtherPage extends StatefulWidget {
   @override
-  _ProfilPageState createState() => _ProfilPageState();
+  _ProfilOtherPageState createState() => _ProfilOtherPageState();
 }
 
-class _ProfilPageState extends State<ProfilPage> {
+class _ProfilOtherPageState extends State<ProfilOtherPage> {
   @override
   void initState() {
     super.initState();
@@ -23,17 +22,18 @@ class _ProfilPageState extends State<ProfilPage> {
     context.read<ProfilBloc>().add(ProfilGetProfil());
   }
 
-  void _signOut() {
-    // Lancer l'événement pour se déconnecter
-    context.read<AuthBloc>().add(AuthSignOut());
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
         backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
       ),
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
@@ -84,14 +84,26 @@ class _ProfilPageState extends State<ProfilPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             _buildInfoColumn('123', 'Activités'),
-                            _buildInfoColumn('12', 'Abonnés'),
-                            _buildInfoColumn('230', 'Abonnements'),
+                            _buildInfoColumn('23', 'Abonnés'),
+                            _buildInfoColumn('666', 'Abonnements'),
                           ],
+                        ),
+                        const SizedBox(height: 16.0),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            // Action pour suivre
+                          },
+                          icon: Icon(Icons.add, color: Colors.white),
+                          label: Text('Suivre',
+                              style: TextStyle(color: Colors.white)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.greenAccent,
+                            side: BorderSide(color: Colors.greenAccent),
+                          ),
                         ),
                         const Divider(color: Colors.grey, height: 32),
                         _buildListTile('Activités', Icons.arrow_forward_ios),
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
-                        _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
                         Align(
                           alignment: Alignment.centerLeft,
@@ -100,16 +112,6 @@ class _ProfilPageState extends State<ProfilPage> {
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Center(
-                          child: TextButton(
-                            onPressed: _signOut,
-                            child: Text(
-                              'Se déconnecter',
-                              style: TextStyle(color: Colors.red),
                             ),
                           ),
                         ),
@@ -133,7 +135,7 @@ class _ProfilPageState extends State<ProfilPage> {
     return GestureDetector(
       onTap: () {
         // Ajouter l'action de navigation
-        context.push('/profil/follow');
+        context.push('/otherProfil/followOther');
       },
       child: Column(
         children: [

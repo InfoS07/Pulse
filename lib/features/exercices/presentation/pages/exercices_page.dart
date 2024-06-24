@@ -100,7 +100,7 @@ class ExercicesPage extends StatelessWidget {
                   return ExerciseCard(
                     exercise: exercise,
                     onTap: () {
-                      context.go('/exercices/details', extra: exercise);
+                      context.push('/exercices/details', extra: exercise);
                     },
                   );
                 }).toList(),

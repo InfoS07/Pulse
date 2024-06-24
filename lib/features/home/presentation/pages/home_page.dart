@@ -196,7 +196,7 @@ class _HomePageState extends State<HomePage> {
           return ExerciseCard(
             exercise: exercise,
             onTap: () {
-              context.go('/home/modale');
+              context.push('/exercices/details');
             },
           );
         },

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 
 class SocialMediaPost {
@@ -38,9 +39,15 @@ class SocialMediaPostWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage(post.profileImageUrl),
-                radius: 20,
+              GestureDetector(
+                onTap: () {
+                  // Ajouter l'action de navigation
+                  context.push('/otherProfil');
+                },
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(post.profileImageUrl),
+                  radius: 20,
+                ),
               ),
               SizedBox(width: 8),
               Column(

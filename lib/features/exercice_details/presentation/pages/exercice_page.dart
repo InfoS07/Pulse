@@ -104,7 +104,9 @@ class ExercicePage extends StatelessWidget {
                   SizedBox(height: 16),
                   Center(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        context.push('/activity');
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.greenAccent,
                         padding:

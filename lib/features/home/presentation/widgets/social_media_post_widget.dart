@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 
 class SocialMediaPost {
@@ -41,9 +42,15 @@ class SocialMediaPostWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundImage: NetworkImage(post.profileImageUrl),
-                  radius: 20,
+                GestureDetector(
+                  onTap: () {
+                    // Ajouter l'action de navigation
+                    context.push('/otherProfil');
+                  },
+                  child: CircleAvatar(
+                    backgroundImage: NetworkImage(post.profileImageUrl),
+                    radius: 20,
+                  ),
                 ),
                 SizedBox(width: 8),
                 Column(
@@ -97,27 +104,42 @@ class SocialMediaPostWidget extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    const Icon(Icons.favorite, color: AppPallete.primaryColor),
-                    const SizedBox(width: 4),
-                    Text(
-                      post.likes.toString(),
-                      style: TextStyle(color: Colors.white),
+                GestureDetector(
+                  onTap: () {
+                    context.push('/home/details/0/likes');
+                  },
+                  child: Container(
+                    child: Row(
+                      children: [
+                        const Icon(Icons.favorite,
+                            color: AppPallete.primaryColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          post.likes.toString(),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
                 SizedBox(width: 18),
-                Row(
-                  children: [
-                    Icon(Icons.comment, color: Colors.white),
-                    SizedBox(width: 4),
-                    Text(
-                      post.comments.toString(),
-                      style: TextStyle(color: Colors.white),
+                GestureDetector(
+                  onTap: () {
+                    context.push('/home/details/0/comments');
+                  },
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.comment, color: Colors.white),
+                        SizedBox(width: 4),
+                        Text(
+                          '${post.comments}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                )
               ],
             ),
           ],

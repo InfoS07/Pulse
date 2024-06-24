@@ -36,8 +36,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
             isSelected: navigationShell.currentIndex == 1,
           ),
           _buildBottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.chartLine),
-            label: 'Progress',
+            icon: FaIcon(FontAwesomeIcons.layerGroup),
+            label: 'Groupe',
             isSelected: navigationShell.currentIndex == 2,
           ),
           _buildBottomNavigationBarItem(
