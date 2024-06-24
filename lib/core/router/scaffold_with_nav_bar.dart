@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ScaffoldWithNavBar extends StatelessWidget {
   /// Constructs an [ScaffoldWithNavBar].
@@ -20,20 +21,56 @@ class ScaffoldWithNavBar extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         backgroundColor: AppPallete.backgroundColor,
         selectedItemColor: AppPallete.primaryColor,
-        // Here, the items of BottomNavigationBar are hard coded. In a real
-        // world scenario, the items would most likely be generated from the
-        // branches of the shell route, which can be fetched using
-        // `navigationShell.route.branches`.
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Exercices'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt), label: 'Progress'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+        unselectedItemColor: Colors.grey,
+        selectedLabelStyle: TextStyle(fontSize: 10),
+        unselectedLabelStyle: TextStyle(fontSize: 10),
+        items: [
+          _buildBottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.house),
+            label: 'Acceuil',
+            isSelected: navigationShell.currentIndex == 0,
+          ),
+          _buildBottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.dumbbell),
+            label: 'Exercices',
+            isSelected: navigationShell.currentIndex == 1,
+          ),
+          _buildBottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.chartLine),
+            label: 'Progress',
+            isSelected: navigationShell.currentIndex == 2,
+          ),
+          _buildBottomNavigationBarItem(
+            icon: FaIcon(FontAwesomeIcons.user),
+            label: 'Compte',
+            isSelected: navigationShell.currentIndex == 3,
+          ),
         ],
         currentIndex: navigationShell.currentIndex,
         onTap: (int index) => _onTap(context, index),
       ),
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem({
+    required FaIcon icon,
+    required String label,
+    required bool isSelected,
+  }) {
+    return BottomNavigationBarItem(
+      icon: Container(
+          decoration: BoxDecoration(
+            color: isSelected
+                ? AppPallete.primaryColor.withOpacity(0.2)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          child: FaIcon(
+            icon.icon,
+            size: 18,
+          )),
+      label: label,
     );
   }
 
@@ -50,89 +87,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
       // already active. This example demonstrates how to support this behavior,
       // using the initialLocation parameter of goBranch.
       initialLocation: index == navigationShell.currentIndex,
-    );
-  }
-}
-
-/// Widget for the root/initial pages in the bottom navigation bar.
-class RootScreen extends StatelessWidget {
-  /// Creates a RootScreen
-  const RootScreen({required this.label, required this.detailsPath, Key? key})
-      : super(key: key);
-
-  /// The label
-  final String label;
-
-  /// The path to the detail page
-  final String detailsPath;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Tab root - $label'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Screen $label',
-                style: Theme.of(context).textTheme.titleLarge),
-            const Padding(padding: EdgeInsets.all(4)),
-            TextButton(
-              onPressed: () => context.go(detailsPath),
-              child: const Text('View details'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The details screen for either the A or B screen.
-class DetailsScreen extends StatefulWidget {
-  /// Constructs a [DetailsScreen].
-  const DetailsScreen({
-    required this.label,
-    Key? key,
-  }) : super(key: key);
-
-  /// The label to display in the center of the screen.
-  final String label;
-
-  @override
-  State<StatefulWidget> createState() => DetailsScreenState();
-}
-
-/// The state for DetailsScreen
-class DetailsScreenState extends State<DetailsScreen> {
-  int _counter = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Details Screen - ${widget.label}'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Details for ${widget.label} - Counter: $_counter',
-                style: Theme.of(context).textTheme.titleLarge),
-            const Padding(padding: EdgeInsets.all(4)),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _counter++;
-                });
-              },
-              child: const Text('Increment counter'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

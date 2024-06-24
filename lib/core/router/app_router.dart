@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/widgets/dialog_page.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/router/app_router_redirect.dart';
 import 'package:pulse/core/router/scaffold_with_nav_bar.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
+import 'package:pulse/features/comments/presentation/pages/comments_page.dart';
+import 'package:pulse/features/exercice_details/presentation/pages/exercice_page.dart';
+import 'package:pulse/features/exercice_details/presentation/pages/modal_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
+import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/progress/presentation/pages/progress_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
@@ -29,57 +34,99 @@ final GoRouter goRouterProvider = GoRouter(
   refreshListenable: serviceLocator<AppRouterListenable>(),
   routes: [
     GoRoute(
-        path: RoutePath.root.path,
-        name: RoutePath.root.name,
-        builder: (context, state) => SplashScreen(),
-        routes: [
-          GoRoute(
-            path: RoutePath.signIn.path,
-            name: RoutePath.signIn.name,
-            builder: (context, state) => LoginPage(),
-          ),
-          StatefulShellRoute.indexedStack(
-              builder: (context, state, navigationShell) =>
-                  ScaffoldWithNavBar(navigationShell: navigationShell),
-              branches: [
-                StatefulShellBranch(
-                  routes: <RouteBase>[
-                    GoRoute(
+      path: RoutePath.root.path,
+      name: RoutePath.root.name,
+      builder: (context, state) => SplashScreen(),
+      routes: [
+        GoRoute(
+          path: RoutePath.signIn.path,
+          name: RoutePath.signIn.name,
+          builder: (context, state) => LoginPage(),
+        ),
+        StatefulShellRoute.indexedStack(
+            builder: (context, state, navigationShell) =>
+                ScaffoldWithNavBar(navigationShell: navigationShell),
+            branches: [
+              StatefulShellBranch(
+                routes: <RouteBase>[
+                  GoRoute(
                       path: RoutePath.home.path,
                       name: RoutePath.home.name,
                       builder: (context, state) => HomePage(),
                       //pageBuilder: (context, state) => NoTransitionPage(child: child),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: RoutePath.exercices.path,
-                      name: RoutePath.exercices.name,
-                      builder: (context, state) => ExercicesPage(),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: RoutePath.progress.path,
-                      name: RoutePath.progress.name,
-                      builder: (context, state) => ProgressPage(),
-                    ),
-                  ],
-                ),
-                StatefulShellBranch(
-                  routes: <RouteBase>[
-                    GoRoute(
-                      path: RoutePath.profil.path,
-                      name: RoutePath.profil.name,
-                      builder: (context, state) => ProfilPage(),
-                    ),
-                  ],
-                ),
-              ]),
-        ]),
+                      routes: [
+                        GoRoute(
+                            path: 'details/:postIndex',
+                            pageBuilder:
+                                (BuildContext context, GoRouterState state) {
+                              final postIndex =
+                                  int.parse(state.pathParameters['postIndex']!);
+                              return DialogPage(
+                                  builder: (_) =>
+                                      PostDetailsPage(postIndex: postIndex));
+                            },
+                            routes: [
+                              GoRoute(
+                                path: 'comments',
+                                builder: (context, state) => CommentsPage(),
+                              ),
+                            ]),
+                        GoRoute(
+                          path: 'modale2',
+                          pageBuilder:
+                              (BuildContext context, GoRouterState state) {
+                            return DialogPage(builder: (_) => ModalePage());
+                          },
+                        ),
+                        GoRoute(
+                          path: 'modale',
+                          pageBuilder: (context, state) => CustomTransitionPage(
+                            child: ModalePage(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                  opacity: animation, child: child);
+                            },
+                          ),
+                        ),
+                      ]),
+                ],
+              ),
+              StatefulShellBranch(
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: RoutePath.exercices.path,
+                    name: RoutePath.exercices.name,
+                    builder: (context, state) => ExercicesPage(),
+                    routes: [
+                      GoRoute(
+                        path: 'details',
+                        builder: (context, state) => ExercicePage(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              StatefulShellBranch(
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: RoutePath.progress.path,
+                    name: RoutePath.progress.name,
+                    builder: (context, state) => ProgressPage(),
+                  ),
+                ],
+              ),
+              StatefulShellBranch(
+                routes: <RouteBase>[
+                  GoRoute(
+                    path: RoutePath.profil.path,
+                    name: RoutePath.profil.name,
+                    builder: (context, state) => ProfilPage(),
+                  ),
+                ],
+              ),
+            ]),
+      ],
+    ),
   ],
 );

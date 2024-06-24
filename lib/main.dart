@@ -4,9 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/router/app_router.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/init_dependencies.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +23,7 @@ void main() async {
         create: (_) => serviceLocator<AuthBloc>(),
       ),
       BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
+      BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
     ],
     child: const MyApp(),
   ));
@@ -49,8 +53,28 @@ class _MyAppState extends State<MyApp> {
       routerConfig: appRouter,
       title: 'Pulse App',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        //colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        brightness: Brightness.dark,
+        colorScheme: ColorScheme.dark(
+          primary: AppPallete.primaryColor,
+          secondary: Colors.greenAccent,
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.black,
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppPallete.primaryColor,
+          ),
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: Colors.grey[800]!,
+          labelStyle: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }

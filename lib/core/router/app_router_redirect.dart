@@ -13,9 +13,6 @@ FutureOr<String?> appRouterRedirect(
       userState is AppUserLoggedOut && state.matchedLocation == '/profil';
   final isLoggedIn = userState is AppUserLoggedIn;
   final isLoggingIn = state.matchedLocation == '/login';
-
-  print("userState: $userState");
-
   if (isLoggingOut) {
     return '/login';
   }
