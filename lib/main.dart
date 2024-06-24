@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:go_router/go_router.dart';
@@ -8,11 +9,76 @@ class ActivityPage extends StatefulWidget {
   _ActivityPageState createState() => _ActivityPageState();
 }
 
-class _ActivityPageState extends State<ActivityPage> {
+class _ActivityPageState extends State<ActivityPage>
+    with WidgetsBindingObserver {
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
   late Timer _timer;
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
   bool _isRunning = false;
   bool _isPaused = false; // Nouveau booléen pour suivre l'état de pause
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _initializeNotifications();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _timeElapsed.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused && _isRunning) {
+      _showPersistentNotification();
+    } else if (state == AppLifecycleState.resumed) {
+      _cancelNotification();
+    }
+  }
+
+  void _initializeNotifications() {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+        InitializationSettings(android: initializationSettingsAndroid);
+
+    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  void _showPersistentNotification() async {
+    const AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your channel id',
+      'your channel name',
+      channelDescription: 'your channel description',
+      importance: Importance.high,
+      priority: Priority.high,
+      ongoing: true,
+      playSound: false,
+    );
+
+    const NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      'Chronomètre en cours',
+      'Le chronomètre est toujours en cours d\'exécution.',
+      platformChannelSpecifics,
+    );
+  }
+
+  void _cancelNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(0);
+  }
 
   void _startStopTimer() {
     setState(() {
@@ -89,13 +155,6 @@ class _ActivityPageState extends State<ActivityPage> {
     final milliseconds =
         twoDigits(duration.inMilliseconds.remainder(1000) ~/ 10);
     return '$minutes:$seconds:$milliseconds';
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    _timeElapsed.dispose();
-    super.dispose();
   }
 
   @override
