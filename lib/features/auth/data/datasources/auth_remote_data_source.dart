@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/auth/domain/models/user_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract interface class AuthRemoteDataSource {
+abstract class AuthRemoteDataSource {
   Session? get currentUserSession;
   Future<UserModel> signUpWithEmailPassword({
     required String name,
@@ -19,6 +21,7 @@ abstract interface class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final SupabaseClient supabaseClient;
+
   AuthRemoteDataSourceImpl(this.supabaseClient);
 
   @override
@@ -31,12 +34,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final response = await supabaseClient.auth.signInWithPassword(
-        password: password,
         email: email,
+        password: password,
       );
-      if (response.user == null) {
-        throw const ServerException('User is null!');
+      if (response.user == null || response.session == null) {
+        throw const ServerException('Login failed: User or session is null.');
       }
+      print("response.session!.accessToken");
+      print(response.session!.accessToken);
+      await _saveToken(response.session!.accessToken);
       return UserModel.fromJson(response.user!.toJson()["user_metadata"]);
     } on AuthException catch (e) {
       throw ServerException(e.message);
@@ -52,17 +58,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      final response = await supabaseClient.auth.signUp(
-        password: password,
-        email: email,
-        data: {
-          'name': name,
-        },
-      );
-      if (response.user == null) {
-        throw const ServerException('User is null!');
+      final response =
+          await supabaseClient.auth.signUp(email: email, password: password);
+      if (response.user == null || response.session == null) {
+        throw const ServerException('Signup failed: User or session is null.');
       }
-      return UserModel.fromJson(response.user!.toJson()["userMetadata"]);
+      await _saveToken(response.session!.accessToken);
+      return UserModel.fromJson(response.user!.toJson()["user_metadata"]);
     } on AuthException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
@@ -70,27 +72,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     }
   }
 
-  @override
-  Future<UserModel?> getCurrentUserData() async {
-    try {
-      if (currentUserSession != null) {
-        final userData = await supabaseClient.from('users').select().eq(
-              'uid',
-              currentUserSession!.user.id,
-            );
-        return UserModel.fromJson(userData.first).copyWith(
-          email: currentUserSession!.user.email,
-        );
-      }
-
-      return null;
-    } catch (e) {
-      throw ServerException(e.toString());
-    }
+  Future<void> _saveToken(String token) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('accessToken', token);
   }
 
   @override
   Future<void> signOut() async {
     await supabaseClient.auth.signOut();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs
+        .remove('accessToken'); // Optionally, clear the token on sign out
+  }
+
+  @override
+  Future<UserModel?> getCurrentUserData() async {
+    try {
+      if (currentUserSession != null) {
+        final userData = await supabaseClient
+            .from('users')
+            .select()
+            .eq(
+              'uid',
+              currentUserSession!.user.id,
+            )
+            .single();
+        return UserModel.fromJson(userData).copyWith(
+          email: currentUserSession!.user.email,
+        );
+      }
+      return null;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 }

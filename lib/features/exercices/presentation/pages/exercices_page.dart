@@ -1,8 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
+import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 
-class ExercicesPage extends StatelessWidget {
+class ExercicesPage extends StatefulWidget {
+  @override
+  _ExercicesPageState createState() => _ExercicesPageState();
+}
+
+class _ExercicesPageState extends State<ExercicesPage> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<ExercicesBloc>().add(ExercicesLoad());
+  }
+
+  Future<void> _refreshExercises() async {
+    context.read<ExercicesBloc>().add(ExercicesLoad());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -14,7 +32,31 @@ class ExercicesPage extends StatelessWidget {
         child: Column(
           children: [
             _buildSearchBar(),
-            Expanded(child: _buildExerciseList(context)),
+            Expanded(
+              child: BlocConsumer<ExercicesBloc, ExercicesState>(
+                listener: (context, state) {
+                  if (state is ExercicesError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.message)),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is ExercicesLoading) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (state is ExercicesLoaded) {
+                    return RefreshIndicator(
+                      onRefresh: _refreshExercises,
+                      child: _buildExerciseList(
+                          context, state.exercisesByCategory),
+                    );
+                  } else if (state is ExercicesEmpty) {
+                    return Center(child: Text('No exercises available'));
+                  }
+                  return Center(child: Text('Start loading exercises...'));
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -33,56 +75,10 @@ class ExercicesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildExerciseList(BuildContext context) {
-    final exercises = {
-      'Recommandés': [
-        {
-          'title': 'Squat touch press',
-          'people': 1,
-          'pods': 4,
-          'image':
-              'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600'
-        },
-        {
-          'title': 'Squat touch press',
-          'people': 2,
-          'pods': 4,
-          'image':
-              'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600'
-        },
-        {
-          'title': 'Squat touch press',
-          'people': 3,
-          'pods': 4,
-          'image':
-              'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600'
-        },
-      ],
-      'Cardio': [
-        {
-          'title': 'Squat touch press',
-          'people': 3,
-          'pods': 4,
-          'image':
-              'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600'
-        },
-        // Ajoutez d'autres exercices ici
-      ],
-      'Musculation': [
-        {
-          'title': 'Squat touch press',
-          'people': 3,
-          'pods': 4,
-          'image':
-              'https://images.pexels.com/photos/841130/pexels-photo-841130.jpeg?auto=compress&cs=tinysrgb&w=600'
-        },
-        // Ajoutez d'autres exercices ici
-      ],
-      // Ajoutez d'autres catégories ici
-    };
-
+  Widget _buildExerciseList(
+      BuildContext context, Map<String, List<Exercice?>> exercisesByCategory) {
     return ListView(
-      children: exercises.entries.map((category) {
+      children: exercisesByCategory.entries.map((category) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -97,12 +93,16 @@ class ExercicesPage extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: category.value.map<Widget>((exercise) {
-                  return ExerciseCard(
-                    exercise: exercise,
-                    onTap: () {
-                      context.push('/exercices/details', extra: exercise);
-                    },
-                  );
+                  if (exercise != null) {
+                    return ExerciseCard(
+                      exercise: exercise,
+                      onTap: () {
+                        context.push('/exercices/details/${exercise.id}',
+                            extra: exercise);
+                      },
+                    );
+                  }
+                  return SizedBox();
                 }).toList(),
               ),
             ),

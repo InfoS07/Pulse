@@ -7,6 +7,7 @@ import 'package:pulse/core/network/connection_checker.dart';
 import 'package:pulse/core/router/app_router.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/secrets/app_secrets.dart';
+import 'package:pulse/core/services/graphql_client.dart';
 import 'package:pulse/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:pulse/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:pulse/features/auth/domain/repository/auth_repository.dart';
@@ -26,5 +27,6 @@ import 'package:pulse/features/profil/domain/usecases/get_profil.dart';
 import 'package:pulse/features/profil/domain/usecases/signout.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 part 'init_dependencies.main.dart';

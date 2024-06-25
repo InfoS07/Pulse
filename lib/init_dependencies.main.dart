@@ -27,6 +27,7 @@ Future<void> initDependencies() async {
   serviceLocator.registerSingleton<GoRouter>(goRouterProvider);
 
   _initProfil();
+  _initExercices();
 }
 
 void _initAuth() {

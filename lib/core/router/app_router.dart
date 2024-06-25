@@ -18,7 +18,7 @@ import 'package:pulse/features/post_details/presentation/pages/post_details_page
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
-import 'package:pulse/features/progress/presentation/pages/progress_page.dart';
+import 'package:pulse/features/group/presentation/pages/group_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
 import 'package:pulse/init_dependencies.dart';
 
@@ -128,8 +128,15 @@ final GoRouter goRouterProvider = GoRouter(
                   builder: (context, state) => ExercicesPage(),
                   routes: [
                     GoRoute(
-                      path: 'details',
-                      builder: (context, state) => ExercicePage(),
+                      path: 'details/:exerciceIndex',
+                      pageBuilder: (BuildContext context, GoRouterState state) {
+                        final exerciceIndex =
+                            int.parse(state.pathParameters['exerciceIndex']!);
+                        return DialogPage(
+                          builder: (_) =>
+                              ExercicePage(exerciceIndex: exerciceIndex),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -140,7 +147,7 @@ final GoRouter goRouterProvider = GoRouter(
                 GoRoute(
                   path: RoutePath.progress.path,
                   name: RoutePath.progress.name,
-                  builder: (context, state) => ProgressPage(),
+                  builder: (context, state) => GroupPage(),
                 ),
               ],
             ),

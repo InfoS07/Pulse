@@ -3,6 +3,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:go_router/go_router.dart';
+import 'dart:io' show Platform;
 
 class ActivityPage extends StatefulWidget {
   @override
@@ -44,40 +45,47 @@ class _ActivityPageState extends State<ActivityPage>
   }
 
   void _initializeNotifications() {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Vérifier si l'application est en cours d'exécution sur un appareil Android
+    if (Platform.isAndroid) {
+      const AndroidInitializationSettings initializationSettingsAndroid =
+          AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+      const InitializationSettings initializationSettings =
+          InitializationSettings(android: initializationSettingsAndroid);
 
-    flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    }
   }
 
   void _showPersistentNotification() async {
-    const AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'your channel id',
-      'your channel name',
-      channelDescription: 'your channel description',
-      importance: Importance.high,
-      priority: Priority.high,
-      ongoing: true,
-      playSound: false,
-    );
+    if (Platform.isAndroid) {
+      const AndroidNotificationDetails androidPlatformChannelSpecifics =
+          AndroidNotificationDetails(
+        'your channel id',
+        'your channel name',
+        channelDescription: 'your channel description',
+        importance: Importance.high,
+        priority: Priority.high,
+        ongoing: true,
+        playSound: false,
+      );
 
-    const NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
+      const NotificationDetails platformChannelSpecifics =
+          NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Chronomètre en cours',
-      'Le chronomètre est toujours en cours d\'exécution.',
-      platformChannelSpecifics,
-    );
+      await flutterLocalNotificationsPlugin.show(
+        0,
+        'Chronomètre en cours',
+        'Le chronomètre est toujours en cours d\'exécution.',
+        platformChannelSpecifics,
+      );
+    }
   }
 
   void _cancelNotification() async {
-    await flutterLocalNotificationsPlugin.cancel(0);
+    if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin.cancel(0);
+    }
   }
 
   void _startStopTimer() {

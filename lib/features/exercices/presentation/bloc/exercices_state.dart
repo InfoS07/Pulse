@@ -8,9 +8,9 @@ final class ExercicesInitial extends ExercicesState {}
 final class ExercicesLoading extends ExercicesState {}
 
 final class ExercicesLoaded extends ExercicesState {
-  final List<Exercice?> exercises;
+  final Map<String, List<Exercice?>> exercisesByCategory;
 
-  ExercicesLoaded(this.exercises);
+  ExercicesLoaded(this.exercisesByCategory);
 }
 
 final class ExercicesError extends ExercicesState {

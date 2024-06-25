@@ -11,14 +11,14 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
   ExercicesRepositoryImpl(this.exercicesDataSource);
 
   @override
-  Future<Either<Failure, List<Exercice?>>> getExercices() async {
+  Future<Either<Failure, Map<String, List<Exercice?>>>> getExercices() async {
     return _getExercices(
       () async => await exercicesDataSource.getExercices(),
     );
   }
 
-  Future<Either<Failure, List<Exercice?>>> _getExercices(
-    Future<List<Exercice?>> Function() fn,
+  Future<Either<Failure, Map<String, List<Exercice?>>>> _getExercices(
+    Future<Map<String, List<Exercice?>>> Function() fn,
   ) async {
     try {
       final exercices = await fn();

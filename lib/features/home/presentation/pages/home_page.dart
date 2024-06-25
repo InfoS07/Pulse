@@ -88,12 +88,12 @@ class _HomePageState extends State<HomePage> {
               child: WeekDaysWidget(),
             ),
           ),
-          SliverToBoxAdapter(
+          /* SliverToBoxAdapter(
             child: Container(
               height: 200,
               child: _buildRecommendedExercises(),
             ),
-          ),
+          ), */
           const SliverToBoxAdapter(
             child: SizedBox(height: 18),
           ),
@@ -161,7 +161,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildRecommendedExercises() {
+  /* Widget _buildRecommendedExercises() {
     final List<Map<String, dynamic>> recommendedExercises = [
       {
         'title': 'Squat touch press',
@@ -202,5 +202,5 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
-  }
+  } */
 }

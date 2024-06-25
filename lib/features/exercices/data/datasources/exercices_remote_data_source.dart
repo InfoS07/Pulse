@@ -1,26 +1,59 @@
-import 'package:pulse/core/error/exceptions.dart';
+import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
-abstract interface class ExercicesRemoteDataSource {
-  Future<List<ExercicesModel?>> getExercices();
+abstract class ExercicesRemoteDataSource {
+  Future<Map<String, List<ExercicesModel?>>> getExercices();
 }
 
 class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
-  final SupabaseClient supabaseClient;
+  final GraphQLClient graphqlClient;
 
-  ExercicesRemoteDataSourceImpl(this.supabaseClient);
+  ExercicesRemoteDataSourceImpl(this.graphqlClient);
 
   @override
-  Future<List<ExercicesModel?>> getExercices() async {
+  Future<Map<String, List<ExercicesModel?>>> getExercices() async {
     try {
-      final response = await supabaseClient.from('exercices').select('*');
-      final list = [ExercicesModel.fromJson(response.first)];
-      return list;
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
+      const String query = '''
+        query GetExercices {
+          exercises {
+            id
+            title
+            media {
+              url_photo
+            }
+          }
+        }
+      ''';
+
+      final result = await graphqlClient.query(
+        QueryOptions(
+          document: gql(query),
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      );
+      print("result");
+      print(result);
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
+      }
+
+      final data = result.data?['exercises'] as List;
+      return data.fold<Map<String, List<ExercicesModel?>>>(
+        {},
+        (previousValue, element) {
+          final exercice = ExercicesModel.fromJson(element);
+          final key = exercice.id;
+          if (previousValue.containsKey(key)) {
+            previousValue[key]!.add(exercice);
+          } else {
+            previousValue[key] = [exercice];
+          }
+          return previousValue;
+        },
+      );
     } catch (e) {
-      throw ServerException(e.toString());
+      throw pulse_exceptions.ServerException(e.toString());
     }
   }
 }
