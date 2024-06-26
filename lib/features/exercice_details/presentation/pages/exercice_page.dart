@@ -36,7 +36,6 @@ class _ExercicePageState extends State<ExercicePage> {
                         height: MediaQuery.of(context).size.height * 0.5,
                         viewportFraction: 1.0,
                         enlargeCenterPage: false,
-                        autoPlay: true,
                         onPageChanged: (index, reason) {
                           setState(() {
                             _currentIndex = index;
@@ -56,8 +55,8 @@ class _ExercicePageState extends State<ExercicePage> {
                       }).toList(),
                     ),
                     Positioned(
-                      top: 40.0,
-                      left: 16.0,
+                      top: 25.0,
+                      left: 15.0,
                       child: IconButton(
                         icon: Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () {
@@ -80,7 +79,7 @@ class _ExercicePageState extends State<ExercicePage> {
                         shape: BoxShape.circle,
                         color: _currentIndex == index
                             ? Color.fromRGBO(66, 162, 31, 0.966)
-                            : Color.fromRGBO(255, 0, 0, 0.917),
+                            : Color.fromRGBO(8, 68, 235, 0.914),
                       ),
                     );
                   }).toList(),

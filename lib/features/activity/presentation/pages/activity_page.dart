@@ -18,7 +18,7 @@ class _ActivityPageState extends State<ActivityPage>
   late Timer _timer;
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
   bool _isRunning = false;
-  bool _isPaused = false; // Nouveau booléen pour suivre l'état de pause
+  bool _isPaused = false;
 
   @override
   void initState() {
