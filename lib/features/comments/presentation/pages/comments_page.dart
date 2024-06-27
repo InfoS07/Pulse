@@ -2,29 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:pulse/core/common/entities/comment.dart';
 
 class CommentsPage extends StatelessWidget {
-  final List<Comment> comments = [
-    Comment(
-      profileImageUrl:
-          'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
-      username: 'T-O',
-      timestamp: '12/01/2024 - 12:46',
-      content: 'Trop performant le rafiq par contre. Sextianal ce soir ?',
-    ),
-    Comment(
-      profileImageUrl:
-          'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPUXd-DRSv6xXUqE-_RaTJXf04IPJ4DYqK2EtjeRPvXHq4OCneqIblL4wKL1k_UX8D4l8&usqp=CAU',
-      username: 'Bank gank',
-      timestamp: '13/01/2024 - 08:05',
-      content: 'Belle perf, mais petite bite :(',
-    ),
-    Comment(
-      profileImageUrl:
-          'https://i1.rgstatic.net/ii/profile.image/272583522254865-1442000384453_Q512/Thierry-Joubert.jpg',
-      username: 'Unsacrépaquet',
-      timestamp: '14/01/2024 - 19:52',
-      content: 'Mouais, je fais mieux a ma femme',
-    ),
-  ];
+  final List<Comment> comments;
+
+  CommentsPage({required this.comments});
 
   @override
   Widget build(BuildContext context) {

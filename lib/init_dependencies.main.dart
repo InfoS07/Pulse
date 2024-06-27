@@ -26,8 +26,10 @@ Future<void> initDependencies() async {
 
   serviceLocator.registerSingleton<GoRouter>(goRouterProvider);
 
+  _initHome();
   _initProfil();
   _initExercices();
+  _initActivity();
 }
 
 void _initAuth() {
@@ -73,6 +75,32 @@ void _initAuth() {
         currentUser: serviceLocator(),
         signOut: serviceLocator(),
         appUserCubit: serviceLocator(),
+      ),
+    );
+}
+
+void _initHome() {
+  serviceLocator
+    ..registerFactory<PostsRemoteDataSource>(
+      () => PostsRemoteDataSourceImpl(),
+    )
+    // Repository
+    ..registerFactory<PostsRepository>(
+      () => PostsRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => GetPostsUC(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => HomeBloc(
+        getPosts: serviceLocator(),
+        //getPosts: serviceLocator(),
       ),
     );
 }
@@ -127,6 +155,43 @@ void _initExercices() {
     ..registerLazySingleton(
       () => ExercicesBloc(
         getExercices: serviceLocator(),
+      ),
+    );
+}
+
+void _initActivity() {
+  serviceLocator
+    ..registerFactory<ActivityLocalDataSource>(
+      () => ActivityLocalDataSourceImpl(),
+    )
+    ..registerFactory<ActivityRemoteDataSource>(
+      () => ActivityRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<ActivityRepository>(
+      () => ActivityRepositoryImpl(
+        serviceLocator(),
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => CreateActivityUC(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => SaveActivityUC(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => ActivityBloc(
+        saveActivity: serviceLocator(),
+        //createActivityUC: serviceLocator(),
       ),
     );
 }

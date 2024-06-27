@@ -1,4 +1,5 @@
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/user.dart';
 
 class ExercicesModel extends Exercice {
   ExercicesModel({
@@ -7,6 +8,16 @@ class ExercicesModel extends Exercice {
     required super.urlPhoto,
     required super.description,
     required super.duration,
+    required super.sequence,
+    required super.repetitions,
+    required super.podCount,
+    required super.playerCount,
+    required super.durationOneRepetition,
+    required super.caloriesBurned,
+    required super.author,
+    required super.score,
+    required super.level,
+    required super.laps,
   });
 
   factory ExercicesModel.fromJson(Map<String, dynamic> map) {
@@ -18,6 +29,16 @@ class ExercicesModel extends Exercice {
           : 'https://images.pexels.com/photos/28080/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
       description: map['description'] ?? '',
       duration: map['duration'] ?? 0,
+      sequence: map['sequence'] ?? [],
+      repetitions: map['repetitions'] ?? 0,
+      podCount: map['pod_count'] ?? 0,
+      playerCount: map['player_count'] ?? 0,
+      durationOneRepetition: map['duration_one_repetition'] ?? 0,
+      caloriesBurned: map['calories_burned'] ?? 0,
+      author: map['author'] ?? User.empty(),
+      score: map['score'] ?? 0.0,
+      level: map['level'] ?? '',
+      laps: map['laps'] ?? 0,
     );
   }
 
@@ -34,6 +55,16 @@ class ExercicesModel extends Exercice {
       urlPhoto: urlPhoto ?? this.urlPhoto,
       description: description ?? this.description,
       duration: duration ?? this.duration,
+      sequence: sequence,
+      repetitions: repetitions,
+      podCount: podCount,
+      playerCount: playerCount,
+      durationOneRepetition: durationOneRepetition,
+      caloriesBurned: caloriesBurned,
+      author: author,
+      score: score,
+      level: level,
+      laps: laps,
     );
   }
 }

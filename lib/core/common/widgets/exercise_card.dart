@@ -42,7 +42,7 @@ class ExerciseCard extends StatelessWidget {
                           TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      '2 Personnes - 3 Pods',
+                      '${exercise.podCount} Pods',
                       style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                     ),
                   ],

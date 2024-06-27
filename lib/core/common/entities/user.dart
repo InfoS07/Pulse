@@ -20,4 +20,18 @@ class User {
     required this.heightCm,
     required this.weightKg,
   });
+
+  static User empty() {
+    return User(
+      id: 0,
+      uid: '',
+      email: '',
+      lastName: 'Joubert',
+      firstName: 'Thierry',
+      username: 'Joujou',
+      birthDate: DateTime.now(),
+      heightCm: 160,
+      weightKg: 70,
+    );
+  }
 }

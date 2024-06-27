@@ -3,7 +3,7 @@ import 'package:pulse/core/common/entities/activity.dart';
 class ActivityModel extends Activity {
   ActivityModel({
     required super.id,
-    required super.exerciseId,
+    required super.exercise,
     required super.laps,
     required super.caloriesBurned,
     required super.status,
@@ -17,12 +17,13 @@ class ActivityModel extends Activity {
     required super.maxSpeed,
     required super.durationLaps,
     required super.pauseBetweenLaps,
+    required super.timer,
   });
 
   factory ActivityModel.fromJson(Map<String, dynamic> json) {
     return ActivityModel(
       id: json['id'],
-      exerciseId: json['exercise_id'],
+      exercise: json['exercise_id'],
       laps: json['laps'],
       caloriesBurned: json['calories_burned'],
       status: json['status'],
@@ -40,13 +41,14 @@ class ActivityModel extends Activity {
       pauseBetweenLaps: json['pause_between_laps'] != null
           ? (json['pause_between_laps'] as List).map((e) => e as int).toList()
           : [],
+      timer: Duration.zero,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'exercise_id': exerciseId,
+      'exercise_id': exercise.toString(),
       'laps': laps,
       'calories_burned': caloriesBurned,
       'status': status,
@@ -60,6 +62,7 @@ class ActivityModel extends Activity {
       'max_speed': maxSpeed,
       'duration_laps': durationLaps,
       'pause_between_laps': pauseBetweenLaps,
+      'timer': '00:00:00',
     };
   }
 }

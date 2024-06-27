@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:go_router/go_router.dart';
 import 'dart:io' show Platform;
 
+import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
+import 'package:pulse/core/common/entities/exercice.dart';
+
 class ActivityPage extends StatefulWidget {
+  final Exercice exercise;
+
+  const ActivityPage(this.exercise);
+
   @override
   _ActivityPageState createState() => _ActivityPageState();
 }
@@ -25,6 +34,7 @@ class _ActivityPageState extends State<ActivityPage>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeNotifications();
+    BlocProvider.of<ActivityBloc>(context).add(StartActivity(widget.exercise));
   }
 
   @override
@@ -45,7 +55,6 @@ class _ActivityPageState extends State<ActivityPage>
   }
 
   void _initializeNotifications() {
-    // Vérifier si l'application est en cours d'exécution sur un appareil Android
     if (Platform.isAndroid) {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -88,34 +97,40 @@ class _ActivityPageState extends State<ActivityPage>
     }
   }
 
-  void _startStopTimer() {
+  void _startStopTimer(BuildContext context) {
     setState(() {
       _isRunning = !_isRunning;
     });
 
     if (_isRunning) {
       setState(() {
-        _isPaused = false; // Réinitialiser l'état de pause
+        _isPaused = false;
       });
       _timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
         _timeElapsed.value = _timeElapsed.value + Duration(milliseconds: 10);
+        BlocProvider.of<ActivityBloc>(context).add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: 23, // Exemple de valeur
+          misses: 4, // Exemple de valeur
+          caloriesBurned: 200, // Exemple de valeur
+        ));
       });
     } else {
       setState(() {
-        _isPaused = true; // Mettre à jour l'état de pause
+        _isPaused = true;
       });
       _timer.cancel();
-      _showPauseModal();
+      _showPauseModal(context);
     }
   }
 
-  void _showPauseModal() {
+  void _showPauseModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 62),
           color: Colors.black,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -123,25 +138,30 @@ class _ActivityPageState extends State<ActivityPage>
               ElevatedButton(
                 onPressed: () {
                   _closePauseModal();
-                  _startStopTimer(); // Reprendre
+                  _startStopTimer(context); // Reprendre
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  side: BorderSide(color: Colors.white),
+                  side: BorderSide(color: AppPallete.primaryColor),
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text('Reprendre', style: TextStyle(fontSize: 18)),
+                child: Text('Reprendre',
+                    style: TextStyle(
+                        fontSize: 18, color: AppPallete.primaryColor)),
               ),
               ElevatedButton(
                 onPressed: () {
-                  _timer.cancel();
+                  BlocProvider.of<ActivityBloc>(context).add(StopActivity(
+                    _timeElapsed.value,
+                  ));
                   context.push('/activity/save');
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.greenAccent,
+                  backgroundColor: AppPallete.primaryColor,
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text('Terminer', style: TextStyle(fontSize: 18)),
+                child: Text('Terminer',
+                    style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
             ],
           ),
@@ -183,123 +203,136 @@ class _ActivityPageState extends State<ActivityPage>
           },
         ),
       ),
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: BlocBuilder<ActivityBloc, ActivityState>(
+        builder: (context, state) {
+          return Stack(
             children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '0',
-                          style: TextStyle(color: Colors.white, fontSize: 24),
-                        ),
-                        Text(
-                          'Calories brûlées',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        SizedBox(height: 32),
-                        ValueListenableBuilder<Duration>(
-                          valueListenable: _timeElapsed,
-                          builder: (context, value, child) {
-                            return Text(
-                              _formatTime(value),
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 48,
-                                  fontWeight: FontWeight.bold),
-                            );
-                          },
-                        ),
-                        Text(
-                          'Tour 1/4',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                        SizedBox(height: 32),
-                        GestureDetector(
-                          onTap: _startStopTimer,
-                          child: CircleAvatar(
-                            radius: 32,
-                            backgroundColor: Colors.greenAccent,
-                            child: Icon(
-                              _isRunning ? Icons.pause : Icons.play_arrow,
-                              color: Colors.black,
-                              size: 32,
+                        Column(
+                          children: [
+                            Text(
+                              '${state.activity.caloriesBurned}',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 24),
                             ),
-                          ),
+                            Text(
+                              'Calories brûlées',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            SizedBox(height: 32),
+                            ValueListenableBuilder<Duration>(
+                              valueListenable: _timeElapsed,
+                              builder: (context, value, child) {
+                                return Text(
+                                  _formatTime(value),
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 48,
+                                      fontWeight: FontWeight.bold),
+                                );
+                              },
+                            ),
+                            Text(
+                              'Tour 1/4',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            SizedBox(height: 32),
+                            GestureDetector(
+                              onTap: () => _startStopTimer(context),
+                              child: CircleAvatar(
+                                radius: 32,
+                                backgroundColor: AppPallete.primaryColor,
+                                child: Icon(
+                                  _isRunning ? Icons.pause : Icons.play_arrow,
+                                  color: Colors.black,
+                                  size: 32,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              Container(
-                height: MediaQuery.of(context).size.height *
-                    0.4, // Définit une hauteur fixe pour le tiroir
-                child: DraggableScrollableSheet(
-                  initialChildSize: 1.0,
-                  minChildSize: 0.2,
-                  maxChildSize: 1.0,
-                  builder: (BuildContext context,
-                      ScrollController scrollController) {
-                    return Container(
-                      color: Colors.black,
-                      padding: EdgeInsets.all(16.0),
-                      child: ListView(
-                        controller: scrollController,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height *
+                        0.4, // Définit une hauteur fixe pour le tiroir
+                    child: DraggableScrollableSheet(
+                      initialChildSize: 1.0,
+                      minChildSize: 0.2,
+                      maxChildSize: 1.0,
+                      builder: (BuildContext context,
+                          ScrollController scrollController) {
+                        return Container(
+                          color: Colors.black,
+                          padding: EdgeInsets.all(16.0),
+                          child: ListView(
+                            controller: scrollController,
                             children: [
-                              Text(
-                                'Voir exercices',
-                                style: TextStyle(
-                                    color: Colors.greenAccent, fontSize: 16),
-                              ),
-                              Row(
+                              const Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CircleAvatar(
-                                      radius: 6,
-                                      backgroundColor: Colors.greenAccent),
-                                  SizedBox(width: 4),
-                                  CircleAvatar(
-                                      radius: 6, backgroundColor: Colors.grey),
-                                  SizedBox(width: 4),
-                                  CircleAvatar(
-                                      radius: 6, backgroundColor: Colors.grey),
+                                  Text(
+                                    'Voir exercices',
+                                    style: TextStyle(
+                                        color: AppPallete.primaryColor,
+                                        fontSize: 16),
+                                  ),
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                          radius: 6,
+                                          backgroundColor: Colors.greenAccent),
+                                      SizedBox(width: 4),
+                                      CircleAvatar(
+                                          radius: 6,
+                                          backgroundColor: Colors.grey),
+                                      SizedBox(width: 4),
+                                      CircleAvatar(
+                                          radius: 6,
+                                          backgroundColor: Colors.grey),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildInfoCard('4', 'touches ratés'),
+                                  _buildInfoCard('23', 'Touches',
+                                      highlight: true),
+                                  _buildInfoCard('200', 'temps reac'),
                                 ],
                               ),
                             ],
                           ),
-                          SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildInfoCard('4', 'touches ratés'),
-                              _buildInfoCard('23', 'Touches', highlight: true),
-                              _buildInfoCard('200', 'temps reac'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              if (_isPaused) // Appliquer le flou seulement si le chronomètre est en pause
+                BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.1),
+                  ),
                 ),
-              ),
             ],
-          ),
-          if (_isPaused) // Appliquer le flou seulement si le chronomètre est en pause
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              child: Container(
-                color: Colors.black.withOpacity(0.1),
-              ),
-            ),
-        ],
+          );
+        },
       ),
     );
   }

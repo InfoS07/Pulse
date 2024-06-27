@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pulse/core/common/entities/exercice.dart';
 
 class ExercicePage extends StatefulWidget {
-  final int exerciceIndex;
+  final Exercice exercice;
 
-  ExercicePage({required this.exerciceIndex});
+  ExercicePage({required this.exercice});
 
   @override
   _ExercicePageState createState() => _ExercicePageState();
@@ -46,7 +47,7 @@ class _ExercicePageState extends State<ExercicePage> {
                         return Builder(
                           builder: (BuildContext context) {
                             return Image.network(
-                              url,
+                              widget.exercice.urlPhoto,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             );
@@ -93,7 +94,7 @@ class _ExercicePageState extends State<ExercicePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Pompes bien en bas',
+                            widget.exercice.title,
                             style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -133,7 +134,7 @@ class _ExercicePageState extends State<ExercicePage> {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Réaliser une série de pompes le plus rapidement possible. Il faudra enchaîner 10 répétitions\n\nEnsuite prendre une minute de repos puis recommencer\n\nRéaliser une série de pompes le plus rapidement possible. Il faudra enchaîner 10 répétitions\n\nEnsuite prendre une minute de repos puis recommencer\n\nRéaliser une série de pompes le plus rapidement possible. Il faudra enchaîner 10 répétitions\n\nEnsuite prendre une minute de repos puis recommencer',
+                        widget.exercice.description,
                         style: TextStyle(fontSize: 16, color: Colors.white),
                       ),
                       SizedBox(height: 16),
@@ -148,23 +149,25 @@ class _ExercicePageState extends State<ExercicePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildInfoCard('120', 'Calories brûlées'),
-                          _buildInfoCard('120', 'Durée (min)'),
+                          _buildInfoCard('${widget.exercice.caloriesBurned}',
+                              'Calories brûlées'),
+                          _buildInfoCard(
+                              '${widget.exercice.duration}', 'Durée (min)'),
                         ],
                       ),
                       SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          _buildInfoCard('1', 'Personne'),
-                          _buildInfoCard('4', 'Pods'),
+                          _buildInfoCard('${widget.exercice.laps}', 'Tour'),
+                          _buildInfoCard('${widget.exercice.podCount}', 'Pods'),
                         ],
                       ),
                       SizedBox(height: 16),
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
-                            context.push('/activity');
+                            context.push('/activity', extra: widget.exercice);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.greenAccent,

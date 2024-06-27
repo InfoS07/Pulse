@@ -1,0 +1,19 @@
+part of 'home_bloc.dart';
+
+abstract class HomeEvent extends Equatable {
+  const HomeEvent();
+
+  @override
+  List<Object> get props => [];
+}
+
+class LoadPosts extends HomeEvent {}
+
+class FilterPosts extends HomeEvent {
+  final String filter;
+
+  const FilterPosts(this.filter);
+
+  @override
+  List<Object> get props => [filter];
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 
 class SocialMediaPost {
@@ -10,7 +11,7 @@ class SocialMediaPost {
   final String content;
   final String postImageUrl;
   final int likes;
-  final int comments;
+  final List<Comment> comments;
 
   SocialMediaPost({
     required this.profileImageUrl,
@@ -125,7 +126,8 @@ class SocialMediaPostWidget extends StatelessWidget {
                 SizedBox(width: 18),
                 GestureDetector(
                   onTap: () {
-                    context.push('/home/details/0/comments');
+                    context.push('/home/details/1/comments',
+                        extra: post.comments);
                   },
                   child: Container(
                     child: Row(
@@ -133,7 +135,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                         Icon(Icons.comment, color: Colors.white),
                         SizedBox(width: 4),
                         Text(
-                          '${post.comments}',
+                          '${post.comments.length}',
                           style: TextStyle(color: Colors.white),
                         ),
                       ],

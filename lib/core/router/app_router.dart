@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/entities/comment.dart';
+import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/dialog_page.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/router/app_router_redirect.dart';
@@ -13,6 +15,7 @@ import 'package:pulse/features/exercice_details/presentation/pages/exercice_page
 import 'package:pulse/features/exercice_details/presentation/pages/modal_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
+import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/likes/presentation/pages/likes_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
@@ -71,7 +74,7 @@ final GoRouter goRouterProvider = GoRouter(
           pageBuilder: (context, state) => MaterialPage(
             key: ValueKey('ActivityPage'),
             fullscreenDialog: true,
-            child: ActivityPage(),
+            child: ActivityPage(state.extra as Exercice),
           ),
           routes: [
             GoRoute(
@@ -99,17 +102,16 @@ final GoRouter goRouterProvider = GoRouter(
                     GoRoute(
                       path: 'details/:postIndex',
                       pageBuilder: (BuildContext context, GoRouterState state) {
-                        final postIndex =
-                            int.parse(state.pathParameters['postIndex']!);
+                        final post = state.extra as SocialMediaPost;
                         return DialogPage(
-                          builder: (_) => PostDetailsPage(postIndex: postIndex),
+                          builder: (_) => PostDetailsPage(post: post),
                         );
                       },
                       routes: [
                         GoRoute(
-                          path: 'comments',
-                          builder: (context, state) => CommentsPage(),
-                        ),
+                            path: 'comments',
+                            builder: (context, state) => CommentsPage(
+                                comments: state.extra as List<Comment>)),
                         GoRoute(
                           path: 'likes',
                           builder: (context, state) => LikesPage(),
@@ -130,11 +132,11 @@ final GoRouter goRouterProvider = GoRouter(
                     GoRoute(
                       path: 'details/:exerciceIndex',
                       pageBuilder: (BuildContext context, GoRouterState state) {
-                        final exerciceIndex =
-                            int.parse(state.pathParameters['exerciceIndex']!);
+                        /* final exerciceIndex =
+                            int.parse(state.pathParameters['exerciceIndex']!); */
+                        final exercice = state.extra as Exercice;
                         return DialogPage(
-                          builder: (_) =>
-                              ExercicePage(exerciceIndex: exerciceIndex),
+                          builder: (_) => ExercicePage(exercice: exercice),
                         );
                       },
                     ),
