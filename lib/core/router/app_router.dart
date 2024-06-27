@@ -28,6 +28,7 @@ import 'package:pulse/init_dependencies.dart';
 enum RoutePath {
   root(path: '/'),
   signIn(path: 'login'),
+  signUp(path: 'signup'),
   home(path: 'home'),
   exercices(path: 'exercices'),
   progress(path: 'progress'),
@@ -55,6 +56,11 @@ final GoRouter goRouterProvider = GoRouter(
           path: RoutePath.signIn.path,
           name: RoutePath.signIn.name,
           builder: (context, state) => LoginPage(),
+        ),
+        GoRoute(
+          path: RoutePath.signUp.path,
+          name: RoutePath.signUp.name,
+          builder: (context, state) => SignUpPage(),
         ),
         GoRoute(
           path: RoutePath.otherProfil.path,

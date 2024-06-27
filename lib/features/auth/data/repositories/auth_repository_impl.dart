@@ -65,15 +65,19 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> signUpWithEmailPassword({
-    required String name,
+    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
     required String password,
   }) async {
     return _getUser(
       () async => await remoteDataSource.signUpWithEmailPassword(
-        name: name,
+        username: username,
         email: email,
         password: password,
+        firstName: firstName,
+        lastName: lastName
       ),
     );
   }
