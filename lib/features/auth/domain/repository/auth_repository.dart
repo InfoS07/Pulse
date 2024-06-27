@@ -4,7 +4,9 @@ import 'package:pulse/core/error/failures.dart';
 
 abstract interface class AuthRepository {
   Future<Either<Failure, User>> signUpWithEmailPassword({
-    required String name,
+    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
     required String password,
   });

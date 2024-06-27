@@ -7,7 +7,9 @@ import 'package:pulse/features/auth/domain/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Session? get currentUserSession;
   Future<UserModel> signUpWithEmailPassword({
-    required String name,
+    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
     required String password,
   });
@@ -53,13 +55,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> signUpWithEmailPassword({
-    required String name,
+    required String username,
+    required String firstName,
+    required String lastName,
     required String email,
     required String password,
   }) async {
     try {
+      final data = <String,dynamic>{
+        "username" : username,
+        "last_name" : lastName,
+        "first_name" : firstName,
+        "birth_date" : "2000-01-01",
+        "height_cm" : 1,
+        "weight_kg" : 1,
+        "target_weight" : 1,
+      };
       final response =
-          await supabaseClient.auth.signUp(email: email, password: password);
+          await supabaseClient.auth.signUp(email: email, password: password,data: data);
       if (response.user == null || response.session == null) {
         throw const ServerException('Signup failed: User or session is null.');
       }
