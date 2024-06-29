@@ -48,6 +48,10 @@ dependencies:
   shared_preferences: ^2.2.3
   carousel_slider: ^4.2.1
   equatable: ^2.0.5
+  cached_network_image: ^3.3.1
+  flutter_blue_plus: ^1.32.8
+  permission_handler: ^11.3.1
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

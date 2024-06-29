@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 
 class ExerciseCard extends StatelessWidget {
@@ -13,7 +14,7 @@ class ExerciseCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 200,
+        width: 150,
         margin: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment:
@@ -21,11 +22,23 @@ class ExerciseCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
-              child: Image.network(
-                exercise.urlPhoto,
-                height: 120,
+              child: CachedNetworkImage(
+                imageUrl: exercise.urlPhoto,
+                height: 100,
                 width: double.infinity, // Make the image take full width
                 fit: BoxFit.cover,
+                placeholder: (context, url) => Container(
+                  color: Colors.grey[200], // Placeholder color
+                  height: 100,
+                  width: double.infinity,
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  color: Colors.grey, // Error color
+                  height: 100,
+                  width: double.infinity,
+                  child: Center(child: Icon(Icons.error, color: Colors.white)),
+                ),
               ),
             ),
             SizedBox(height: 8),
@@ -47,7 +60,7 @@ class ExerciseCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                FaIcon(
+                const FaIcon(
                   FontAwesomeIcons.fire,
                   color: Colors.orange,
                 ),

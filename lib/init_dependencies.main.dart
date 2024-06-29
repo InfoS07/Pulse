@@ -151,10 +151,16 @@ void _initExercices() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => SearchExercices(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => ExercicesBloc(
         getExercices: serviceLocator(),
+        searchExercices: serviceLocator(),
       ),
     );
 }

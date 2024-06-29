@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 
@@ -12,6 +15,8 @@ class SaveActivityPage extends StatefulWidget {
 
 class _SaveActivityPageState extends State<SaveActivityPage> {
   final TextEditingController _descriptionController = TextEditingController();
+  final List<XFile> _photos = [];
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void dispose() {
@@ -19,12 +24,68 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     super.dispose();
   }
 
+  Future<void> _pickPhotos() async {
+    if (Platform.isAndroid) {
+      var status = await Permission.storage.status;
+      if (!status.isGranted) {
+        status = await Permission.storage.request();
+        if (!status.isGranted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Permission d'accès à la galerie refusée")));
+          return;
+        }
+      }
+
+      if (await Permission.manageExternalStorage.isDenied) {
+        var manageExternalStorageStatus =
+            await Permission.manageExternalStorage.request();
+        if (!manageExternalStorageStatus.isGranted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Permission d'accès à la galerie refusée")));
+          return;
+        }
+      }
+    } else if (Platform.isIOS) {
+      var status = await Permission.photos.status;
+      if (!status.isGranted) {
+        status = await Permission.photos.request();
+        if (!status.isGranted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Permission d'accès à la galerie refusée")));
+          return;
+        }
+      }
+    }
+
+    try {
+      final List<XFile>? selectedPhotos = await _picker.pickMultiImage();
+      if (selectedPhotos != null) {
+        setState(() {
+          for (var photo in selectedPhotos) {
+            if (!_photos
+                .any((existingPhoto) => existingPhoto.path == photo.path)) {
+              _photos.add(photo);
+            }
+          }
+        });
+      }
+    } catch (e) {
+      print('Erreur lors de la sélection des photos: $e');
+    }
+  }
+
+  void _removePhoto(XFile photo) {
+    setState(() {
+      _photos.remove(photo);
+    });
+  }
+
   void _handleSave(BuildContext context) {
     if (_descriptionController.text.isNotEmpty) {
       BlocProvider.of<ActivityBloc>(context).add(
         SaveActivity(
           description: _descriptionController.text,
-          photoUrls: [],
+          photoUrls: _photos.map((photo) => photo.path).toList(),
         ),
       );
       context.go('/home');
@@ -125,9 +186,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                     ),
                     SizedBox(height: 8),
                     GestureDetector(
-                      onTap: () {
-                        // Action pour sélectionner des photos
-                      },
+                      onTap: _pickPhotos,
                       child: Container(
                         height: 150,
                         decoration: BoxDecoration(
@@ -142,6 +201,43 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 16),
+                    _photos.isNotEmpty
+                        ? Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: _photos.map((photo) {
+                              return Stack(
+                                children: [
+                                  Image.file(
+                                    File(photo.path),
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned(
+                                    right: 0,
+                                    top: 0,
+                                    child: GestureDetector(
+                                      onTap: () => _removePhoto(photo),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.black,
+                                          size: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          )
+                        : Container(),
                     SizedBox(height: 16),
                     Center(
                       child: ElevatedButton(

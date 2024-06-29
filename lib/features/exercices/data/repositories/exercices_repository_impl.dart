@@ -13,7 +13,7 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
   @override
   Future<Either<Failure, Map<String, List<Exercice?>>>> getExercices() async {
     return _getExercices(
-      () async => await exercicesDataSource.getExercices(),
+      () async => await exercicesDataSource.getExercicesExample(),
     );
   }
 
@@ -27,5 +27,14 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
     } on ServerException catch (e) {
       return Left(Failure(e.message));
     }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, List<Exercice?>>>> searchExercices(
+      String searchTerm, String? category) async {
+    return _getExercices(
+      () async =>
+          await exercicesDataSource.searchExercices(searchTerm, category),
+    );
   }
 }

@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class Like {
   final String profileImageUrl;
@@ -70,9 +72,30 @@ class LikesPage extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    backgroundImage: NetworkImage(like.profileImageUrl),
-                    radius: 30,
+                  GestureDetector(
+                    onTap: () {
+                      context.push('/otherProfil');
+                    },
+                    child: CircleAvatar(
+                      radius: 20,
+                      child: CachedNetworkImage(
+                        imageUrl: like.profileImageUrl,
+                        imageBuilder: (context, imageProvider) => Container(
+                          width: 40.0,
+                          height: 40.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        placeholder: (context, url) =>
+                            CircularProgressIndicator(),
+                        errorWidget: (context, url, error) => Icon(Icons.error),
+                      ),
+                    ),
                   ),
                   SizedBox(width: 16),
                   Expanded(

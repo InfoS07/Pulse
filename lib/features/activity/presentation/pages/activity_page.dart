@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:go_router/go_router.dart';
 import 'dart:io' show Platform;
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
@@ -24,44 +27,172 @@ class _ActivityPageState extends State<ActivityPage>
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  late Timer _timer;
+  Timer _timer = Timer(Duration.zero, () {});
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
+  final ValueNotifier<Duration> _reactionTime = ValueNotifier(Duration.zero);
+
+  late ActivityBloc _activityBloc;
+
   bool _isRunning = false;
   bool _isPaused = false;
+  BluetoothDevice? connectedDevice;
+  BluetoothCharacteristic? notifyCharacteristic;
+  int messageCount = 0;
+  bool isScanning = false;
+  DateTime? lastNotificationTime;
+  String connectionStatus = 'Déconnecté';
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeNotifications();
-    BlocProvider.of<ActivityBloc>(context).add(StartActivity(widget.exercise));
+    _activityBloc = BlocProvider.of<ActivityBloc>(context);
+    _activityBloc.add(StartActivity(widget.exercise));
+    checkBluetoothPermissionsAndState();
+  }
+
+  Future<void> checkBluetoothPermissionsAndState() async {
+    try {
+      PermissionStatus bluetoothScanPermission =
+          await Permission.bluetoothScan.request();
+      PermissionStatus bluetoothConnectPermission =
+          await Permission.bluetoothConnect.request();
+
+      if (bluetoothScanPermission.isGranted &&
+          bluetoothConnectPermission.isGranted) {
+        bool isOn = await FlutterBluePlus.isOn;
+        if (isOn) {
+          reconnectIfNecessary();
+        } else {
+          print('Bluetooth is off. Requesting to turn it on...');
+          // Code to request user to turn on Bluetooth
+        }
+      } else {
+        print('Bluetooth permissions not granted.');
+        // Handle permission not granted
+      }
+    } catch (e) {
+      print('Error checking Bluetooth permissions and state: $e');
+    }
+  }
+
+  Future<void> reconnectIfNecessary() async {
+    try {
+      FlutterBluePlus.connectedDevices.forEach((device) {
+        print('reconnectIfNecessary...');
+        print(device.platformName);
+        if (device.platformName == 'Pulse') {
+          print('Reconnecting to device...');
+          connectToDevice(device);
+          return;
+        }
+      });
+      startScan();
+    } catch (e) {
+      print('Error reconnecting to Bluetooth device: $e');
+    }
+  }
+
+  void startScan() {
+    print('startScan...');
+    print(!isScanning);
+    if (!isScanning) {
+      setState(() {
+        isScanning = true;
+      });
+      FlutterBluePlus.startScan();
+      FlutterBluePlus.scanResults.listen((results) {
+        print('FlutterBluePlus...');
+        for (ScanResult r in results) {
+          print('Device found: ${r.device.platformName}');
+          if (r.device.platformName == 'Pulse') {
+            FlutterBluePlus.stopScan();
+            connectToDevice(r.device);
+            break;
+          }
+        }
+      });
+    }
+    setState(() {
+      isScanning = false;
+    });
+  }
+
+  void connectToDevice(BluetoothDevice device) async {
+    await device.connect();
+    setState(() {
+      connectedDevice = device;
+      connectionStatus = 'Connecté';
+    });
+    discoverServices();
+  }
+
+  void discoverServices() async {
+    if (connectedDevice == null) return;
+
+    List<BluetoothService> services = await connectedDevice!.discoverServices();
+    for (BluetoothService service in services) {
+      if (service.uuid.toString() == "4fafc201-1fb5-459e-8fcc-c5c9c331914b") {
+        for (BluetoothCharacteristic characteristic
+            in service.characteristics) {
+          if (characteristic.uuid.toString() ==
+              "beb5483e-36e1-4688-b7f5-ea07361b26a8") {
+            setState(() {
+              notifyCharacteristic = characteristic;
+            });
+            await characteristic.setNotifyValue(true);
+            characteristic.value.listen((value) {
+              handleNotification(value);
+            });
+            print('Sending OK notification...');
+            characteristic.write(utf8.encode("ok"));
+          }
+        }
+      }
+    }
+  }
+
+  void sendDeviceNotification() async {
+    print('Sending device notification...');
+    if (notifyCharacteristic != null) {
+      await notifyCharacteristic!.write(utf8.encode("ok"));
+    }
+  }
+
+  void handleNotification(List<int> value) {
+    String decodedValue = utf8.decode(value);
+    DateTime currentTime = DateTime.now();
+    if (decodedValue == "ok" &&
+        (lastNotificationTime == null ||
+            currentTime.difference(lastNotificationTime!).inMilliseconds >
+                100)) {
+      setState(() {
+        messageCount++;
+        if (lastNotificationTime != null) {
+          _reactionTime.value = currentTime.difference(lastNotificationTime!);
+        }
+      });
+      lastNotificationTime = currentTime;
+    }
   }
 
   @override
   void dispose() {
+    connectedDevice?.disconnect();
     _timer.cancel();
     _timeElapsed.dispose();
+    _reactionTime.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused && _isRunning) {
-      _showPersistentNotification();
-    } else if (state == AppLifecycleState.resumed) {
-      _cancelNotification();
-    }
   }
 
   void _initializeNotifications() {
     if (Platform.isAndroid) {
       const AndroidInitializationSettings initializationSettingsAndroid =
           AndroidInitializationSettings('@mipmap/ic_launcher');
-
       const InitializationSettings initializationSettings =
           InitializationSettings(android: initializationSettingsAndroid);
-
       flutterLocalNotificationsPlugin.initialize(initializationSettings);
     }
   }
@@ -81,7 +212,6 @@ class _ActivityPageState extends State<ActivityPage>
 
       const NotificationDetails platformChannelSpecifics =
           NotificationDetails(android: androidPlatformChannelSpecifics);
-
       await flutterLocalNotificationsPlugin.show(
         0,
         'Chronomètre en cours',
@@ -97,7 +227,7 @@ class _ActivityPageState extends State<ActivityPage>
     }
   }
 
-  void _startStopTimer(BuildContext context) {
+  void _startStopTimer() {
     setState(() {
       _isRunning = !_isRunning;
     });
@@ -108,9 +238,9 @@ class _ActivityPageState extends State<ActivityPage>
       });
       _timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
         _timeElapsed.value = _timeElapsed.value + Duration(milliseconds: 10);
-        BlocProvider.of<ActivityBloc>(context).add(UpdateActivity(
+        _activityBloc.add(UpdateActivity(
           timeElapsed: _timeElapsed.value,
-          touches: 23, // Exemple de valeur
+          touches: messageCount,
           misses: 4, // Exemple de valeur
           caloriesBurned: 200, // Exemple de valeur
         ));
@@ -120,11 +250,11 @@ class _ActivityPageState extends State<ActivityPage>
         _isPaused = true;
       });
       _timer.cancel();
-      _showPauseModal(context);
+      _showPauseModal();
     }
   }
 
-  void _showPauseModal(BuildContext context) {
+  void _showPauseModal() {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -138,22 +268,30 @@ class _ActivityPageState extends State<ActivityPage>
               ElevatedButton(
                 onPressed: () {
                   _closePauseModal();
-                  _startStopTimer(context); // Reprendre
+                  _startStopTimer(); // Reprendre
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   side: BorderSide(color: AppPallete.primaryColor),
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text('Reprendre',
+                child: const Text('Reprendre',
                     style: TextStyle(
                         fontSize: 18, color: AppPallete.primaryColor)),
               ),
               ElevatedButton(
                 onPressed: () {
-                  BlocProvider.of<ActivityBloc>(context).add(StopActivity(
+                  _activityBloc.add(UpdateActivity(
+                    timeElapsed: _timeElapsed.value,
+                    touches: messageCount,
+                    misses: 4, // Exemple de valeur
+                    caloriesBurned: 200, // Exemple de valeur
+                  ));
+
+                  _activityBloc.add(StopActivity(
                     _timeElapsed.value,
                   ));
+
                   context.push('/activity/save');
                 },
                 style: ElevatedButton.styleFrom(
@@ -185,11 +323,16 @@ class _ActivityPageState extends State<ActivityPage>
     return '$minutes:$seconds:$milliseconds';
   }
 
+  String _formatReactionTime(Duration duration) {
+    final milliseconds = duration.inMilliseconds;
+    return '${milliseconds}ms';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Activity'),
+        title: Text(widget.exercise.title),
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
@@ -216,17 +359,6 @@ class _ActivityPageState extends State<ActivityPage>
                       children: [
                         Column(
                           children: [
-                            Text(
-                              '${state.activity.caloriesBurned}',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 24),
-                            ),
-                            Text(
-                              'Calories brûlées',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
-                            ),
-                            SizedBox(height: 32),
                             ValueListenableBuilder<Duration>(
                               valueListenable: _timeElapsed,
                               builder: (context, value, child) {
@@ -240,13 +372,13 @@ class _ActivityPageState extends State<ActivityPage>
                               },
                             ),
                             Text(
-                              'Tour 1/4',
+                              'Tour 1/${widget.exercise.laps}',
                               style:
                                   TextStyle(color: Colors.white, fontSize: 16),
                             ),
                             SizedBox(height: 32),
                             GestureDetector(
-                              onTap: () => _startStopTimer(context),
+                              onTap: () => _startStopTimer(),
                               child: CircleAvatar(
                                 radius: 32,
                                 backgroundColor: AppPallete.primaryColor,
@@ -263,8 +395,9 @@ class _ActivityPageState extends State<ActivityPage>
                     ),
                   ),
                   Container(
+                    color: Colors.red,
                     height: MediaQuery.of(context).size.height *
-                        0.4, // Définit une hauteur fixe pour le tiroir
+                        0.5, // Définit une hauteur fixe pour le tiroir
                     child: DraggableScrollableSheet(
                       initialChildSize: 1.0,
                       minChildSize: 0.2,
@@ -272,22 +405,22 @@ class _ActivityPageState extends State<ActivityPage>
                       builder: (BuildContext context,
                           ScrollController scrollController) {
                         return Container(
-                          color: Colors.black,
+                          color: Colors.blueAccent,
                           padding: EdgeInsets.all(16.0),
                           child: ListView(
                             controller: scrollController,
                             children: [
-                              const Row(
+                              Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(
+                                  const Text(
                                     'Voir exercices',
                                     style: TextStyle(
                                         color: AppPallete.primaryColor,
                                         fontSize: 16),
                                   ),
-                                  Row(
+                                  const Row(
                                     children: [
                                       CircleAvatar(
                                           radius: 6,
@@ -302,17 +435,49 @@ class _ActivityPageState extends State<ActivityPage>
                                           backgroundColor: Colors.grey),
                                     ],
                                   ),
+                                  IconButton(
+                                    icon: Icon(Icons.notifications_active,
+                                        color: Colors.white),
+                                    onPressed: () {
+                                      sendDeviceNotification();
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.refresh,
+                                        color: Colors.white),
+                                    onPressed: () {
+                                      print('Reconnecting...');
+                                      print(connectedDevice);
+                                      if (connectedDevice == null) {
+                                        reconnectIfNecessary();
+                                      } else {
+                                        discoverServices();
+                                      }
+                                    },
+                                  ),
                                 ],
                               ),
+                              SizedBox(height: 8),
+                              Text(
+                                'État de la connexion : $connectionStatus',
+                                style: TextStyle(color: Colors.white),
+                              ),
                               SizedBox(height: 16),
-                              Row(
+                              Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildInfoCard('4', 'touches ratés'),
-                                  _buildInfoCard('23', 'Touches',
+                                  _buildInfoCard(
+                                      messageCount.toString(), 'Touches',
                                       highlight: true),
-                                  _buildInfoCard('200', 'temps reac'),
+                                  ValueListenableBuilder<Duration>(
+                                    valueListenable: _reactionTime,
+                                    builder: (context, value, child) {
+                                      return _buildInfoCard(
+                                          _formatReactionTime(value),
+                                          'Temps de réaction');
+                                    },
+                                  ),
                                 ],
                               ),
                             ],
@@ -378,7 +543,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Ferme le dialogue sans confirmer
+              Navigator.of(context).pop();
             },
             child: Text(
               'Annuler',
@@ -387,8 +552,8 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
           ),
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Ferme le dialogue
-              onConfirm(); // Appelle la fonction de confirmation
+              Navigator.of(context).pop();
+              onConfirm();
             },
             child: Text(
               'Confirmer',

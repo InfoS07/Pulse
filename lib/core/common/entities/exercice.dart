@@ -14,7 +14,6 @@ class Exercice {
   int playerCount = 0;
   int durationOneRepetition = 0;
   int caloriesBurned = 0;
-  User author = User.empty();
   double score = 0.0;
   String level = "Nul";
   int laps = 0;
@@ -31,7 +30,6 @@ class Exercice {
       required this.playerCount,
       required this.durationOneRepetition,
       required this.caloriesBurned,
-      required this.author,
       required this.score,
       required this.level,
       required this.laps});
@@ -49,7 +47,6 @@ class Exercice {
       playerCount: 0,
       durationOneRepetition: 0,
       caloriesBurned: 0,
-      author: User.empty(),
       score: 0.0,
       level: '',
       laps: 0,

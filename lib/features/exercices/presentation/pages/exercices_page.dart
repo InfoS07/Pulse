@@ -11,14 +11,43 @@ class ExercicesPage extends StatefulWidget {
 }
 
 class _ExercicesPageState extends State<ExercicesPage> {
+  String? selectedCategory;
+  final List<String> categories = ['Cardio', 'Force', 'Souplesse', 'Équilibre'];
+  final TextEditingController _searchController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     context.read<ExercicesBloc>().add(ExercicesLoad());
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_onSearchChanged);
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _refreshExercises() async {
     context.read<ExercicesBloc>().add(ExercicesLoad());
+  }
+
+  void _onCategorySelected(String? category) {
+    setState(() {
+      selectedCategory = category;
+    });
+    _triggerSearch();
+  }
+
+  void _onSearchChanged() {
+    _triggerSearch();
+  }
+
+  void _triggerSearch() {
+    final searchTerm = _searchController.text;
+    final category = selectedCategory;
+    context.read<ExercicesBloc>().add(ExercicesSearch(searchTerm, category));
   }
 
   @override
@@ -53,7 +82,17 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   } else if (state is ExercicesEmpty) {
                     return Center(child: Text('No exercises available'));
                   }
-                  return Center(child: Text('Start loading exercises...'));
+                  return RefreshIndicator(
+                    onRefresh: _refreshExercises,
+                    child: ListView(
+                      children: [
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height / 2),
+                        Center(
+                            child: Text('Pull down to refresh exercises...')),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
@@ -64,14 +103,39 @@ class _ExercicesPageState extends State<ExercicesPage> {
   }
 
   Widget _buildSearchBar() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Recherche',
-        prefixIcon: Icon(Icons.search),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 40, // Adjust the height to make the TextField smaller
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Recherche',
+                prefixIcon: const Icon(Icons.search),
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: 8.0), // Adjust the padding as needed
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
+          ),
         ),
-      ),
+        const SizedBox(width: 8),
+        DropdownButton<String>(
+          icon: const Icon(Icons.more_vert),
+          hint: const Text('Options'),
+          value: selectedCategory,
+          items: categories.map((String category) {
+            return DropdownMenuItem<String>(
+              value: category,
+              child: Text(category),
+            );
+          }).toList(),
+          onChanged: _onCategorySelected,
+        ),
+      ],
     );
   }
 
@@ -86,7 +150,8 @@ class _ExercicesPageState extends State<ExercicesPage> {
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 category.key,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
               ),
             ),
             SingleChildScrollView(
