@@ -5,12 +5,14 @@ import 'package:pulse/core/error/failures.dart';
 import 'package:pulse/features/profil/data/datasources/profil_remote_data_source.dart';
 import 'package:pulse/features/profil/domain/models/profil_model.dart';
 import 'package:pulse/features/profil/domain/repository/profil_repository.dart';
+import 'package:pulse/features/profil_other/data/datasources/profil_other_remote_data_source.dart';
+import 'package:pulse/features/profil_other/domain/repository/profil_other_repository.dart';
 
-class ProfilRepositoryImpl implements ProfilRepository {
-  final ProfilRemoteDataSource remoteDataSource;
+class OtherProfilRepositoryImpl implements OtherProfilRepository {
+  final OtherProfilRemoteDataSource remoteDataSource;
   //final ProfilLocalDataSource localDataSource;
 
-  const ProfilRepositoryImpl(
+  const OtherProfilRepositoryImpl(
     this.remoteDataSource,
     //required this.localDataSource,
   );

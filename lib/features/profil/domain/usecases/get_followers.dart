@@ -6,13 +6,13 @@ import 'package:pulse/core/error/failures.dart';
 import 'package:pulse/core/usecase/usercase.dart';
 import 'package:pulse/features/profil/domain/repository/profil_repository.dart';
 
-class GetProfil implements UseCase<Profil, NoParams> {
+class GetFollowers implements UseCase<List<Profil>, String> {
   final ProfilRepository profilRepository;
 
-  const GetProfil(this.profilRepository);
+  const GetFollowers(this.profilRepository);
 
   @override
-  Future<Either<Failure, Profil>> call(NoParams params) async {
-    return await profilRepository.getProfil();
+  Future<Either<Failure, List<Profil>>> call(String userId) async {
+    return await profilRepository.getFollowers(userId);
   }
 }

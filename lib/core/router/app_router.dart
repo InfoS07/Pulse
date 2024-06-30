@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/profil.dart';
+import 'package:pulse/core/common/entities/profilFollowArguments.dart';
 import 'package:pulse/core/common/widgets/dialog_page.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/router/app_router_redirect.dart';
@@ -70,7 +72,7 @@ final GoRouter goRouterProvider = GoRouter(
             GoRoute(
               path: RoutePath.followOther.path,
               name: RoutePath.followOther.name,
-              builder: (context, state) => ProfilFollowPage(),
+              builder: (context, state) => ProfilFollowPage(followers: [],followings: [],),
             ),
           ],
         ),
@@ -169,7 +171,15 @@ final GoRouter goRouterProvider = GoRouter(
                     GoRoute(
                       path: RoutePath.follow.path,
                       name: RoutePath.follow.name,
-                      builder: (context, state) => ProfilFollowPage(),
+                      pageBuilder: (BuildContext context, GoRouterState state) {
+                        final args = state.extra as ProfilFollowArguments;
+                        return DialogPage(
+                          builder: (_) => ProfilFollowPage(
+                            followers: args.followers,
+                            followings: args.followings,
+                          ),
+                        );    
+                      },
                     ),
                   ],
                 ),

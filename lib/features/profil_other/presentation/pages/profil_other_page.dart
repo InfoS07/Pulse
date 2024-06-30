@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
-import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
+import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 
 class ProfilOtherPage extends StatefulWidget {
   @override
@@ -14,12 +14,12 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir le profil
-    context.read<ProfilBloc>().add(ProfilGetProfil());
+    context.read<OtherProfilBloc>().add(OtherProfilGetProfil());
   }
 
   Future<void> _refreshProfile() async {
     // Lancer l'événement pour rafraîchir le profil
-    context.read<ProfilBloc>().add(ProfilGetProfil());
+    context.read<OtherProfilBloc>().add(OtherProfilGetProfil());
   }
 
   @override
@@ -35,19 +35,19 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
           },
         ),
       ),
-      body: BlocConsumer<ProfilBloc, ProfilState>(
+      body: BlocConsumer<OtherProfilBloc, OtherProfilState>(
         listener: (context, state) {
           // Écouter les états pour afficher des messages, rediriger, etc.
-          if (state is ProfilFailure) {
+          if (state is OtherProfilFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
             );
           }
         },
         builder: (context, state) {
-          if (state is ProfilLoading) {
+          if (state is OtherProfilLoading) {
             return const Loader();
-          } else if (state is ProfilSuccess) {
+          } else if (state is OtherProfilSuccess) {
             return RefreshIndicator(
               onRefresh: _refreshProfile,
               child: ListView(

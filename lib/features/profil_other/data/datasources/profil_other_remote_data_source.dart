@@ -2,14 +2,14 @@ import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/profil/domain/models/profil_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-abstract interface class ProfilRemoteDataSource {
+abstract interface class OtherProfilRemoteDataSource {
   Future<ProfilModel?> getProfil();
 }
 
-class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
+class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
   final SupabaseClient supabaseClient;
 
-  ProfilRemoteDataSourceImpl(this.supabaseClient);
+  OtherProfilRemoteDataSourceImpl(this.supabaseClient);
 
   @override
   Future<ProfilModel?> getProfil() async {

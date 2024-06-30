@@ -14,6 +14,7 @@ import 'package:pulse/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/profil/domain/usecases/signout.dart';
 import 'package:pulse/init_dependencies.dart';
+import 'package:get_it/get_it.dart';  // Assurez-vous d'importer le package get_it
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -97,11 +98,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     User user,
     Emitter<AuthState> emit,
   ) {
-    GraphQLConfiguration.initGraphQL(
-      AppSecrets.apiGraphqlUrl,
-    ).then((client) {
-      serviceLocator.registerLazySingleton<GraphQLClient>(() => client);
-    });
+    if (!GetIt.instance.isRegistered<GraphQLClient>()) {
+      GraphQLConfiguration.initGraphQL(AppSecrets.apiGraphqlUrl).then((client) {
+        GetIt.instance.registerLazySingleton<GraphQLClient>(() => client);
+      });
+    }
     _appUserCubit.updateUser(user);
     emit(AuthSuccess(user));
   }
