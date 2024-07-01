@@ -32,6 +32,7 @@ Future<void> initDependencies() async {
   _initActivity();
   _initOtherProfil();
   _initProfileFollower();
+  _initTrainingList();
 }
 
 void _initAuth() {
@@ -175,6 +176,33 @@ void _initProfileFollower() {
       () => ProfilFollowBloc(
         follow: serviceLocator(),
         unfollow: serviceLocator(),
+      ),
+    );
+}
+
+void _initTrainingList() {
+  serviceLocator
+    ..registerFactory<ListTrainingsRemoteDataSource>(
+      () => ListTrainingsRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<ListTrainingsRepository>(
+      () => ListTrainingsRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => GetTrainings(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => ListTrainingsBloc(
+        getTrainings: serviceLocator(),
       ),
     );
 }

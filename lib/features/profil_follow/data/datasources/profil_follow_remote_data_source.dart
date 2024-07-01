@@ -40,8 +40,8 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
       final response = await supabaseClient
           .from('user_followers')
           .delete()
-          .eq('user_id', userId)
-          .eq('user_follower', followerId);
+          .eq('id_user', userId)
+          .eq('id_follower', followerId);
 
       if (response.error != null) {
         throw ServerException(response.error!.message);

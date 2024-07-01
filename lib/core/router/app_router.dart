@@ -19,6 +19,7 @@ import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart'
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/likes/presentation/pages/likes_page.dart';
+import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
@@ -182,6 +183,10 @@ final GoRouter goRouterProvider = GoRouter(
                       },
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: 'entrainements',
+                  builder: (context, state) => TrainingListScreen(),
                 ),
               ],
             ),

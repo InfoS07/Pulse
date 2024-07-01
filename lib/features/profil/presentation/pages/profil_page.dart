@@ -102,7 +102,7 @@ class _ProfilPageState extends State<ProfilPage> {
                           ],
                         ),
                         const Divider(color: Colors.grey, height: 32),
-                        _buildListTile('Activités', Icons.arrow_forward_ios),
+                        _buildListTile('Entrainements', Icons.arrow_forward_ios),
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
                         _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
@@ -187,6 +187,9 @@ class _ProfilPageState extends State<ProfilPage> {
         color: Colors.white,
       ),
       onTap: () {
+        if(title == "Entrainements"){
+          context.push('/entrainements');
+        }
         // Ajouter l'action de navigation
       },
     );

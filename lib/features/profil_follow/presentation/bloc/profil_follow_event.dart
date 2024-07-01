@@ -10,7 +10,7 @@ class ProfilFollow extends ProfilFollowEvent {
 }
 
 class ProfilUnfollow extends ProfilFollowEvent {
-  final FollowParams params;
+  final UnfollowParams params;
   ProfilUnfollow(this.params);
   
 }
