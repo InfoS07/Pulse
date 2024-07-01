@@ -226,10 +226,22 @@ void _initOtherProfil() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => OtherGetFollowers(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => OtherGetFollowings(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => OtherProfilBloc(
         getProfil: serviceLocator(),
+        getFollowers: serviceLocator(),
+        getFollowings: serviceLocator(),
       ),
     );
 }

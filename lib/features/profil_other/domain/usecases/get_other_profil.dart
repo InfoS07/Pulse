@@ -7,13 +7,13 @@ import 'package:pulse/core/usecase/usercase.dart';
 import 'package:pulse/features/profil/domain/repository/profil_repository.dart';
 import 'package:pulse/features/profil_other/domain/repository/profil_other_repository.dart';
 
-class OtherGetProfil implements UseCase<Profil, NoParams> {
+class OtherGetProfil implements UseCase<Profil, String> {
   final OtherProfilRepository profilRepository;
 
   const OtherGetProfil(this.profilRepository);
 
   @override
-  Future<Either<Failure, Profil>> call(NoParams params) async {
-    return await profilRepository.getProfil();
+  Future<Either<Failure, Profil>> call(String userId) async {
+    return await profilRepository.getProfil(userId);
   }
 }

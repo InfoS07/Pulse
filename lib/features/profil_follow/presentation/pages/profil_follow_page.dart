@@ -5,21 +5,28 @@ import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
 import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_bloc.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
-class ProfilFollowPage extends StatelessWidget {
-  final List<Profil> followers;
-  final List<Profil> followings;
+class ProfilFollowPage extends StatefulWidget {
+  @override
+  _ProfilFollowPageState createState() => _ProfilFollowPageState();
+}
 
-  ProfilFollowPage({required this.followers, required this.followings});
+class _ProfilFollowPageState extends State<ProfilFollowPage> {
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.id.toString();
+      context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final authState = context.read<AppUserCubit>().state;
-    String? userId;
-    if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
-    }
-
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -39,24 +46,37 @@ class ProfilFollowPage extends StatelessWidget {
             ],
           ),
         ),
-        body: BlocListener<ProfilFollowBloc, ProfilFollowState>(
+        body: BlocConsumer<ProfilBloc, ProfilState>(
           listener: (context, state) {
-            if (state is ProfilFollowSuccess || state is ProfilUnfollowSuccess) {
-              // Refresh the page or do something when follow/unfollow is successful
-              // For example, you can call setState() to refresh the widget
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => ProfilFollowPage(followers: followers, followings: followings),
-                ),
-              );
+            if (state is ProfilSuccess) {
+              // Réagir à la mise à jour réussie du profil
             }
           },
-          child: TabBarView(
-            children: [
-              _buildFollowList(followers, followings, userId, context, isFollowersTab: true),
-              _buildFollowList(followings, followings, userId, context, isFollowersTab: false),
-            ],
-          ),
+          builder: (context, profilState) {
+            if (profilState is ProfilSuccess) {
+              final followers = profilState.followers;
+              final followings = profilState.followings;
+
+              return BlocListener<ProfilFollowBloc, ProfilFollowState>(
+                listener: (context, followState) {
+                  if (followState is ProfilFollowSuccess || followState is ProfilUnfollowSuccess) {
+                    // Rafraîchir le profil après une opération de follow/unfollow réussie
+                    context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+                  }
+                },
+                child: TabBarView(
+                  children: [
+                    _buildFollowList(followers, followings, userId, context, isFollowersTab: true),
+                    _buildFollowList(followings, followings, userId, context, isFollowersTab: false),
+                  ],
+                ),
+              );
+            } else if (profilState is ProfilLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else {
+              return const Center(child: Text('Erreur de chargement du profil'));
+            }
+          },
         ),
       ),
     );
@@ -75,11 +95,10 @@ class ProfilFollowPage extends StatelessWidget {
           isFollowing: isFollowing,
           userId: userId,
           onFollowChanged: (followStatus) {
-            if (followStatus) {
-              //followings.add(profile);
-            } else {
-              //followings.removeWhere((following) => following.username == profile.username);
-            }
+            // Optionally handle the follow status change
+            setState(() {
+              context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+            });
           },
         );
       },

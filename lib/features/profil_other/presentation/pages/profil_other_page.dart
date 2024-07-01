@@ -14,12 +14,12 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir le profil
-    context.read<OtherProfilBloc>().add(OtherProfilGetProfil());
+    context.read<OtherProfilBloc>().add(OtherProfilGetProfil("28"));
   }
 
   Future<void> _refreshProfile() async {
     // Lancer l'événement pour rafraîchir le profil
-    context.read<OtherProfilBloc>().add(OtherProfilGetProfil());
+    context.read<OtherProfilBloc>().add(OtherProfilGetProfil("28"));
   }
 
   @override

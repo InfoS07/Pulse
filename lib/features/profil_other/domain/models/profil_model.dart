@@ -29,6 +29,10 @@ class ProfilModel extends Profil {
     );
   }
 
+  static List<ProfilModel> fromJsonList(List<dynamic> jsonList) {
+    return jsonList.map((json) => ProfilModel.fromJson(json)).toList();
+  }
+
   ProfilModel copyWith({
     int? id,
     String? uid,

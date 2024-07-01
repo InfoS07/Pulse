@@ -55,6 +55,8 @@ import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_blo
 import 'package:pulse/features/profil_other/data/datasources/profil_other_remote_data_source.dart';
 import 'package:pulse/features/profil_other/data/repositories/profil_other_repository_impl.dart';
 import 'package:pulse/features/profil_other/domain/repository/profil_other_repository.dart';
+import 'package:pulse/features/profil_other/domain/usecases/get_followers.dart';
+import 'package:pulse/features/profil_other/domain/usecases/get_followings.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_other_profil.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

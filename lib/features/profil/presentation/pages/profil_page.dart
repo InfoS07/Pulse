@@ -146,8 +146,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return GestureDetector(
       onTap: () {
         // Ajouter l'action de navigation
-        var args = ProfilFollowArguments(followers: followers!, followings: followings!);
-        context.push('/profil/follow',extra: args);
+        //var args = ProfilFollowArguments(followers: followers!, followings: followings!);
+        context.push('/profil/follow');
       },
       child: Column(
         children: [

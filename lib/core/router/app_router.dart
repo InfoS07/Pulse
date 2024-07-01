@@ -73,7 +73,7 @@ final GoRouter goRouterProvider = GoRouter(
             GoRoute(
               path: RoutePath.followOther.path,
               name: RoutePath.followOther.name,
-              builder: (context, state) => ProfilFollowPage(followers: [],followings: [],),
+              builder: (context, state) => ProfilFollowPage(),
             ),
           ],
         ),
@@ -172,15 +172,7 @@ final GoRouter goRouterProvider = GoRouter(
                     GoRoute(
                       path: RoutePath.follow.path,
                       name: RoutePath.follow.name,
-                      pageBuilder: (BuildContext context, GoRouterState state) {
-                        final args = state.extra as ProfilFollowArguments;
-                        return DialogPage(
-                          builder: (_) => ProfilFollowPage(
-                            followers: args.followers,
-                            followings: args.followings,
-                          ),
-                        );    
-                      },
+                      builder: (context, state) => ProfilFollowPage(),    
                     ),
                   ],
                 ),

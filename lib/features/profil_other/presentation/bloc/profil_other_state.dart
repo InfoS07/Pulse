@@ -11,7 +11,9 @@ final class OtherProfilLoading extends OtherProfilState {}
 
 final class OtherProfilSuccess extends OtherProfilState {
   final Profil profil;
-  const OtherProfilSuccess(this.profil);
+  final List<Profil> followers;
+  final List<Profil> followings;
+  const OtherProfilSuccess(this.profil,this.followers,this.followings);
 }
 
 final class OtherProfilFailure extends OtherProfilState {
