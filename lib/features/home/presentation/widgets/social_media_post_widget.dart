@@ -46,7 +46,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                 GestureDetector(
                   onTap: () {
                     // Ajouter l'action de navigation
-                    context.push('/otherProfil');
+                    //context.push('/otherProfil');
                   },
                   child: CircleAvatar(
                     backgroundImage: NetworkImage(post.profileImageUrl),

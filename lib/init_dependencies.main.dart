@@ -30,6 +30,9 @@ Future<void> initDependencies() async {
   _initProfil();
   _initExercices();
   _initActivity();
+  _initOtherProfil();
+  _initProfileFollower();
+  _initTrainingList();
 }
 
 void _initAuth() {
@@ -124,10 +127,127 @@ void _initProfil() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => GetFollowers(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => GetFollowings(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => ProfilBloc(
         getProfil: serviceLocator(),
+        getFollowers: serviceLocator(),
+        getFollowings: serviceLocator(),
+      ),
+    );
+}
+
+void _initProfileFollower() {
+  serviceLocator
+    ..registerFactory<ProfilFollowRemoteDataSource>(
+      () => ProfilFollowRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<ProfilFollowRepository>(
+      () => ProfilFollowRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => Follow(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => Unfollow(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => ProfilFollowBloc(
+        follow: serviceLocator(),
+        unfollow: serviceLocator(),
+      ),
+    );
+}
+
+void _initTrainingList() {
+  serviceLocator
+    ..registerFactory<ListTrainingsRemoteDataSource>(
+      () => ListTrainingsRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<ListTrainingsRepository>(
+      () => ListTrainingsRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => GetTrainings(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => ListTrainingsBloc(
+        getTrainings: serviceLocator(),
+      ),
+    );
+}
+
+void _initOtherProfil() {
+  serviceLocator
+    ..registerFactory<OtherProfilRemoteDataSource>(
+      () => OtherProfilRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<OtherProfilRepository>(
+      () => OtherProfilRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => OtherGetProfil(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => OtherGetFollowers(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => OtherGetFollowings(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => OtherGetTrainings(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => OtherProfilBloc(
+        getProfil: serviceLocator(),
+        getFollowers: serviceLocator(),
+        getFollowings: serviceLocator(),
+        getTrainings: serviceLocator(),
       ),
     );
 }

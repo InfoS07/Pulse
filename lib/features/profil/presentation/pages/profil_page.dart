@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
+import 'package:pulse/core/common/entities/profil.dart';
+import 'package:pulse/core/common/entities/profilFollowArguments.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
@@ -11,16 +14,25 @@ class ProfilPage extends StatefulWidget {
 }
 
 class _ProfilPageState extends State<ProfilPage> {
+  String? userId;
+  List<Profil>? followers;
+  List<Profil>? followings;
+
+
   @override
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir le profil
-    context.read<ProfilBloc>().add(ProfilGetProfil());
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.id.toString();
+      context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+    }
   }
 
   Future<void> _refreshProfile() async {
     // Lancer l'événement pour rafraîchir le profil
-    context.read<ProfilBloc>().add(ProfilGetProfil());
+    context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
   }
 
   void _signOut() {
@@ -48,6 +60,8 @@ class _ProfilPageState extends State<ProfilPage> {
           if (state is ProfilLoading) {
             return const Loader();
           } else if (state is ProfilSuccess) {
+            followings = state.followings;
+            followers = state.followers;
             return RefreshIndicator(
               onRefresh: _refreshProfile,
               child: ListView(
@@ -83,13 +97,12 @@ class _ProfilPageState extends State<ProfilPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildInfoColumn('123', 'Activités'),
-                            _buildInfoColumn('12', 'Abonnés'),
-                            _buildInfoColumn('230', 'Abonnements'),
+                            _buildInfoColumn(followers!.length.toString() ?? "", 'Abonnés'),
+                            _buildInfoColumn(followings!.length.toString() ?? "", 'Abonnements'),
                           ],
                         ),
                         const Divider(color: Colors.grey, height: 32),
-                        _buildListTile('Activités', Icons.arrow_forward_ios),
+                        _buildListTile('Entrainements', Icons.arrow_forward_ios),
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
                         _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
@@ -133,6 +146,7 @@ class _ProfilPageState extends State<ProfilPage> {
     return GestureDetector(
       onTap: () {
         // Ajouter l'action de navigation
+        //var args = ProfilFollowArguments(followers: followers!, followings: followings!);
         context.push('/profil/follow');
       },
       child: Column(
@@ -173,6 +187,9 @@ class _ProfilPageState extends State<ProfilPage> {
         color: Colors.white,
       ),
       onTap: () {
+        if(title == "Entrainements"){
+          context.push('/entrainements');
+        }
         // Ajouter l'action de navigation
       },
     );
