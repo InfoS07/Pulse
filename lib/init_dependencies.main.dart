@@ -236,12 +236,18 @@ void _initOtherProfil() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => OtherGetTrainings(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => OtherProfilBloc(
         getProfil: serviceLocator(),
         getFollowers: serviceLocator(),
         getFollowings: serviceLocator(),
+        getTrainings: serviceLocator(),
       ),
     );
 }

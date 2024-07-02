@@ -13,7 +13,8 @@ final class OtherProfilSuccess extends OtherProfilState {
   final Profil profil;
   final List<Profil> followers;
   final List<Profil> followings;
-  const OtherProfilSuccess(this.profil,this.followers,this.followings);
+  final List<TrainingList> trainings;
+  const OtherProfilSuccess(this.profil,this.followers,this.followings,this.trainings);
 }
 
 final class OtherProfilFailure extends OtherProfilState {

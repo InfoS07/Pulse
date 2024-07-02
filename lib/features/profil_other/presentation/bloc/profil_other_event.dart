@@ -24,3 +24,10 @@ class OtherProfilGetFollowings extends OtherProfilEvent {
   OtherProfilGetFollowings(this.userId);
   
 }
+
+class OtherProfilGetTrainings extends OtherProfilEvent {
+  final String userId;
+
+  OtherProfilGetTrainings(this.userId);
+  
+}

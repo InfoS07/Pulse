@@ -1,5 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:pulse/core/common/entities/profil.dart';
+import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/core/error/failures.dart';
 import 'package:pulse/features/profil/data/datasources/profil_remote_data_source.dart';
@@ -71,6 +72,26 @@ class OtherProfilRepositoryImpl implements OtherProfilRepository {
       final nonNullProfils = profil.whereType<Profil>().toList();
 
       return Right(nonNullProfils);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
+
+
+  @override
+  Future<Either<Failure, List<TrainingList>>> getTrainings(String userId) async {
+    return _getTrainings(
+      () async => await remoteDataSource.getTrainings(userId),
+    );
+  }
+
+  Future<Either<Failure, List<TrainingList>>> _getTrainings(
+    Future<List<TrainingList>> Function() fn,
+  ) async {
+    try {
+      final trainings = await fn();
+
+      return Right(trainings);
     } on ServerException catch (e) {
       return Left(Failure(e.message));
     }

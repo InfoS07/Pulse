@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
@@ -136,56 +137,62 @@ class _FollowItemState extends State<FollowItem> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(widget.profile.profilePhoto),
-            radius: 30,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              widget.profile.username,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+      child: GestureDetector(
+        onTap: () {
+          // Ajouter l'action de navigation
+          context.push('/otherProfil',extra: widget.profile.id.toString());
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(widget.profile.profilePhoto),
+              radius: 30,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                widget.profile.username,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              if (widget.userId != null) {
-                if (!isFollowing) {
-                  context.read<ProfilFollowBloc>().add(
-                    ProfilFollow(FollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
-                  );
-                } else {
-                  context.read<ProfilFollowBloc>().add(
-                    ProfilUnfollow(UnfollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
-                  );
+            ElevatedButton.icon(
+              onPressed: () {
+                if (widget.userId != null) {
+                  if (!isFollowing) {
+                    context.read<ProfilFollowBloc>().add(
+                      ProfilFollow(FollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
+                    );
+                  } else {
+                    context.read<ProfilFollowBloc>().add(
+                      ProfilUnfollow(UnfollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
+                    );
+                  }
+                  setState(() {
+                    isFollowing = !isFollowing;
+                    widget.onFollowChanged(isFollowing);
+                  });
                 }
-                setState(() {
-                  isFollowing = !isFollowing;
-                  widget.onFollowChanged(isFollowing);
-                });
-              }
-            },
-            icon: Icon(
-              isFollowing ? Icons.check : Icons.add,
-              color: Colors.white,
+              },
+              icon: Icon(
+                isFollowing ? Icons.check : Icons.add,
+                color: Colors.white,
+              ),
+              label: Text(
+                isFollowing ? 'Suivi' : 'Suivre',
+                style: const TextStyle(color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isFollowing ? Colors.grey : Colors.greenAccent,
+                side: BorderSide(color: isFollowing ? Colors.grey : Colors.greenAccent),
+              ),
             ),
-            label: Text(
-              isFollowing ? 'Suivi' : 'Suivre',
-              style: const TextStyle(color: Colors.white),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isFollowing ? Colors.grey : Colors.greenAccent,
-              side: BorderSide(color: isFollowing ? Colors.grey : Colors.greenAccent),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

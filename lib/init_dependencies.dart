@@ -58,6 +58,7 @@ import 'package:pulse/features/profil_other/domain/repository/profil_other_repos
 import 'package:pulse/features/profil_other/domain/usecases/get_followers.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_followings.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_other_profil.dart';
+import 'package:pulse/features/profil_other/domain/usecases/get_trainings.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
