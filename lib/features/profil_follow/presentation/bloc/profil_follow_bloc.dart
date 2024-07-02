@@ -35,7 +35,6 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
 ) async {
   emit(ProfilFollowLoading());
   final res = await _follow(event.params);
-
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
       (r) => emit(ProfilFollowSuccess()),

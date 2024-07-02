@@ -47,7 +47,6 @@ class ProfilFollowRepositoryImpl implements ProfilFollowRepository {
   ) async {
     try {
       final profil = await fn();
-
       return Right(profil);
     } on ServerException catch (e) {
       return Left(Failure(e.message));

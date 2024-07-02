@@ -24,6 +24,7 @@ import 'package:pulse/features/post_details/presentation/pages/post_details_page
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/list_trainings_other_page.dart';
+import 'package:pulse/features/profil_other/presentation/pages/profil_follow_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
 import 'package:pulse/features/group/presentation/pages/group_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
@@ -79,7 +80,12 @@ final GoRouter goRouterProvider = GoRouter(
             GoRoute(
               path: RoutePath.followOther.path,
               name: RoutePath.followOther.name,
-              builder: (context, state) => ProfilFollowPage(),
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                final userIdOther = state.extra as String;
+                return DialogPage(
+                  builder: (_) => OtherProfilFollowPage(userIdOther: userIdOther),
+                );
+              },
             ),
             GoRoute(
               path: 'entrainementsOther',
@@ -88,7 +94,7 @@ final GoRouter goRouterProvider = GoRouter(
                         return DialogPage(
                           builder: (_) => TrainingListOtherScreen(userId: userId),
                         );
-                      },
+              },
             ),
           ],
         ),

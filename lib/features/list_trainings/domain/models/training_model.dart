@@ -27,7 +27,7 @@ class TrainingModel extends TrainingList {
       description: json['description'],
       //comments: json['comments'],
       //activity: json["activities_list"],
-      date: json["planned_at"],
+      date: json["start_at"],
       title: json["title"],
     );
   }
@@ -38,7 +38,7 @@ class TrainingModel extends TrainingList {
       'description': description,
       //comments: json['comments'],
       //'activity': activity,
-      'planned_at': date,
+      'start_at': date,
       'title': title,
     };
   }

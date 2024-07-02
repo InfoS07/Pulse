@@ -42,7 +42,7 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
           .delete()
           .eq('id_user', userId)
           .eq('id_follower', followerId);
-
+        print(response);
       if (response.error != null) {
         throw ServerException(response.error!.message);
       }
