@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
 import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
@@ -101,13 +102,13 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     SaveActivity event,
     Emitter<ActivityState> emit,
   ) async {
-    if (state is ActivityStopped) {
-      final currentState = state as ActivityStopped;
+    if (state is ActivityStopped || state is ActivitySavedError) {
       final training = Training(
         id: DateTime.now().millisecondsSinceEpoch,
         description: event.description,
         comments: [],
-        activity: currentState.activity,
+        activity: state.activity,
+        photos: event.photos,
       );
 
       final res = await _saveActivityUC(training);
@@ -116,8 +117,8 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
 
       res.fold(
         (l) => emit(
-            ActivitySavedError(l.message, currentState.activity, training)),
-        (r) => emit(ActivitySaved(currentState.activity, r)),
+            ActivitySavedError(l.message, state.activity, training, state)),
+        (r) => emit(ActivitySaved(state.activity, r)),
       );
       //emit(ActivitySaved(currentState.activity, training));
     }

@@ -6,7 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/user.dart';
 import 'package:pulse/core/secrets/app_secrets.dart';
-import 'package:pulse/core/services/graphql_client.dart';
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/core/usecase/usercase.dart';
 import 'package:pulse/features/auth/domain/usecases/current_user.dart';
 import 'package:pulse/features/auth/domain/usecases/user_login.dart';
@@ -95,11 +95,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     User user,
     Emitter<AuthState> emit,
   ) {
-    GraphQLConfiguration.initGraphQL(
+    /* GraphQLConfiguration.initGraphQL(
       AppSecrets.apiGraphqlUrl,
     ).then((client) {
       serviceLocator.registerLazySingleton<GraphQLClient>(() => client);
-    });
+    }); */
     _appUserCubit.updateUser(user);
     emit(AuthSuccess(user));
   }

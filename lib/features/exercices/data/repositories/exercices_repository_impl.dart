@@ -13,7 +13,7 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
   @override
   Future<Either<Failure, Map<String, List<Exercice?>>>> getExercices() async {
     return _getExercices(
-      () async => await exercicesDataSource.getExercicesExample(),
+      () async => await exercicesDataSource.getExercices(),
     );
   }
 

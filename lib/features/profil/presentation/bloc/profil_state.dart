@@ -11,6 +11,7 @@ final class ProfilLoading extends ProfilState {}
 
 final class ProfilSuccess extends ProfilState {
   final Profil profil;
+
   const ProfilSuccess(this.profil);
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pulse/core/error/exceptions.dart';
@@ -21,8 +22,9 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final SupabaseClient supabaseClient;
+  final GraphQLService graphQLService;
 
-  AuthRemoteDataSourceImpl(this.supabaseClient);
+  AuthRemoteDataSourceImpl(this.supabaseClient, this.graphQLService);
 
   @override
   Session? get currentUserSession => supabaseClient.auth.currentSession;
@@ -40,9 +42,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (response.user == null || response.session == null) {
         throw const ServerException('Login failed: User or session is null.');
       }
-      print("response.session!.accessToken");
-      print(response.session!.accessToken);
+
       await _saveToken(response.session!.accessToken);
+      await graphQLService.setToken(response.session!.accessToken);
+
       return UserModel.fromJson(response.user!.toJson()["user_metadata"]);
     } on AuthException catch (e) {
       throw ServerException(e.message);
@@ -60,6 +63,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     try {
       final response =
           await supabaseClient.auth.signUp(email: email, password: password);
+      //set token user
       if (response.user == null || response.session == null) {
         throw const ServerException('Signup failed: User or session is null.');
       }
@@ -73,6 +77,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Future<void> _saveToken(String token) async {
+    ;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessToken', token);
   }

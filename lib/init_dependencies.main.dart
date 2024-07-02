@@ -10,6 +10,10 @@ Future<void> initDependencies() async {
 
   serviceLocator.registerLazySingleton(() => supabase.client);
 
+  final graphQLService = GraphQLService(AppSecrets.apiGraphqlUrl);
+
+  serviceLocator.registerLazySingleton<GraphQLService>(() => graphQLService);
+
   serviceLocator.registerFactory(() => InternetConnection());
 
   serviceLocator.registerLazySingleton(
@@ -36,6 +40,7 @@ void _initAuth() {
   serviceLocator
     ..registerFactory<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(
+        serviceLocator(),
         serviceLocator(),
       ),
     )

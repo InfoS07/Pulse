@@ -7,7 +7,7 @@ import 'package:pulse/core/network/connection_checker.dart';
 import 'package:pulse/core/router/app_router.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/secrets/app_secrets.dart';
-import 'package:pulse/core/services/graphql_client.dart';
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/activity/data/datasources/activity_local_data_source.dart';
 import 'package:pulse/features/activity/data/datasources/activity_remote_data_source.dart';
 import 'package:pulse/features/activity/data/repositories/activity_repository_impl.dart';

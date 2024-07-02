@@ -2,12 +2,12 @@ import 'dart:ffi';
 
 import 'package:pulse/core/common/entities/user.dart';
 import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 abstract class ExercicesRemoteDataSource {
   Future<Map<String, List<ExercicesModel?>>> getExercices();
-  Future<Map<String, List<ExercicesModel?>>> getExercicesExample();
   Future<Map<String, List<ExercicesModel?>>> searchExercices(
     String searchTerm,
     String? category,
@@ -15,7 +15,8 @@ abstract class ExercicesRemoteDataSource {
 }
 
 class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
-  final GraphQLClient graphqlClient;
+  final GraphQLService graphQLService;
+
   final data = <String, List<ExercicesModel?>>{
     'Recommandation': [
       ExercicesModel(
@@ -251,10 +252,10 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
     // Ajoutez d'autres catégories ici
   };
 
-  ExercicesRemoteDataSourceImpl(this.graphqlClient);
+  ExercicesRemoteDataSourceImpl(this.graphQLService);
 
   @override
-  Future<Map<String, List<ExercicesModel?>>> getExercicesExample() async {
+  Future<Map<String, List<ExercicesModel?>>> getExercices() async {
     try {
       const String query = '''
         {
@@ -276,23 +277,18 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
         }
       ''';
 
-      final result = await graphqlClient.query(
+      final result = await graphQLService.client.query(
         QueryOptions(
           document: gql(query),
           fetchPolicy: FetchPolicy.noCache,
         ),
       );
-      print("result");
-      print(result);
 
       if (result.hasException) {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
       final data = result.data?["exercicesGroupByCategories"] as List;
-
-      print("data");
-      print(data);
 
       return transformData(data.cast<Map<String, dynamic>>());
     } catch (e) {
@@ -321,11 +317,6 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
         return previousValue;
       },
     );
-  }
-
-  @override
-  Future<Map<String, List<ExercicesModel?>>> getExercices() async {
-    return data;
   }
 
   @override
