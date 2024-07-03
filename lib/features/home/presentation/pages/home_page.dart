@@ -6,17 +6,41 @@ import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/week_days_widget.dart';
+import 'package:home_widget/home_widget.dart';
+import 'package:pulse/features/widget/news_data.dart';
+
+
+const String appGroupId = 'com.nicolaslacoste.pulse';              // Add from here
+const String iOSWidgetName = 'NewsWidgets';
+const String androidWidgetName = 'NewsWidget';  
 
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
 }
 
+void updateHeadline(NewsArticle newHeadline) {             // Add from here
+  // Save the headline data to the widget
+  HomeWidget.saveWidgetData<String>('headline_title', newHeadline.title);
+  HomeWidget.saveWidgetData<String>(
+      'headline_description', newHeadline.description);
+  HomeWidget.updateWidget(
+    iOSName: iOSWidgetName,
+    androidName: androidWidgetName,
+  );
+}  
+
 class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
+    HomeWidget.setAppGroupId(appGroupId);
+
+    // Mock read in some data and update the headline
+    final newHeadline = getNewsStories()[1];
+    updateHeadline(newHeadline);
+
   }
 
   @override

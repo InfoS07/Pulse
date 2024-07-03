@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/home/presentation/pages/home_page.dart';
+import 'package:pulse/features/widget/news_data.dart';
 
 class Challenge {
   final String title;
@@ -21,39 +23,34 @@ class GroupPage extends StatelessWidget {
   final List<Challenge> challenges = [
     Challenge(
       title: 'Réaliser 3 entraînements',
-      description:
-          'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
+      description: 'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
       status: 'Accepter',
       statusColor: AppPallete.primaryColor,
     ),
     Challenge(
       title: 'Réaliser 3 entraînements',
-      description:
-          'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
+      description: 'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
       status: 'En cours',
       statusColor: AppPallete.primaryColorFade,
       textColor: AppPallete.primaryColor,
     ),
     Challenge(
       title: 'Réaliser 3 entraînements',
-      description:
-          'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
+      description: 'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
       status: 'Échoué',
       statusColor: AppPallete.errorColorFade,
       textColor: AppPallete.errorColor,
     ),
     Challenge(
       title: 'Réaliser 3 entraînements',
-      description:
-          'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
+      description: 'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
       status: 'Échoué',
       statusColor: AppPallete.errorColorFade,
       textColor: AppPallete.errorColor,
     ),
     Challenge(
       title: 'Réaliser 3 entraînements',
-      description:
-          'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
+      description: 'Atteignez 1000 calories brûlées aujourd’hui\nDu 20 juin au 23 juin 2024',
       status: 'Échoué',
       statusColor: AppPallete.errorColorFade,
       textColor: AppPallete.errorColor,
@@ -64,7 +61,7 @@ class GroupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Groupe'),
@@ -86,6 +83,12 @@ class GroupPage extends StatelessWidget {
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
               ),
+              Tab(
+                child: Text(
+                  'Mettre à jour',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
             ],
           ),
         ),
@@ -93,6 +96,7 @@ class GroupPage extends StatelessWidget {
           children: [
             _buildChallengeGrid(),
             _buildChallengeGrid(),
+            _buildUpdateTab(context),
           ],
         ),
       ),
@@ -161,6 +165,22 @@ class GroupPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildUpdateTab(BuildContext context) {
+    return Center(
+      child: FloatingActionButton.extended(
+        onPressed: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Updating home screen widget...')),
+          );
+          // New: call updateHeadline
+          final newHeadline = getNewsStories()[1]; // Assurez-vous que getNewsStories est disponible
+          updateHeadline(newHeadline);
+        },
+        label: const Text('Update Homescreen'),
       ),
     );
   }
