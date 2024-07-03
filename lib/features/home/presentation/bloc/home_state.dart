@@ -13,12 +13,11 @@ class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
   final List<SocialMediaPost> posts;
-  final String filter;
 
-  const HomeLoaded(this.posts, this.filter);
+  const HomeLoaded(this.posts);
 
   @override
-  List<Object> get props => [posts, filter];
+  List<Object> get props => [posts];
 }
 
 class HomeError extends HomeState {

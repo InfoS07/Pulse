@@ -1,174 +1,121 @@
+import 'dart:typed_data';
+import 'package:fpdart/fpdart.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pulse/core/common/entities/comment.dart';
-import 'package:pulse/core/common/entities/post.dart';
-import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:pulse/core/error/exceptions.dart';
+import 'package:pulse/features/home/domain/models/post_model.dart';
+import 'package:pulse/features/home/domain/models/social_media_post_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 abstract class PostsRemoteDataSource {
   Future<List<SocialMediaPost>> getPosts();
+  Future<Unit> likePost(int postId);
 }
 
 class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
+  final SupabaseClient supabaseClient;
+
+  PostsRemoteDataSourceImpl(this.supabaseClient);
+
   @override
   Future<List<SocialMediaPost>> getPosts() async {
-    return Future.value([
-      SocialMediaPost(
-        title: 'Course à pied matinale',
-        profileImageUrl:
-            'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-        postImageUrl:
-            'https://images.pexels.com/photos/104827/cat-pet-animal-domestic-104827.jpeg',
-        username: 'Jean',
-        timestamp: DateTime.now().subtract(Duration(hours: 1)).toString(),
-        content:
-            'J\'ai fait une course à pied de 5 km ce matin, ça fait du bien!',
-        likes: 23,
-        comments: [
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-            username: 'Marie',
-            timestamp: DateTime.now().subtract(Duration(hours: 2)).toString(),
-            content: 'Bravo Jean, tu es un vrai sportif!',
-          ),
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-            username: 'Pierre',
-            timestamp: DateTime.now().subtract(Duration(hours: 2)).toString(),
-            content: 'Tu es une source d\'inspiration Jean!',
-          ),
-        ],
-      ),
-      SocialMediaPost(
-        title: 'Séance de yoga',
-        profileImageUrl:
-            'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-        postImageUrl:
-            'https://images.pexels.com/photos/356378/pexels-photo-356378.jpeg',
-        username: 'Marie',
-        timestamp: DateTime.now().subtract(Duration(hours: 2)).toString(),
-        content:
-            'Le yoga est vraiment relaxant. Voici quelques photos de ma séance d\'aujourd\'hui.',
-        likes: 45,
-        comments: [
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-            username: 'Jean',
-            timestamp: DateTime.now().subtract(Duration(hours: 3)).toString(),
-            content: 'Tu es très souple Marie!',
-          ),
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-            username: 'Pierre',
-            timestamp: DateTime.now().subtract(Duration(hours: 3)).toString(),
-            content: 'Tu es une vraie pro Marie!',
-          ),
-        ],
-      ),
-      SocialMediaPost(
-        title: 'Entraînement HIIT',
-        profileImageUrl:
-            'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-        postImageUrl:
-            'https://images.pexels.com/photos/221210/pexels-photo-221210.jpeg',
-        username: 'Pierre',
-        timestamp: DateTime.now().subtract(Duration(days: 1)).toString(),
-        content:
-            'J\'ai essayé une nouvelle routine HIIT aujourd\'hui, je suis épuisé mais c\'était génial!',
-        likes: 67,
-        comments: [
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-            username: 'Jean',
-            timestamp: DateTime.now().subtract(Duration(days: 2)).toString(),
-            content: 'Bravo Pierre, tu es un vrai guerrier!',
-          ),
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-            username: 'Marie',
-            timestamp: DateTime.now().subtract(Duration(days: 2)).toString(),
-            content: 'Tu es une source d\'inspiration Pierre!',
-          ),
-          Comment(
-            profileImageUrl:
-                'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-            username: 'Pierre',
-            timestamp: DateTime.now().subtract(Duration(days: 2)).toString(),
-            content: 'Merci les amis, vous êtes géniaux!',
-          ),
-        ],
-      ),
-      SocialMediaPost(
-          title: 'Randonnée en montagne',
-          profileImageUrl:
-              'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-          postImageUrl:
-              'https://images.pexels.com/photos/239520/pexels-photo-239520.jpeg',
-          username: 'Paul',
-          timestamp: DateTime.now().subtract(Duration(days: 2)).toString(),
-          content:
-              'Une magnifique randonnée en montagne aujourd\'hui, la vue était incroyable!',
-          likes: 89,
-          comments: [
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-              username: 'Jean',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Bravo Paul, tu as l\'air en forme!',
-            ),
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-              username: 'Marie',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Tu as de la chance, j\'aurais aimé être là!',
-            ),
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-              username: 'Pierre',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Tu es un vrai aventurier Paul!',
-            ),
-          ]),
-      SocialMediaPost(
-          title: 'Nouveau record de pompes',
-          profileImageUrl:
-              'https://images.pexels.com/photos/1130626/pexels-photo-1130626.jpeg',
-          postImageUrl:
-              'https://images.pexels.com/photos/416809/pexels-photo-416809.jpeg',
-          username: 'Alice',
-          timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-          content:
-              'J\'ai battu mon record de pompes aujourd\'hui, 50 en une minute!',
-          likes: 120,
-          comments: [
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg',
-              username: 'Jean',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Bravo Alice, tu es une machine!',
-            ),
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg',
-              username: 'Marie',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Incroyable, je suis impressionnée!',
-            ),
-            Comment(
-              profileImageUrl:
-                  'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg',
-              username: 'Pierre',
-              timestamp: DateTime.now().subtract(Duration(days: 3)).toString(),
-              content: 'Tu es une source d\'inspiration Alice!',
-            ),
-          ])
-    ]);
+    try {
+      final response = await supabaseClient
+          .from('training')
+          .select(
+              '*,  users:users!training_author_id_fkey(*),  likes : training_like_users(* , user : users (username, profile_photo)) , comments: training_comments (* , user : users (username, profile_photo))')
+          .order('created_at', ascending: false);
+
+      /* if (response.error != null) {
+        throw ServerException(response.error!.message);
+      }
+      */
+
+      print(response);
+      final List<dynamic> postsData = response;
+
+      var data = postsData.map<Future<SocialMediaPostModel>>((post) async {
+        if (post["photos"] != null && post["photos"].isNotEmpty) {
+          final String url = await supabaseClient.storage
+              .from('training')
+              .getPublicUrl(post["photos"][0]);
+
+          //final XFile file = await uint8ListToXFile(fileData, 'profile_image_${post["id"]}.jpg');
+
+          post['postImageUrl'] = url;
+        } else {
+          post['postImageUrl'] = null;
+        }
+
+        final isLiked = post['likes'].any(
+            (like) => like['user_id'] == supabaseClient.auth.currentUser!.id);
+
+        post['isLiked'] = isLiked;
+
+        return SocialMediaPostModel.fromJson(post);
+      }).toList();
+
+      return await Future.wait(data);
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  Future<XFile> uint8ListToXFile(Uint8List data, String filename) async {
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/$filename';
+    final file = await File(filePath).writeAsBytes(data);
+    return XFile(file.path);
+  }
+
+  //likePost
+  @override
+  Future<Unit> likePost(int postId) async {
+    try {
+      final userId = supabaseClient.auth.currentUser!.id;
+
+      final checkResponse = await supabaseClient
+          .from('training_like_users')
+          .select()
+          .eq('training_id', postId)
+          .eq('user_id', userId);
+
+      /* if (checkResponse != null) {
+        throw ServerException("Error checking like post");
+      } */
+
+      if (checkResponse.isNotEmpty) {
+        final deleteResponse = await supabaseClient
+            .from('training_like_users')
+            .delete()
+            .eq('training_id', postId)
+            .eq('user_id', userId);
+
+        /* if (deleteResponse != null) {
+          throw ServerException(deleteResponse.error!.message);
+        } */
+      } else {
+        final insertResponse =
+            await supabaseClient.from('training_like_users').upsert({
+          'training_id': postId,
+          'user_id': userId,
+        });
+
+        /* if (insertResponse.error != null) {
+          throw ServerException(insertResponse.error!.message);
+        } */
+      }
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+
+    return unit;
   }
 }

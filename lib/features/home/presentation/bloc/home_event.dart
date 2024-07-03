@@ -9,11 +9,11 @@ abstract class HomeEvent extends Equatable {
 
 class LoadPosts extends HomeEvent {}
 
-class FilterPosts extends HomeEvent {
-  final String filter;
+class LikePost extends HomeEvent {
+  final int postId;
 
-  const FilterPosts(this.filter);
+  LikePost(this.postId);
 
   @override
-  List<Object> get props => [filter];
+  List<Object> get props => [postId];
 }

@@ -112,8 +112,6 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       );
 
       final res = await _saveActivityUC(training);
-      print("res");
-      print(res);
 
       res.fold(
         (l) => emit(

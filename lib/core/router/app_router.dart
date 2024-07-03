@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/like.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/common/widgets/dialog_page.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
 import 'package:pulse/core/router/app_router_redirect.dart';
@@ -114,7 +116,8 @@ final GoRouter goRouterProvider = GoRouter(
                                 comments: state.extra as List<Comment>)),
                         GoRoute(
                           path: 'likes',
-                          builder: (context, state) => LikesPage(),
+                          builder: (context, state) =>
+                              LikesPage(likes: state.extra as List<Like>),
                         ),
                       ],
                     ),

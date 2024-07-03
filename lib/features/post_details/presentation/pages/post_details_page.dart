@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pulse/core/common/widgets/exercise_card.dart';
-import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
-import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
-import 'package:pulse/features/home/presentation/widgets/week_days_widget.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 
 import 'package:flutter/material.dart';
 
@@ -71,7 +68,7 @@ class PostDetailsPage extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                post.content,
+                post.description,
                 style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 16),
@@ -117,7 +114,7 @@ class PostDetailsPage extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      context.push('/home/details/1/likes');
+                      context.push('/home/details/1/likes', extra: post.likes);
                     },
                     child: Container(
                       child: Row(

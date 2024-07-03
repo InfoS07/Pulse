@@ -17,9 +17,11 @@ class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
   Future<Training> saveActivity(Training training) async {
     try {
       // Upload photos
+      var photosFileName = <String>[];
       for (var photo in training.photos) {
         final file = await _xFileToFile(photo);
         final fileName = _getUniqueFileName(photo);
+        photosFileName.add(fileName);
 
         final uploadResponse = await supabaseClient.storage
             .from('training')
@@ -34,9 +36,12 @@ class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
         {
           "title": training.description,
           'description': training.description,
-          'photos': training.photos
-              .map((photo) => _getUniqueFileName(photo))
-              .toList(),
+          'status': 'Terminé',
+          'start_at': training.activity.startAt.toIso8601String(),
+          'end_at': training.activity.endAt.toIso8601String(),
+          'status': 'Terminé',
+          'author_id': supabaseClient.auth.currentSession?.user.id,
+          'photos': photosFileName,
         }
       ]);
 

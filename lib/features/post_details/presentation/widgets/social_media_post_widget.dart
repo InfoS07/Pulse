@@ -1,28 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
-
-class SocialMediaPost {
-  final String profileImageUrl;
-  final String username;
-  final String timestamp;
-  final String title;
-  final String content;
-  final String postImageUrl;
-  final int likes;
-  final int comments;
-
-  SocialMediaPost({
-    required this.profileImageUrl,
-    required this.username,
-    required this.timestamp,
-    required this.title,
-    required this.content,
-    required this.postImageUrl,
-    required this.likes,
-    required this.comments,
-  });
-}
 
 class SocialMediaPostWidget extends StatelessWidget {
   final SocialMediaPost post;
@@ -33,7 +12,6 @@ class SocialMediaPostWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.0),
-      color: Color.fromARGB(221, 18, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -84,7 +62,7 @@ class SocialMediaPostWidget extends StatelessWidget {
           ),
           SizedBox(height: 4),
           Text(
-            post.content,
+            post.description,
             style: TextStyle(
               color: Colors.white,
               fontSize: 12,

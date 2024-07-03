@@ -87,7 +87,9 @@ void _initAuth() {
 void _initHome() {
   serviceLocator
     ..registerFactory<PostsRemoteDataSource>(
-      () => PostsRemoteDataSourceImpl(),
+      () => PostsRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
     )
     // Repository
     ..registerFactory<PostsRepository>(
@@ -101,10 +103,16 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => LikePostUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
         getPosts: serviceLocator(),
+        likePost: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );

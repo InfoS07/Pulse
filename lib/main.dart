@@ -69,7 +69,7 @@ class _MyAppState extends State<MyApp> {
           primary: AppPallete.primaryColor,
           secondary: Colors.greenAccent,
         ),
-        scaffoldBackgroundColor: AppPallete.backgroundColor,
+        scaffoldBackgroundColor: Colors.black, //AppPallete.backgroundColor
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.black,
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
+import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 
 class SaveActivityPage extends StatefulWidget {
   @override
@@ -114,6 +115,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
             );
           } else if (state is ActivitySaved) {
             context.go('/home');
+            BlocProvider.of<HomeBloc>(context).add(LoadPosts());
           }
         },
         child: GestureDetector(

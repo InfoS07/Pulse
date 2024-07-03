@@ -1,30 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pulse/core/common/entities/comment.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
-
-class SocialMediaPost {
-  final String profileImageUrl;
-  final String username;
-  final String timestamp;
-  final String title;
-  final String content;
-  final String postImageUrl;
-  int likes;
-  final List<Comment> comments;
-
-  SocialMediaPost({
-    required this.profileImageUrl,
-    required this.username,
-    required this.timestamp,
-    required this.title,
-    required this.content,
-    required this.postImageUrl,
-    required this.likes,
-    required this.comments,
-  });
-}
+import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 
 class SocialMediaPostWidget extends StatefulWidget {
   final SocialMediaPost post;
@@ -37,15 +17,14 @@ class SocialMediaPostWidget extends StatefulWidget {
 }
 
 class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
-  bool isLiked = false;
-
   void toggleLike() {
     setState(() {
-      isLiked = !isLiked;
-      if (isLiked) {
-        widget.post.likes++;
+      print('Like post ${widget.post.id}');
+      BlocProvider.of<HomeBloc>(context).add(LikePost(widget.post.id));
+      if (widget.post.isLiked) {
+        //widget.post.likes++;
       } else {
-        widget.post.likes--;
+        //widget.post.likes--;
       }
     });
   }
@@ -56,7 +35,7 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
       onTap: widget.onTap, // Définir l'action du callback
       child: Container(
         padding: EdgeInsets.all(16.0),
-        color: Color.fromARGB(221, 18, 18, 18),
+        color: AppPallete.backgroundColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,23 +100,69 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
             ),
             SizedBox(height: 4),
             Text(
-              widget.post.content,
+              widget.post.description,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
               ),
             ),
             SizedBox(height: 18),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0), // Rounded corners
-              child: CachedNetworkImage(
-                imageUrl: widget.post.postImageUrl,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Center(child: CircularProgressIndicator()),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Distance',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    Text(
+                      '9,38 km', // Example value, replace with your actual data
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(width: 18),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Temps',
+                      style: TextStyle(color: Colors.grey, fontSize: 12),
+                    ),
+                    Text(
+                      '50min 4s', // Example value, replace with your actual data
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
+            if (widget.post.postImageUrl.isNotEmpty) ...[
+              SizedBox(height: 18),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                child: Container(
+                  height: 100, // Hauteur fixe de 100 pixels
+                  child: CachedNetworkImage(
+                    imageUrl: widget.post.postImageUrl,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+              ),
+            ],
             SizedBox(height: 18),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -146,13 +171,14 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
                   onTap: toggleLike,
                   child: Icon(
                     Icons.thumb_up,
-                    color: isLiked ? Colors.green : Colors.white,
+                    color: widget.post.isLiked ? Colors.green : Colors.white,
                   ),
                 ),
                 SizedBox(width: 4),
                 GestureDetector(
                   onTap: () {
-                    context.push('/home/details/1/likes');
+                    context.push('/home/details/1/likes',
+                        extra: widget.post.likes);
                   },
                   child: Text(
                     widget.post.likes.toString(),
