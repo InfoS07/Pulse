@@ -1,22 +1,19 @@
-class Comment {
+class Like {
   final String profileImageUrl;
   final String username;
   final String createdAt;
-  final String content;
 
-  Comment({
+  Like({
     required this.profileImageUrl,
     required this.username,
     required this.createdAt,
-    required this.content,
   });
 
-  factory Comment.fromJson(Map<String, dynamic> json) {
-    return Comment(
+  factory Like.fromJson(Map<String, dynamic> json) {
+    return Like(
       profileImageUrl: json['user']['profile_photo'],
       username: json['user']['username'],
       createdAt: json['created_at'],
-      content: json['content'],
     );
   }
 
@@ -24,8 +21,7 @@ class Comment {
     return {
       'profileImageUrl': profileImageUrl,
       'username': username,
-      'timestamp': createdAt,
-      'content': content,
+      'createdAt': createdAt,
     };
   }
 }

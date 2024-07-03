@@ -100,7 +100,7 @@ class CommentsPage extends StatelessWidget {
                                         fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    comment.timestamp,
+                                    comment.createdAt,
                                     style: TextStyle(
                                         color: Colors.grey, fontSize: 12),
                                   ),

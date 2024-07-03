@@ -10,6 +10,10 @@ Future<void> initDependencies() async {
 
   serviceLocator.registerLazySingleton(() => supabase.client);
 
+  final graphQLService = GraphQLService(AppSecrets.apiGraphqlUrl);
+
+  serviceLocator.registerLazySingleton<GraphQLService>(() => graphQLService);
+
   serviceLocator.registerFactory(() => InternetConnection());
 
   serviceLocator.registerLazySingleton(
@@ -39,6 +43,7 @@ void _initAuth() {
   serviceLocator
     ..registerFactory<AuthRemoteDataSource>(
       () => AuthRemoteDataSourceImpl(
+        serviceLocator(),
         serviceLocator(),
       ),
     )
@@ -85,7 +90,9 @@ void _initAuth() {
 void _initHome() {
   serviceLocator
     ..registerFactory<PostsRemoteDataSource>(
-      () => PostsRemoteDataSourceImpl(),
+      () => PostsRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
     )
     // Repository
     ..registerFactory<PostsRepository>(
@@ -99,10 +106,16 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => LikePostUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
         getPosts: serviceLocator(),
+        likePost: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );
@@ -271,10 +284,16 @@ void _initExercices() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => SearchExercices(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => ExercicesBloc(
         getExercices: serviceLocator(),
+        searchExercices: serviceLocator(),
       ),
     );
 }

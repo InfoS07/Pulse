@@ -28,4 +28,13 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
       return Left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, Map<String, List<Exercice?>>>> searchExercices(
+      String searchTerm, String? category) async {
+    return _getExercices(
+      () async =>
+          await exercicesDataSource.searchExercices(searchTerm, category),
+    );
+  }
 }

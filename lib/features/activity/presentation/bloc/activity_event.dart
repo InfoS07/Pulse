@@ -52,15 +52,15 @@ class StopActivity extends ActivityEvent {
 
 class SaveActivity extends ActivityEvent {
   final String description;
-  final List<String> photoUrls;
+  final List<XFile> photos;
 
   const SaveActivity({
     required this.description,
-    required this.photoUrls,
+    required this.photos,
   });
 
   @override
-  List<Object> get props => [description, photoUrls];
+  List<Object> get props => [description, photos];
 }
 
 class SaveFailed extends ActivityEvent {

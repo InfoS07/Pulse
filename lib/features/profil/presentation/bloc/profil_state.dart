@@ -13,11 +13,8 @@ final class ProfilSuccess extends ProfilState {
   final Profil profil;
   final List<Profil> followers;
   final List<Profil> followings;
-  const ProfilSuccess(this.profil,this.followers,this.followings);
-
+  const ProfilSuccess(this.profil, this.followers, this.followings);
 }
-
-
 
 final class ProfilFailure extends ProfilState {
   final String message;

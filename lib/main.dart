@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
@@ -19,25 +20,28 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await initDependencies();
-  runApp(MultiBlocProvider(
-    providers: [
-      BlocProvider(
-        create: (_) => serviceLocator<AppUserCubit>(),
-      ),
-      BlocProvider(
-        create: (_) => serviceLocator<AuthBloc>(),
-      ),
-      BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
-      BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
-      BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
-      BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
-      BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
-      BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
-      BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>())
-    ],
-    child: const MyApp(),
-  ));
+
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(MultiBlocProvider(
+            providers: [
+              BlocProvider(
+                create: (_) => serviceLocator<AppUserCubit>(),
+              ),
+              BlocProvider(
+                create: (_) => serviceLocator<AuthBloc>(),
+              ),
+              BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
+              BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>())
+            ],
+            child: const MyApp(),
+          )));
 }
 
 class MyApp extends StatefulWidget {
@@ -71,7 +75,7 @@ class _MyAppState extends State<MyApp> {
           primary: AppPallete.primaryColor,
           secondary: Colors.greenAccent,
         ),
-        scaffoldBackgroundColor: Colors.black,
+        scaffoldBackgroundColor: Colors.black, //AppPallete.backgroundColor
         appBarTheme: AppBarTheme(
           backgroundColor: Colors.black,
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),

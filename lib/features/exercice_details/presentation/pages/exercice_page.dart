@@ -16,7 +16,6 @@ class ExercicePage extends StatefulWidget {
 class _ExercicePageState extends State<ExercicePage> {
   final List<String> imageUrls = [
     'https://images.pexels.com/photos/317157/pexels-photo-317157.jpeg?auto=compress&cs=tinysrgb&w=600',
-    // Ajoutez d'autres URLs d'images si nécessaire
   ];
 
   int _currentIndex = 0;
@@ -24,49 +23,58 @@ class _ExercicePageState extends State<ExercicePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  children: [
-                    CarouselSlider(
-                      options: CarouselOptions(
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        viewportFraction: 1.0,
-                        enlargeCenterPage: false,
-                        onPageChanged: (index, reason) {
-                          setState(() {
-                            _currentIndex = index;
-                          });
-                        },
-                      ),
-                      items: imageUrls.map((url) {
-                        return Builder(
-                          builder: (BuildContext context) {
-                            return Image.network(
-                              widget.exercice.urlPhoto,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        );
-                      }).toList(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.transparent,
+            expandedHeight: MediaQuery.of(context).size.height * 0.5,
+            floating: false,
+            pinned: true,
+            flexibleSpace: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                var top = constraints.biggest.height;
+                return FlexibleSpaceBar(
+                  background: CarouselSlider(
+                    options: CarouselOptions(
+                      height: MediaQuery.of(context).size.height * 0.5,
+                      viewportFraction: 1.0,
+                      enlargeCenterPage: false,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          _currentIndex = index;
+                        });
+                      },
                     ),
-                    Positioned(
-                      top: 25.0,
-                      left: 15.0,
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () {
-                          context.pop();
+                    items: imageUrls.map((url) {
+                      return Builder(
+                        builder: (BuildContext context) {
+                          return Image.network(
+                            widget.exercice.urlPhoto,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          );
                         },
-                      ),
-                    ),
-                  ],
-                ),
+                      );
+                    }).toList(),
+                  ),
+                  title: AnimatedOpacity(
+                    duration: Duration(milliseconds: 300),
+                    opacity: top < 110.0 ? 1.0 : 0.0,
+                    child: Text(widget.exercice.title),
+                  ),
+                );
+              },
+            ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                context.pop();
+              },
+            ),
+          ),
+          SliverList(
+            delegate: SliverChildListDelegate(
+              [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: imageUrls.map((url) {
@@ -95,12 +103,12 @@ class _ExercicePageState extends State<ExercicePage> {
                         children: [
                           Text(
                             widget.exercice.title,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          Row(
+                          const Row(
                             children: [
                               FaIcon(
                                 FontAwesomeIcons.fire,
@@ -116,54 +124,58 @@ class _ExercicePageState extends State<ExercicePage> {
                           Chip(
                             label: Text('Cardio'),
                             backgroundColor: Colors.grey[800],
+                            labelStyle: TextStyle(color: Colors.white),
                           ),
                           SizedBox(width: 8),
                           Chip(
                             label: Text('Course'),
                             backgroundColor: Colors.grey[800],
+                            labelStyle: TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
-                      Text(
+                      const SizedBox(height: 16),
+                      const Text(
                         'Détails',
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         widget.exercice.description,
-                        style: TextStyle(fontSize: 16, color: Colors.white),
+                        style: TextStyle(fontSize: 14, color: Colors.white),
                       ),
-                      SizedBox(height: 16),
-                      Text(
+                      const SizedBox(height: 16),
+                      const Text(
                         'Informations complémentaires',
                         style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
                       SizedBox(height: 8),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          _buildInfoCard('${widget.exercice.caloriesBurned}',
-                              'Calories brûlées'),
                           _buildInfoCard(
                               '${widget.exercice.duration}', 'Durée (min)'),
+                          SizedBox(width: 16),
+                          _buildInfoCard(
+                              '${widget.exercice.caloriesBurned}', 'Calories'),
                         ],
                       ),
                       SizedBox(height: 8),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          _buildInfoCard('${widget.exercice.laps}', 'Tour'),
                           _buildInfoCard('${widget.exercice.podCount}', 'Pods'),
+                          SizedBox(width: 16),
+                          _buildInfoCard('${widget.exercice.laps}', 'Tour'),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 60),
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
@@ -187,6 +199,7 @@ class _ExercicePageState extends State<ExercicePage> {
                           ),
                         ),
                       ),
+                      SizedBox(height: 60),
                     ],
                   ),
                 ),
@@ -200,22 +213,26 @@ class _ExercicePageState extends State<ExercicePage> {
 
   Widget _buildInfoCard(String value, String label) {
     return Container(
-      padding: EdgeInsets.all(16),
+      width: 120,
+      height: 100,
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
                 fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             label,
-            style: TextStyle(fontSize: 14, color: Colors.white),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 14, color: Colors.white),
           ),
         ],
       ),
