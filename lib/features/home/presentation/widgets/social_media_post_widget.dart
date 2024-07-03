@@ -43,7 +43,8 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
               children: [
                 GestureDetector(
                   onTap: () {
-                    context.push('/otherProfil');
+                    // Ajouter l'action de navigation
+                    //context.push('/otherProfil');
                   },
                   child: CircleAvatar(
                     radius: 20,

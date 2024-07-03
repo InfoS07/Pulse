@@ -18,21 +18,24 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final nameController = TextEditingController();
+  final usernameController = TextEditingController();
+  final firstNameController = TextEditingController();
+  final lastNameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    nameController.dispose();
+    usernameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(15.0),
         child: BlocConsumer<AuthBloc, AuthState>(
@@ -40,11 +43,6 @@ class _SignUpPageState extends State<SignUpPage> {
             if (state is AuthFailure) {
               showSnackBar(context, state.message);
             } else if (state is AuthSuccess) {
-              /* Navigator.pushAndRemoveUntil(
-                context,
-                BlogPage.route(),
-                (route) => false,
-              ); */
               context.go('/login');
             }
           },
@@ -67,6 +65,21 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                   const SizedBox(height: 30),
                   AuthField(
+                    hintText: 'Username',
+                    controller: usernameController,
+                  ),
+                  const SizedBox(height: 15),
+                  AuthField(
+                    hintText: 'First Name',
+                    controller: firstNameController,
+                  ),
+                  const SizedBox(height: 15),
+                  AuthField(
+                    hintText: 'Last Name',
+                    controller: lastNameController,
+                  ),
+                  const SizedBox(height: 15),
+                  AuthField(
                     hintText: 'Email',
                     controller: emailController,
                   ),
@@ -85,7 +98,9 @@ class _SignUpPageState extends State<SignUpPage> {
                               AuthSignUp(
                                 email: emailController.text.trim(),
                                 password: passwordController.text.trim(),
-                                name: nameController.text.trim(),
+                                username: usernameController.text.trim(),
+                                firstName: firstNameController.text.trim(),
+                                lastName: lastNameController.text.trim(),
                               ),
                             );
                       }

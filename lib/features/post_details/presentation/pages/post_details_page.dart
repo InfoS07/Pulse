@@ -34,7 +34,8 @@ class PostDetailsPage extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       // Ajouter l'action de navigation
-                      context.push('/otherProfil');
+                      String userId = "24";
+                      context.push('/otherProfil',extra: userId);
                     },
                     child: CircleAvatar(
                       backgroundImage: NetworkImage(post.profileImageUrl),

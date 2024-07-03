@@ -19,9 +19,12 @@ import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart'
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/likes/presentation/pages/likes_page.dart';
+import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
+import 'package:pulse/features/profil_other/presentation/pages/list_trainings_other_page.dart';
+import 'package:pulse/features/profil_other/presentation/pages/profil_follow_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
 import 'package:pulse/features/group/presentation/pages/group_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
@@ -30,6 +33,7 @@ import 'package:pulse/init_dependencies.dart';
 enum RoutePath {
   root(path: '/'),
   signIn(path: 'login'),
+  signUp(path: 'signup'),
   home(path: 'home'),
   exercices(path: 'exercices'),
   progress(path: 'progress'),
@@ -59,14 +63,39 @@ final GoRouter goRouterProvider = GoRouter(
           builder: (context, state) => LoginPage(),
         ),
         GoRoute(
+          path: RoutePath.signUp.path,
+          name: RoutePath.signUp.name,
+          builder: (context, state) => SignUpPage(),
+        ),
+        GoRoute(
           path: RoutePath.otherProfil.path,
           name: RoutePath.otherProfil.name,
-          builder: (context, state) => ProfilOtherPage(),
+          pageBuilder: (BuildContext context, GoRouterState state) {
+            final userId = state.extra as String;
+            return DialogPage(
+              builder: (_) => ProfilOtherPage(userId: userId),
+            );
+          },
           routes: [
             GoRoute(
               path: RoutePath.followOther.path,
               name: RoutePath.followOther.name,
-              builder: (context, state) => ProfilFollowPage(),
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                final userIdOther = state.extra as String;
+                return DialogPage(
+                  builder: (_) =>
+                      OtherProfilFollowPage(userIdOther: userIdOther),
+                );
+              },
+            ),
+            GoRoute(
+              path: 'entrainementsOther',
+              pageBuilder: (BuildContext context, GoRouterState state) {
+                final userId = state.extra as String;
+                return DialogPage(
+                  builder: (_) => TrainingListOtherScreen(userId: userId),
+                );
+              },
             ),
           ],
         ),
@@ -169,6 +198,10 @@ final GoRouter goRouterProvider = GoRouter(
                       builder: (context, state) => ProfilFollowPage(),
                     ),
                   ],
+                ),
+                GoRoute(
+                  path: 'entrainements',
+                  builder: (context, state) => TrainingListScreen(),
                 ),
               ],
             ),

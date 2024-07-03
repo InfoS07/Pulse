@@ -11,8 +11,9 @@ final class ProfilLoading extends ProfilState {}
 
 final class ProfilSuccess extends ProfilState {
   final Profil profil;
-
-  const ProfilSuccess(this.profil);
+  final List<Profil> followers;
+  final List<Profil> followings;
+  const ProfilSuccess(this.profil, this.followers, this.followings);
 }
 
 final class ProfilFailure extends ProfilState {
