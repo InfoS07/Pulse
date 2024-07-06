@@ -6,6 +6,8 @@ import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
 
 class TrainingListScreen extends StatefulWidget {
+  const TrainingListScreen({super.key});
+
   @override
   _TrainingListScreenState createState() => _TrainingListScreenState();
 }
@@ -74,7 +76,7 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
 class TrainingListItem extends StatelessWidget {
   final TrainingList training;
 
-  const TrainingListItem({Key? key, required this.training}) : super(key: key);
+  const TrainingListItem({super.key, required this.training});
 
   @override
   Widget build(BuildContext context) {

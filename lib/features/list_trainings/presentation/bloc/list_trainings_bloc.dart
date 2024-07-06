@@ -2,7 +2,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/features/list_trainings/domain/usecases/get_trainings.dart';
 

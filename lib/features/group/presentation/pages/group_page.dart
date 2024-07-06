@@ -61,13 +61,15 @@ class GroupPage extends StatelessWidget {
     // Ajoutez d'autres challenges si nécessaire
   ];
 
+  GroupPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Groupe'),
+          title: const Text('Groupe'),
           bottom: const TabBar(
             indicatorColor: AppPallete.primaryColor,
             indicatorWeight: 3.0,
@@ -122,7 +124,7 @@ class GroupPage extends StatelessWidget {
     return Card(
       color: Colors.black,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.white, width: 0.5),
+        side: const BorderSide(color: Colors.white, width: 0.5),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: Padding(
@@ -132,21 +134,22 @@ class GroupPage extends StatelessWidget {
           children: [
             Text(
               challenge.title,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Expanded(
               child: Text(
                 challenge.description,
-                style: TextStyle(color: Colors.white, fontSize: 14),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               decoration: BoxDecoration(
                 color: challenge.statusColor,
                 borderRadius: BorderRadius.circular(8.0),

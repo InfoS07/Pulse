@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/core/network/connection_checker.dart';
 import 'package:pulse/core/router/app_router.dart';
 import 'package:pulse/core/router/app_router_listenable.dart';
@@ -62,7 +60,11 @@ import 'package:pulse/features/profil_other/domain/usecases/get_followings.dart'
 import 'package:pulse/features/profil_other/domain/usecases/get_other_profil.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_trainings.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
+import 'package:pulse/features/search_users/data/datasources/search_user_remote_data_source.dart';
+import 'package:pulse/features/search_users/data/repositories/search_user_repository_impl.dart';
+import 'package:pulse/features/search_users/domain/repository/search_user_repository.dart';
+import 'package:pulse/features/search_users/domain/usecases/search_user_uc.dart';
+import 'package:pulse/features/search_users/presentation/bloc/search_users_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 
 part 'init_dependencies.main.dart';

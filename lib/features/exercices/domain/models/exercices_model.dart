@@ -1,5 +1,4 @@
 import 'package:pulse/core/common/entities/exercice.dart';
-import 'package:pulse/core/common/entities/user.dart';
 
 class ExercicesModel extends Exercice {
   ExercicesModel({
@@ -21,14 +20,15 @@ class ExercicesModel extends Exercice {
 
   factory ExercicesModel.fromJson(Map<String, dynamic> map) {
     return ExercicesModel(
-      id: map['id'] ?? '',
+      id: map['id'] ?? 0,
       title: map['title'] ?? '',
-      urlPhoto: map['media'].isNotEmpty
-          ? map['media'][0]['url_photo']
-          : 'https://images.pexels.com/photos/28080/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
+      urlPhoto: map['exerciceImageUrl'] ?? '',
       description: map['description'] ?? '',
       duration: map['duration'] ?? 0,
-      sequence: map['sequence'] ?? [],
+      sequence: (map['sequence'] as List<dynamic>?)
+              ?.map((item) => item as int)
+              .toList() ??
+          [],
       repetitions: map['repetitions'] ?? 0,
       podCount: map['pod_count'] ?? 0,
       playerCount: map['player_count'] ?? 0,
@@ -41,7 +41,7 @@ class ExercicesModel extends Exercice {
   }
 
   ExercicesModel copyWith({
-    String? id,
+    int? id,
     String? title,
     String? urlPhoto,
     String? description,

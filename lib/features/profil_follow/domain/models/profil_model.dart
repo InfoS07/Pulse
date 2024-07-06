@@ -9,8 +9,6 @@ class ProfilModel extends Profil {
     required super.firstName,
     required super.username,
     required super.birthDate,
-    required super.heightCm,
-    required super.weightKg,
     required super.profilePhoto,
   });
 
@@ -23,8 +21,6 @@ class ProfilModel extends Profil {
       firstName: map['first_name'] ?? '',
       username: map['username'] ?? '',
       birthDate: DateTime.parse(map['birth_date']),
-      heightCm: map['height_cm'] ?? 0,
-      weightKg: map['weight_kg'] ?? 0,
       profilePhoto: map['profile_photo'] ?? '',
     );
   }
@@ -41,8 +37,6 @@ class ProfilModel extends Profil {
     String? firstName,
     String? username,
     DateTime? birthDate,
-    int? heightCm,
-    int? weightKg,
     String? profilePhoto,
   }) {
     return ProfilModel(
@@ -53,8 +47,6 @@ class ProfilModel extends Profil {
       firstName: firstName ?? this.firstName,
       username: username ?? this.username,
       birthDate: birthDate ?? this.birthDate,
-      heightCm: heightCm ?? this.heightCm,
-      weightKg: weightKg ?? this.weightKg,
       profilePhoto: profilePhoto ?? this.profilePhoto,
     );
   }

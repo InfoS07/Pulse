@@ -1,31 +1,23 @@
 import 'package:pulse/core/common/entities/comment.dart';
-import 'package:pulse/core/common/entities/like.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 
 class SocialMediaPostModel extends SocialMediaPost {
   SocialMediaPostModel({
-    required int id,
-    required String title,
-    required String description,
-    required String profileImageUrl,
-    required String username,
-    required String timestamp,
-    required String postImageUrl,
-    required int likes,
-    required List<Comment> comments,
-    required bool isLiked,
-  }) : super(
-          id: id,
-          profileImageUrl: profileImageUrl,
-          username: username,
-          timestamp: timestamp,
-          title: title,
-          description: description,
-          postImageUrl: postImageUrl,
-          likes: likes,
-          comments: comments,
-          isLiked: isLiked,
-        );
+    required super.id,
+    required super.title,
+    required super.description,
+    required super.profileImageUrl,
+    required super.username,
+    required super.timestamp,
+    required super.startAt,
+    required super.endAt,
+    required super.postImageUrls,
+    required super.likes,
+    required super.comments,
+    required super.isLiked,
+    required super.exercice,
+  });
 
   factory SocialMediaPostModel.fromJson(Map<String, dynamic> json) {
     return SocialMediaPostModel(
@@ -36,12 +28,15 @@ class SocialMediaPostModel extends SocialMediaPost {
       timestamp: json['created_at'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      postImageUrl: json['postImageUrl'] ?? '',
+      postImageUrls: json['postImageUrls'] ?? [],
       likes: json['likes'].length,
       comments: (json['comments'] as List)
           .map((comment) => Comment.fromJson(comment))
           .toList(),
       isLiked: json['isLiked'],
+      exercice: ExercicesModel.fromJson(json['exercice']),
+      startAt: DateTime.parse(json['start_at']),
+      endAt: DateTime.parse(json['end_at']),
     );
   }
 
@@ -53,9 +48,10 @@ class SocialMediaPostModel extends SocialMediaPost {
       'timestamp': timestamp,
       'title': title,
       'description': description,
-      'postImageUrl': postImageUrl,
+      'postImageUrl': postImageUrls,
       'likes': likes,
       'comments': comments.map((comment) => comment.toJson()).toList(),
+      'isLiked': isLiked,
     };
   }
 }

@@ -6,8 +6,7 @@ class User {
   final String firstName;
   final String username;
   final DateTime birthDate;
-  final int heightCm;
-  final int weightKg;
+  final String urlProfilePhoto;
 
   User({
     required this.id,
@@ -17,8 +16,7 @@ class User {
     required this.firstName,
     required this.username,
     required this.birthDate,
-    required this.heightCm,
-    required this.weightKg,
+    required this.urlProfilePhoto,
   });
 
   static User empty() {
@@ -30,8 +28,7 @@ class User {
       firstName: 'Thierry',
       username: 'Joujou',
       birthDate: DateTime.now(),
-      heightCm: 160,
-      weightKg: 70,
+      urlProfilePhoto: '',
     );
   }
 }

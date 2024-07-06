@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
-import 'exercice.dart';
 
 class Activity extends Equatable {
   final int id;
@@ -20,7 +19,7 @@ class Activity extends Equatable {
   final List<int> pauseBetweenLaps;
   final Duration timer;
 
-  Activity({
+  const Activity({
     required this.id,
     required this.exercise,
     required this.laps,
@@ -54,8 +53,8 @@ class Activity extends Equatable {
       maxBpm: 0,
       avgSpeed: 0.0,
       maxSpeed: 0.0,
-      durationLaps: [],
-      pauseBetweenLaps: [],
+      durationLaps: const [],
+      pauseBetweenLaps: const [],
       timer: Duration.zero,
     );
   }

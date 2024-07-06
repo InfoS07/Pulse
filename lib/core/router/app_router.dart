@@ -14,10 +14,8 @@ import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
 import 'package:pulse/features/comments/presentation/pages/comments_page.dart';
 import 'package:pulse/features/exercice_details/presentation/pages/exercice_page.dart';
-import 'package:pulse/features/exercice_details/presentation/pages/modal_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
-import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/likes/presentation/pages/likes_page.dart';
 import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
@@ -28,6 +26,7 @@ import 'package:pulse/features/profil_other/presentation/pages/profil_follow_oth
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
 import 'package:pulse/features/group/presentation/pages/group_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
+import 'package:pulse/features/search_users/presentation/pages/search_users_page.dart';
 import 'package:pulse/init_dependencies.dart';
 
 enum RoutePath {
@@ -38,10 +37,12 @@ enum RoutePath {
   exercices(path: 'exercices'),
   progress(path: 'progress'),
   activity(path: 'activity'),
+  comments(path: 'comments'),
   saveActivity(path: 'save'),
   otherProfil(path: 'otherProfil'),
   follow(path: 'follow'),
   followOther(path: 'followOther'),
+  searchUser(path: 'searchUser'),
   profil(path: 'profil');
 
   const RoutePath({required this.path});
@@ -55,17 +56,17 @@ final GoRouter goRouterProvider = GoRouter(
     GoRoute(
       path: RoutePath.root.path,
       name: RoutePath.root.name,
-      builder: (context, state) => SplashScreen(),
+      builder: (context, state) => const SplashScreen(),
       routes: [
         GoRoute(
           path: RoutePath.signIn.path,
           name: RoutePath.signIn.name,
-          builder: (context, state) => LoginPage(),
+          builder: (context, state) => const LoginPage(),
         ),
         GoRoute(
           path: RoutePath.signUp.path,
           name: RoutePath.signUp.name,
-          builder: (context, state) => SignUpPage(),
+          builder: (context, state) => const SignUpPage(),
         ),
         GoRoute(
           path: RoutePath.otherProfil.path,
@@ -103,7 +104,7 @@ final GoRouter goRouterProvider = GoRouter(
           path: RoutePath.activity.path,
           name: RoutePath.activity.name,
           pageBuilder: (context, state) => MaterialPage(
-            key: ValueKey('ActivityPage'),
+            key: const ValueKey('ActivityPage'),
             fullscreenDialog: true,
             child: ActivityPage(state.extra as Exercice),
           ),
@@ -111,7 +112,7 @@ final GoRouter goRouterProvider = GoRouter(
             GoRoute(
               path: RoutePath.saveActivity.path,
               name: RoutePath.saveActivity.name,
-              pageBuilder: (context, state) => MaterialPage(
+              pageBuilder: (context, state) => const MaterialPage(
                 key: ValueKey('SaveActivityPage'),
                 fullscreenDialog: true,
                 child: SaveActivityPage(),
@@ -128,7 +129,7 @@ final GoRouter goRouterProvider = GoRouter(
                 GoRoute(
                   path: RoutePath.home.path,
                   name: RoutePath.home.name,
-                  builder: (context, state) => HomePage(),
+                  builder: (context, state) => const HomePage(),
                   routes: [
                     GoRoute(
                       path: 'details/:postIndex',
@@ -140,9 +141,10 @@ final GoRouter goRouterProvider = GoRouter(
                       },
                       routes: [
                         GoRoute(
-                            path: 'comments',
+                            path: RoutePath.comments.path,
+                            name: RoutePath.comments.name,
                             builder: (context, state) => CommentsPage(
-                                comments: state.extra as List<Comment>)),
+                                post: state.extra as SocialMediaPost)),
                         GoRoute(
                           path: 'likes',
                           builder: (context, state) =>
@@ -150,6 +152,18 @@ final GoRouter goRouterProvider = GoRouter(
                         ),
                       ],
                     ),
+                    GoRoute(
+                      path: RoutePath.searchUser.path,
+                      name: RoutePath.searchUser.name,
+                      pageBuilder: (BuildContext context, GoRouterState state) {
+                        return DialogPage(
+                          builder: (_) => SearchUsersPage(),
+                        );
+                      },
+                      /* builder: (context, state) => DialogPage(
+                          builder: (_) => SearchUsersPage(),
+                        );, */
+                    )
                   ],
                 ),
               ],
@@ -159,7 +173,7 @@ final GoRouter goRouterProvider = GoRouter(
                 GoRoute(
                   path: RoutePath.exercices.path,
                   name: RoutePath.exercices.name,
-                  builder: (context, state) => ExercicesPage(),
+                  builder: (context, state) => const ExercicesPage(),
                   routes: [
                     GoRoute(
                       path: 'details/:exerciceIndex',
@@ -190,18 +204,18 @@ final GoRouter goRouterProvider = GoRouter(
                 GoRoute(
                   path: RoutePath.profil.path,
                   name: RoutePath.profil.name,
-                  builder: (context, state) => ProfilPage(),
+                  builder: (context, state) => const ProfilPage(),
                   routes: [
                     GoRoute(
                       path: RoutePath.follow.path,
                       name: RoutePath.follow.name,
-                      builder: (context, state) => ProfilFollowPage(),
+                      builder: (context, state) => const ProfilFollowPage(),
                     ),
                   ],
                 ),
                 GoRoute(
                   path: 'entrainements',
-                  builder: (context, state) => TrainingListScreen(),
+                  builder: (context, state) => const TrainingListScreen(),
                 ),
               ],
             ),

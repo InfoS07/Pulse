@@ -37,6 +37,7 @@ Future<void> initDependencies() async {
   _initOtherProfil();
   _initProfileFollower();
   _initTrainingList();
+  _initSearchUser();
 }
 
 void _initAuth() {
@@ -331,6 +332,33 @@ void _initActivity() {
       () => ActivityBloc(
         saveActivity: serviceLocator(),
         //createActivityUC: serviceLocator(),
+      ),
+    );
+}
+
+void _initSearchUser() {
+  serviceLocator
+    ..registerFactory<SearchUserRemoteDataSource>(
+      () => SearchUserRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<SearchUserRepository>(
+      () => SearchUserRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => SearchUserUC(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => SearchUsersBloc(
+        searchUser: serviceLocator(),
       ),
     );
 }

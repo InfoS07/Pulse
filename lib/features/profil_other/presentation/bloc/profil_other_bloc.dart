@@ -1,13 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
-import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/common/entities/trainingList.dart';
-import 'package:pulse/core/usecase/usercase.dart';
-import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
-import 'package:pulse/features/profil/domain/usecases/get_profil.dart';
-import 'package:pulse/features/profil/domain/usecases/signout.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_followers.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_followings.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_other_profil.dart';

@@ -28,14 +28,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
         return right(UserModel(
           id: 1,
-          uid: session.user!.id,
+          uid: session.user.id,
           email: "",
           lastName: "",
           firstName: "",
           username: "",
           birthDate: DateTime.now(),
-          heightCm: 0,
-          weightKg: 0,
+          urlProfilePhoto: "",
         ));
       }
       final user = await remoteDataSource.getCurrentUserData();
@@ -73,12 +72,11 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     return _getUser(
       () async => await remoteDataSource.signUpWithEmailPassword(
-        username: username,
-        email: email,
-        password: password,
-        firstName: firstName,
-        lastName: lastName
-      ),
+          username: username,
+          email: email,
+          password: password,
+          firstName: firstName,
+          lastName: lastName),
     );
   }
 

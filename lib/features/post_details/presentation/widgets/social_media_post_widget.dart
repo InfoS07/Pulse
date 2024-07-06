@@ -6,12 +6,13 @@ import 'package:pulse/core/theme/app_pallete.dart';
 class SocialMediaPostWidget extends StatelessWidget {
   final SocialMediaPost post;
 
-  SocialMediaPostWidget({required this.post});
+  const SocialMediaPostWidget({super.key, required this.post});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
+      color: const Color.fromARGB(221, 18, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -27,7 +28,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                   radius: 20,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -51,7 +52,7 @@ class SocialMediaPostWidget extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 22),
+          const SizedBox(height: 22),
           Text(
             post.title,
             style: const TextStyle(
@@ -60,23 +61,23 @@ class SocialMediaPostWidget extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             post.description,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 12,
             ),
           ),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0), // Rounded corners
             child: Image.network(
-              post.postImageUrl,
+              post.postImageUrls[0],
               fit: BoxFit.cover,
             ),
           ),
-          SizedBox(height: 18),
+          const SizedBox(height: 18),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -86,18 +87,18 @@ class SocialMediaPostWidget extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     post.likes.toString(),
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
-              SizedBox(width: 18),
+              const SizedBox(width: 18),
               Row(
                 children: [
-                  Icon(Icons.comment, color: Colors.white),
-                  SizedBox(width: 4),
+                  const Icon(Icons.comment, color: Colors.white),
+                  const SizedBox(width: 4),
                   Text(
                     post.comments.toString(),
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),

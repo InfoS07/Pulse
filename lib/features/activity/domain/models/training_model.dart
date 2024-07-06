@@ -1,7 +1,7 @@
 import 'package:pulse/core/common/entities/training.dart';
 
 class TrainingModel extends Training {
-  TrainingModel(
+  const TrainingModel(
       {required super.id,
       required super.description,
       required super.comments,

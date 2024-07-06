@@ -44,7 +44,7 @@ class PostsRepositoryImpl implements PostsRepository {
     try {
       await fn();
 
-      return Right(unit);
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(Failure(e.message));
     }

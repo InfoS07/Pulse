@@ -1,12 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:meta/meta.dart';
 import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/entities/training.dart';
-import 'package:pulse/core/usecase/usercase.dart';
-import 'package:pulse/features/activity/domain/usecases/create_activity_uc.dart';
 import 'package:pulse/features/activity/domain/usecases/save_activity_uc.dart';
 
 part 'activity_event.dart';
@@ -106,7 +103,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       final training = Training(
         id: DateTime.now().millisecondsSinceEpoch,
         description: event.description,
-        comments: [],
+        comments: const [],
         activity: state.activity,
         photos: event.photos,
       );

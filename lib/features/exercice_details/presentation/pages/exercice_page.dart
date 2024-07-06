@@ -7,7 +7,7 @@ import 'package:pulse/core/common/entities/exercice.dart';
 class ExercicePage extends StatefulWidget {
   final Exercice exercice;
 
-  ExercicePage({required this.exercice});
+  const ExercicePage({super.key, required this.exercice});
 
   @override
   _ExercicePageState createState() => _ExercicePageState();
@@ -58,7 +58,7 @@ class _ExercicePageState extends State<ExercicePage> {
                     }).toList(),
                   ),
                   title: AnimatedOpacity(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     opacity: top < 110.0 ? 1.0 : 0.0,
                     child: Text(widget.exercice.title),
                   ),
@@ -66,7 +66,7 @@ class _ExercicePageState extends State<ExercicePage> {
               },
             ),
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
                 context.pop();
               },
@@ -83,12 +83,12 @@ class _ExercicePageState extends State<ExercicePage> {
                       width: 8.0,
                       height: 8.0,
                       margin:
-                          EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                          const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: _currentIndex == index
-                            ? Color.fromRGBO(66, 162, 31, 0.966)
-                            : Color.fromRGBO(8, 68, 235, 0.914),
+                            ? const Color.fromRGBO(66, 162, 31, 0.966)
+                            : const Color.fromRGBO(8, 68, 235, 0.914),
                       ),
                     );
                   }).toList(),
@@ -118,19 +118,19 @@ class _ExercicePageState extends State<ExercicePage> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           Chip(
-                            label: Text('Cardio'),
+                            label: const Text('Cardio'),
                             backgroundColor: Colors.grey[800],
-                            labelStyle: TextStyle(color: Colors.white),
+                            labelStyle: const TextStyle(color: Colors.white),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Chip(
-                            label: Text('Course'),
+                            label: const Text('Course'),
                             backgroundColor: Colors.grey[800],
-                            labelStyle: TextStyle(color: Colors.white),
+                            labelStyle: const TextStyle(color: Colors.white),
                           ),
                         ],
                       ),
@@ -145,7 +145,7 @@ class _ExercicePageState extends State<ExercicePage> {
                       const SizedBox(height: 8),
                       Text(
                         widget.exercice.description,
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+                        style: const TextStyle(fontSize: 14, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -155,27 +155,27 @@ class _ExercicePageState extends State<ExercicePage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           _buildInfoCard(
                               '${widget.exercice.duration}', 'Durée (min)'),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           _buildInfoCard(
                               '${widget.exercice.caloriesBurned}', 'Calories'),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           _buildInfoCard('${widget.exercice.podCount}', 'Pods'),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           _buildInfoCard('${widget.exercice.laps}', 'Tour'),
                         ],
                       ),
-                      SizedBox(height: 60),
+                      const SizedBox(height: 60),
                       Center(
                         child: ElevatedButton(
                           onPressed: () {
@@ -186,7 +186,7 @@ class _ExercicePageState extends State<ExercicePage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 42, vertical: 16),
                           ),
                           child: const Text(
@@ -199,7 +199,7 @@ class _ExercicePageState extends State<ExercicePage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 60),
+                      const SizedBox(height: 60),
                     ],
                   ),
                 ),

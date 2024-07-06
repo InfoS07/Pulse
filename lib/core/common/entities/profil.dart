@@ -6,8 +6,6 @@ class Profil {
   final String firstName;
   final String username;
   final DateTime birthDate;
-  final int heightCm;
-  final int weightKg;
   final String profilePhoto;
 
   Profil({
@@ -18,8 +16,6 @@ class Profil {
     required this.firstName,
     required this.username,
     required this.birthDate,
-    required this.heightCm,
-    required this.weightKg,
     required this.profilePhoto,
   });
 }

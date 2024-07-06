@@ -7,7 +7,7 @@ class ExerciseCard extends StatelessWidget {
   final Exercice exercise;
   final VoidCallback onTap;
 
-  ExerciseCard({required this.exercise, required this.onTap});
+  const ExerciseCard({super.key, required this.exercise, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -31,17 +31,17 @@ class ExerciseCard extends StatelessWidget {
                   color: Colors.grey[200], // Placeholder color
                   height: 100,
                   width: double.infinity,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: const Center(child: CircularProgressIndicator()),
                 ),
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey, // Error color
                   height: 100,
                   width: double.infinity,
-                  child: Center(child: Icon(Icons.error, color: Colors.white)),
+                  child: const Center(child: Icon(Icons.error, color: Colors.white)),
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +52,7 @@ class ExerciseCard extends StatelessWidget {
                     Text(
                       exercise.title,
                       style:
-                          TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '${exercise.podCount} Pods',

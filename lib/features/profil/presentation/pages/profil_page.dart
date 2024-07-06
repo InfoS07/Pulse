@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
-import 'package:pulse/core/common/entities/profilFollowArguments.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class ProfilPage extends StatefulWidget {
+  const ProfilPage({super.key});
+
   @override
   _ProfilPageState createState() => _ProfilPageState();
 }
@@ -106,7 +107,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
                         _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
-                        Align(
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Collection de trophées',
@@ -120,7 +121,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         Center(
                           child: TextButton(
                             onPressed: _signOut,
-                            child: Text(
+                            child: const Text(
                               'Se déconnecter',
                               style: TextStyle(color: Colors.red),
                             ),
@@ -174,10 +175,10 @@ class _ProfilPageState extends State<ProfilPage> {
 
   Widget _buildListTile(String title, IconData icon) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+      contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
       title: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 18,
           color: Colors.white,
         ),

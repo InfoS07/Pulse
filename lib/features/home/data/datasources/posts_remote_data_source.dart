@@ -1,10 +1,8 @@
 import 'dart:typed_data';
 import 'package:fpdart/fpdart.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/error/exceptions.dart';
-import 'package:pulse/features/home/domain/models/post_model.dart';
 import 'package:pulse/features/home/domain/models/social_media_post_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
@@ -26,7 +24,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
       final response = await supabaseClient
           .from('training')
           .select(
-              '*,  users:users!training_author_id_fkey(*),  likes : training_like_users(* , user : users (username, profile_photo)) , comments: training_comments (* , user : users (username, profile_photo))')
+              '*,  user:users!training_author_id_fkey(*),  likes : training_like_users(* , user : users (username, profile_photo)) , comments: training_comments (* , user : users (username, profile_photo)), exercice : exercises(*)')
           .order('created_at', ascending: false);
 
       /* if (response.error != null) {
@@ -34,20 +32,27 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
       }
       */
 
-      print(response);
       final List<dynamic> postsData = response;
 
       var data = postsData.map<Future<SocialMediaPostModel>>((post) async {
-        if (post["photos"] != null && post["photos"].isNotEmpty) {
-          final String url = await supabaseClient.storage
-              .from('training')
-              .getPublicUrl(post["photos"][0]);
+        post['postImageUrls'] = <String>[];
+        post["exercice"]['exerciceImageUrl'] = "";
 
-          //final XFile file = await uint8ListToXFile(fileData, 'profile_image_${post["id"]}.jpg');
+        if (post["photos"] != null && post["photos"].length > 0) {
+          final List<dynamic> photos = post["photos"];
+          for (var photo in photos) {
+            final String url =
+                supabaseClient.storage.from('training').getPublicUrl(photo);
+            post['postImageUrls'].add(url);
+          }
+        }
 
-          post['postImageUrl'] = url;
-        } else {
-          post['postImageUrl'] = null;
+        if (post["exercice"]["photos"].length > 0) {
+          final String url = supabaseClient.storage
+              .from('exercises_photos')
+              .getPublicUrl(post["exercice"]["photos"][0]);
+
+          post["exercice"]['exerciceImageUrl'] = url;
         }
 
         final isLiked = post['likes'].any(

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:pulse/core/services/graphql_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -70,9 +69,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         "last_name": lastName,
         "first_name": firstName,
         "birth_date": "2000-01-01",
-        "height_cm": 1,
-        "weight_kg": 1,
-        "target_weight": 1,
       };
       final response = await supabaseClient.auth
           .signUp(email: email, password: password, data: data);
@@ -89,7 +85,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   Future<void> _saveToken(String token) async {
-    ;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('accessToken', token);
   }

@@ -9,6 +9,8 @@ import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class ProfilFollowPage extends StatefulWidget {
+  const ProfilFollowPage({super.key});
+
   @override
   _ProfilFollowPageState createState() => _ProfilFollowPageState();
 }
@@ -113,7 +115,7 @@ class FollowItem extends StatefulWidget {
   final String? userId;
   final ValueChanged<bool> onFollowChanged;
 
-  FollowItem({
+  const FollowItem({super.key, 
     required this.profile,
     required this.isFollowing,
     required this.userId,

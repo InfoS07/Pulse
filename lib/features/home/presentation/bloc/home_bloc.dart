@@ -31,17 +31,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     );
   }
 
-  /* void _onLikePost(LikePost event, Emitter<HomeState> emit) async {
-    final res = await _likePost(LikePostParams(event.postId));
-    print(res);
-
-    res.fold(
-      (l) => emit(HomeError(l.message)),
-      (r) => add(LoadPosts()),
-      //(r) => emit(HomeLoaded((state as HomeLoaded).posts)),
-    );
-  } */
-
   void _onLikePost(LikePost event, Emitter<HomeState> emit) async {
     final currentState = state;
     if (currentState is HomeLoaded) {

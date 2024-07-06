@@ -1,9 +1,5 @@
-import 'package:pulse/core/common/entities/comment.dart';
-import 'package:pulse/core/common/entities/post.dart';
-import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/core/error/exceptions.dart';
-import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/list_trainings/domain/models/training_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

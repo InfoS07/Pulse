@@ -9,7 +9,7 @@ class Training extends Equatable {
   final Activity activity;
   final List<XFile> photos;
 
-  Training({
+  const Training({
     required this.id,
     required this.description,
     required this.comments,
@@ -24,9 +24,9 @@ class Training extends Equatable {
     return Training(
       id: 0,
       description: '',
-      comments: [],
+      comments: const [],
       activity: activity,
-      photos: [],
+      photos: const [],
     );
   }
 

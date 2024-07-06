@@ -14,9 +14,9 @@ class OtherProfilFollowPage extends StatefulWidget {
   final String userIdOther; // Nouveau paramètre userIdOther
 
   const OtherProfilFollowPage({
-    Key? key,
+    super.key,
     required this.userIdOther,
-  }) : super(key: key);
+  });
 
   @override
   _OtherProfilFollowPageState createState() => _OtherProfilFollowPageState();
@@ -145,7 +145,7 @@ class OtherFollowItem extends StatefulWidget {
   final String? userId;
   final ValueChanged<bool> onFollowChanged;
 
-  OtherFollowItem({
+  const OtherFollowItem({super.key, 
     required this.profile,
     required this.isFollowing,
     required this.userId,
