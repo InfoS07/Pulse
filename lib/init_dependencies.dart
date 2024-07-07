@@ -29,6 +29,11 @@ import 'package:pulse/features/challenges/data/repositories/challenges_repositor
 import 'package:pulse/features/challenges/domain/repository/challenges_repository.dart';
 import 'package:pulse/features/challenges/domain/usecases/get_challenges.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'package:pulse/features/challenges_users/data/datasources/challenges_users_remote_data_source.dart';
+import 'package:pulse/features/challenges_users/data/repositories/challenges_users_repository_impl.dart';
+import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
+import 'package:pulse/features/challenges_users/domain/usecases/get_challenges_users.dart';
+import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/exercices/data/datasources/exercices_remote_data_source.dart';
 import 'package:pulse/features/exercices/data/repositories/exercices_repository_impl.dart';
 import 'package:pulse/features/exercices/domain/repository/exercices_repository.dart';
