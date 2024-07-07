@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
 import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
@@ -9,7 +7,7 @@ import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_
 class TrainingListOtherScreen extends StatefulWidget {
   final String userId;
 
-  const TrainingListOtherScreen({Key? key, required this.userId}) : super(key: key);
+  const TrainingListOtherScreen({super.key, required this.userId});
 
   @override
   _TrainingListOtherScreenState createState() => _TrainingListOtherScreenState();

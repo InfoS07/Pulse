@@ -3,9 +3,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
+import 'package:pulse/core/common/widgets/search_input.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
+import 'package:redacted/redacted.dart';
 
 class ExercicesPage extends StatefulWidget {
+  const ExercicesPage({super.key});
+
   @override
   _ExercicesPageState createState() => _ExercicesPageState();
 }
@@ -54,13 +60,23 @@ class _ExercicesPageState extends State<ExercicesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exercices'),
+        title: const Text('Exercices'),
+        scrolledUnderElevation: 0,
+        backgroundColor: AppPallete.backgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             _buildSearchBar(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SearchInput(
+                controller: _searchController,
+                placeholder: 'Rechercher un exercice',
+              ),
+            ),
+            _buildFilterButtons(),
             Expanded(
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
@@ -72,7 +88,10 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 },
                 builder: (context, state) {
                   if (state is ExercicesLoading) {
-                    return Center(child: CircularProgressIndicator());
+                    return RefreshIndicator(
+                      onRefresh: _refreshExercises,
+                      child: _buildShimmerEffect(),
+                    );
                   } else if (state is ExercicesLoaded) {
                     return RefreshIndicator(
                       onRefresh: _refreshExercises,
@@ -80,19 +99,12 @@ class _ExercicesPageState extends State<ExercicesPage> {
                           context, state.exercisesByCategory),
                     );
                   } else if (state is ExercicesEmpty) {
-                    return Center(child: Text('No exercises available'));
+                    return const Center(child: Text('Aucun exercice trouvé.'));
+                  } else if (state is ExercicesError) {
+                    return _buildErrorScreen(context, state.message);
                   }
-                  return RefreshIndicator(
-                    onRefresh: _refreshExercises,
-                    child: ListView(
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height / 2),
-                        Center(
-                            child: Text('Pull down to refresh exercises...')),
-                      ],
-                    ),
-                  );
+
+                  return const Center(child: Text('Chargement des exercices'));
                 },
               ),
             ),
@@ -105,23 +117,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
   Widget _buildSearchBar() {
     return Row(
       children: [
-        Expanded(
-          child: SizedBox(
-            height: 40, // Adjust the height to make the TextField smaller
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Recherche',
-                prefixIcon: const Icon(Icons.search),
-                contentPadding: EdgeInsets.symmetric(
-                    vertical: 8.0), // Adjust the padding as needed
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-        ),
         const SizedBox(width: 8),
         DropdownButton<String>(
           icon: const Icon(Icons.more_vert),
@@ -136,6 +131,37 @@ class _ExercicesPageState extends State<ExercicesPage> {
           onChanged: _onCategorySelected,
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterButtons() {
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          FilterButton(
+            text: 'Tout',
+            isSelected: selectedCategory == null,
+            onTap: () {
+              _onCategorySelected(null);
+            },
+          ),
+          SizedBox(width: 16),
+          ...categories.map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: FilterButton(
+                text: category,
+                isSelected: selectedCategory == category,
+                onTap: () {
+                  _onCategorySelected(category);
+                },
+              ),
+            );
+          }).toList(),
+        ],
+      ),
     );
   }
 
@@ -165,15 +191,90 @@ class _ExercicesPageState extends State<ExercicesPage> {
                         context.push('/exercices/details/${exercise.id}',
                             extra: exercise);
                       },
+                    ).redacted(
+                      context: context,
+                      redact: exercise == null,
                     );
                   }
-                  return SizedBox();
+                  return const SizedBox();
                 }).toList(),
               ),
             ),
           ],
         );
       }).toList(),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    final shimmerCategories = categories;
+
+    return ListView(
+      children: shimmerCategories.map((category) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                category,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(5, (index) {
+                  return ExerciseCardShimmer();
+                }),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildErrorScreen(BuildContext context, String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text(
+            'Impossible de charger cette page.',
+            style: TextStyle(
+                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _refreshExercises,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppPallete.primaryColor, // Couleur du bouton
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.refresh, color: Colors.black),
+                SizedBox(width: 8),
+                Text(
+                  'Réessayer',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

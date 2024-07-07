@@ -10,13 +10,12 @@ import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 
 class OtherProfilFollowPage extends StatefulWidget {
-
   final String userIdOther; // Nouveau paramètre userIdOther
 
   const OtherProfilFollowPage({
-    Key? key,
+    super.key,
     required this.userIdOther,
-  }) : super(key: key);
+  });
 
   @override
   _OtherProfilFollowPageState createState() => _OtherProfilFollowPageState();
@@ -32,10 +31,12 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
     super.initState();
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
+      userId = authState.user.uid;
       context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
-    context.read<OtherProfilBloc>().add(OtherProfilGetProfil(widget.userIdOther));
+    context
+        .read<OtherProfilBloc>()
+        .add(OtherProfilGetProfil(widget.userIdOther));
   }
 
   @override
@@ -80,9 +81,12 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
             ),
             BlocListener<ProfilFollowBloc, ProfilFollowState>(
               listener: (context, followState) {
-                if (followState is ProfilFollowSuccess || followState is ProfilUnfollowSuccess) {
+                if (followState is ProfilFollowSuccess ||
+                    followState is ProfilUnfollowSuccess) {
                   // Rafraîchir le profil après une opération de follow/unfollow réussie
-                  context.read<OtherProfilBloc>().add(OtherProfilGetProfil(widget.userIdOther));
+                  context
+                      .read<OtherProfilBloc>()
+                      .add(OtherProfilGetProfil(widget.userIdOther));
                   context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
                 }
               },
@@ -96,14 +100,18 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
 
                 return TabBarView(
                   children: [
-                    _buildFollowList(followers, userFollowings, userId, context, isFollowersTab: true),
-                    _buildFollowList(followings, userFollowings, userId, context, isFollowersTab: false),
+                    _buildFollowList(followers, userFollowings, userId, context,
+                        isFollowersTab: true),
+                    _buildFollowList(
+                        followings, userFollowings, userId, context,
+                        isFollowersTab: false),
                   ],
                 );
               } else if (profilState is ProfilLoading) {
                 return const Center(child: CircularProgressIndicator());
               } else {
-                return const Center(child: Text('Erreur de chargement du profil'));
+                return const Center(
+                    child: Text('Erreur de chargement du profil'));
               }
             },
           ),
@@ -112,13 +120,16 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
     );
   }
 
-  Widget _buildFollowList(List<Profil> profiles, List<Profil> userFollowings, String? userId, BuildContext context, {required bool isFollowersTab}) {
+  Widget _buildFollowList(List<Profil> profiles, List<Profil> userFollowings,
+      String? userId, BuildContext context,
+      {required bool isFollowersTab}) {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       itemCount: profiles.length,
       itemBuilder: (context, index) {
         final profile = profiles[index];
-        bool isFollowing = userFollowings.any((following) => following.username == profile.username);
+        bool isFollowing = userFollowings
+            .any((following) => following.username == profile.username);
 
         return OtherFollowItem(
           profile: profile,
@@ -126,7 +137,9 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
           userId: userId,
           onFollowChanged: (followStatus) {
             setState(() {
-              context.read<OtherProfilBloc>().add(OtherProfilGetProfil(widget.userIdOther));
+              context
+                  .read<OtherProfilBloc>()
+                  .add(OtherProfilGetProfil(widget.userIdOther));
               context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
             });
           },
@@ -136,16 +149,14 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
   }
 }
 
-
-
-
 class OtherFollowItem extends StatefulWidget {
   final Profil profile;
   final bool isFollowing;
   final String? userId;
   final ValueChanged<bool> onFollowChanged;
 
-  OtherFollowItem({
+  const OtherFollowItem({
+    super.key,
     required this.profile,
     required this.isFollowing,
     required this.userId,
@@ -172,7 +183,7 @@ class _OtherFollowItemState extends State<OtherFollowItem> {
       child: GestureDetector(
         onTap: () {
           // Ajouter l'action de navigation
-          context.push('/otherProfil', extra: widget.profile.id.toString());
+          context.push('/otherProfil', extra: widget.profile.uid);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -197,12 +208,16 @@ class _OtherFollowItemState extends State<OtherFollowItem> {
                 if (widget.userId != null) {
                   if (!isFollowing) {
                     context.read<ProfilFollowBloc>().add(
-                      ProfilFollow(FollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
-                    );
+                          ProfilFollow(FollowParams(
+                              userId: widget.userId!,
+                              followerId: widget.profile.uid)),
+                        );
                   } else {
                     context.read<ProfilFollowBloc>().add(
-                      ProfilUnfollow(UnfollowParams(userId: widget.userId!, followerId: widget.profile.id.toString())),
-                    );
+                          ProfilUnfollow(UnfollowParams(
+                              userId: widget.userId!,
+                              followerId: widget.profile.uid)),
+                        );
                   }
                   setState(() {
                     isFollowing = !isFollowing;
@@ -220,7 +235,8 @@ class _OtherFollowItemState extends State<OtherFollowItem> {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: isFollowing ? Colors.grey : Colors.greenAccent,
-                side: BorderSide(color: isFollowing ? Colors.grey : Colors.greenAccent),
+                side: BorderSide(
+                    color: isFollowing ? Colors.grey : Colors.greenAccent),
               ),
             ),
           ],

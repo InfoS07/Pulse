@@ -26,17 +26,13 @@ class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
         final uploadResponse = await supabaseClient.storage
             .from('training')
             .upload(fileName, file);
-
-        if (uploadResponse == null) {
-          throw ServerException(uploadResponse);
-        }
       }
 
       final response = await supabaseClient.from('training').insert([
         {
-          "title": training.description,
+          "title": training.title,
           'description': training.description,
-          'status': 'Terminé',
+          'exercise_id': training.activity.exercise.id,
           'start_at': training.activity.startAt.toIso8601String(),
           'end_at': training.activity.endAt.toIso8601String(),
           'status': 'Terminé',

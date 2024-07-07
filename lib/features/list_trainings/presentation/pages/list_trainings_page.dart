@@ -8,6 +8,8 @@ import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 
 class TrainingListScreen extends StatefulWidget {
+  const TrainingListScreen({super.key});
+
   @override
   _TrainingListScreenState createState() => _TrainingListScreenState();
 }
@@ -22,6 +24,7 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
       userId = authState.user.uid;
+      //context.read<ListTrainingsBloc>().add(ListTrainingsGetTraining(userId!));
     }
     // Lancer l'événement pour obtenir les posts
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
@@ -55,7 +58,8 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
             // Filtrer les posts par l'ID de l'auteur
             print(userId.toString());
             //print(state.posts);
-            final userPosts = state.posts.where((post) => post.uid == userId).toList();
+            final userPosts =
+                state.posts.where((post) => post.userUid == userId).toList();
 
             return RefreshIndicator(
               onRefresh: _refreshPosts,
@@ -67,7 +71,8 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
                   return PostListItem(
                     post: post,
                     onTap: () {
-                      context.go('/profil/entrainements/details/$index', extra: post);
+                      context.go('/profil/entrainements/details/$index',
+                          extra: post);
                     },
                   );
                 },
@@ -75,7 +80,8 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
             );
           } else {
             return const Center(
-              child: Text('Aucun post trouvé.', style: TextStyle(color: Colors.white)),
+              child: Text('Aucun entrainement trouvé.',
+                  style: TextStyle(color: Colors.white)),
             );
           }
         },
@@ -88,7 +94,8 @@ class PostListItem extends StatelessWidget {
   final SocialMediaPost post;
   final VoidCallback onTap;
 
-  const PostListItem({Key? key, required this.post, required this.onTap}) : super(key: key);
+  const PostListItem({Key? key, required this.post, required this.onTap})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -102,9 +109,9 @@ class PostListItem extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         child: ListTile(
-          leading: post.postImageUrl != null && post.postImageUrl.isNotEmpty
+          leading: post.photos != null && post.photos.isNotEmpty
               ? Image.network(
-                  post.postImageUrl,
+                  post.photos.first,
                   width: 50,
                   height: 50,
                   fit: BoxFit.cover,
@@ -129,7 +136,7 @@ class PostListItem extends StatelessWidget {
 class TrainingListItem extends StatelessWidget {
   final TrainingList training;
 
-  const TrainingListItem({Key? key, required this.training}) : super(key: key);
+  const TrainingListItem({super.key, required this.training});
 
   @override
   Widget build(BuildContext context) {

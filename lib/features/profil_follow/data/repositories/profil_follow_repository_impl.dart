@@ -1,10 +1,6 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/core/error/failures.dart';
-import 'package:pulse/features/profil/data/datasources/profil_remote_data_source.dart';
-import 'package:pulse/features/profil/domain/models/profil_model.dart';
-import 'package:pulse/features/profil/domain/repository/profil_repository.dart';
 import 'package:pulse/features/profil_follow/data/datasources/profil_follow_remote_data_source.dart';
 import 'package:pulse/features/profil_follow/domain/repository/profil_follow_repository.dart';
 

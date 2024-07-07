@@ -1,12 +1,8 @@
-import 'dart:ffi';
-
-import 'package:pulse/core/common/entities/user.dart';
-
 class Exercice {
-  final String id;
+  final int id;
   final String title;
-  final String urlPhoto;
   final String description;
+  final List<String> photos;
   final int duration;
   List<int> sequence = [1, 2, 3, 4, 5];
   int repetitions = 3;
@@ -21,7 +17,7 @@ class Exercice {
   Exercice(
       {required this.id,
       required this.title,
-      required this.urlPhoto,
+      required this.photos,
       required this.description,
       required this.duration,
       required this.sequence,
@@ -36,9 +32,9 @@ class Exercice {
 
   static Exercice empty() {
     return Exercice(
-      id: '',
+      id: 0,
       title: '',
-      urlPhoto: '',
+      photos: [''],
       description: '',
       duration: 0,
       sequence: [],

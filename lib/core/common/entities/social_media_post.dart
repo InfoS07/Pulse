@@ -1,15 +1,18 @@
 import 'package:pulse/core/common/entities/comment.dart';
-import 'package:pulse/core/common/entities/like.dart';
+import 'package:pulse/core/common/entities/exercice.dart';
 
 class SocialMediaPost {
   final int id;
   final String profileImageUrl;
   final String username;
+  final String userUid;
   final String timestamp;
+  final DateTime startAt;
+  final DateTime endAt;
   final String title;
   final String description;
-  final String postImageUrl;
-  final String uid;
+  final Exercice exercice;
+  final List<String> photos;
   final int likes;
   final List<Comment> comments;
   final bool isLiked;
@@ -19,43 +22,49 @@ class SocialMediaPost {
     required this.title,
     required this.description,
     required this.profileImageUrl,
+    required this.userUid,
     required this.username,
     required this.timestamp,
-    required this.postImageUrl,
+    required this.startAt,
+    required this.endAt,
+    required this.photos,
     required this.likes,
     required this.comments,
     required this.isLiked,
-    required this.uid,
-    
+    required this.exercice,
   });
 
   SocialMediaPost copyWith({
     int? id,
     String? profileImageUrl,
     String? username,
+    String? userUid,
     String? timestamp,
+    DateTime? startAt,
+    DateTime? endAt,
     String? title,
     String? description,
-    String? postImageUrl,
+    List<String>? photos,
     int? likes,
     List<Comment>? comments,
     bool? isLiked,
-    String? uid,
-
+    Exercice? exercice,
   }) {
     return SocialMediaPost(
       id: id ?? this.id,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       username: username ?? this.username,
+      userUid: userUid ?? this.userUid,
       timestamp: timestamp ?? this.timestamp,
       title: title ?? this.title,
       description: description ?? this.description,
-      postImageUrl: postImageUrl ?? this.postImageUrl,
+      photos: photos ?? this.photos,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       isLiked: isLiked ?? this.isLiked,
-      uid: uid ?? this.uid,
-
+      exercice: exercice ?? this.exercice,
+      startAt: startAt ?? this.startAt,
+      endAt: endAt ?? this.endAt,
     );
   }
 }

@@ -22,26 +22,26 @@ class ScaffoldWithNavBar extends StatelessWidget {
         backgroundColor: AppPallete.backgroundColor,
         selectedItemColor: AppPallete.primaryColor,
         unselectedItemColor: Colors.grey,
-        selectedLabelStyle: TextStyle(fontSize: 10),
-        unselectedLabelStyle: TextStyle(fontSize: 10),
+        selectedLabelStyle: const TextStyle(fontSize: 10),
+        unselectedLabelStyle: const TextStyle(fontSize: 10),
         items: [
           _buildBottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.house),
+            icon: const FaIcon(FontAwesomeIcons.house),
             label: 'Acceuil',
             isSelected: navigationShell.currentIndex == 0,
           ),
           _buildBottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.dumbbell),
+            icon: const FaIcon(FontAwesomeIcons.dumbbell),
             label: 'Exercices',
             isSelected: navigationShell.currentIndex == 1,
           ),
           _buildBottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.layerGroup),
+            icon: const FaIcon(FontAwesomeIcons.layerGroup),
             label: 'Groupe',
             isSelected: navigationShell.currentIndex == 2,
           ),
           _buildBottomNavigationBarItem(
-            icon: FaIcon(FontAwesomeIcons.user),
+            icon: const FaIcon(FontAwesomeIcons.user),
             label: 'Compte',
             isSelected: navigationShell.currentIndex == 3,
           ),

@@ -1,50 +1,49 @@
 import 'package:pulse/core/common/entities/comment.dart';
-import 'package:pulse/core/common/entities/like.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 
 class SocialMediaPostModel extends SocialMediaPost {
   SocialMediaPostModel({
-    required int id,
-    required String title,
-    required String description,
-    required String profileImageUrl,
-    required String username,
-    required String timestamp,
-    required String postImageUrl,
-    required int likes,
-    required List<Comment> comments,
-    required bool isLiked,
-    required String uid,
-  }) : super(
-          id: id,
-          profileImageUrl: profileImageUrl,
-          username: username,
-          timestamp: timestamp,
-          title: title,
-          description: description,
-          postImageUrl: postImageUrl,
-          likes: likes,
-          comments: comments,
-          isLiked: isLiked,
-          uid: uid,
-        );
+    required super.id,
+    required super.title,
+    required super.description,
+    required super.profileImageUrl,
+    required super.username,
+    required super.userUid,
+    required super.timestamp,
+    required super.startAt,
+    required super.endAt,
+    required super.photos,
+    required super.likes,
+    required super.comments,
+    required super.isLiked,
+    required super.exercice,
+  });
 
   factory SocialMediaPostModel.fromJson(Map<String, dynamic> json) {
     return SocialMediaPostModel(
-      id: json['id'] ?? 0,
-      uid: json['author_id'] ?? "",
-      profileImageUrl: json['user']?['profile_photo'] ??
-          'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
-      username: json['user']?['username'] ?? '',
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id'].toString()) ?? 0,
+      profileImageUrl: json['author']?['profile_photo'],
+      username: json['author']?['username'] ?? '',
+      userUid: json['author']?['uid'] ?? '',
       timestamp: json['created_at'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      postImageUrl: json['postImageUrl'] ?? '',
+      photos: (json['photos'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
       likes: json['likes'].length,
-      comments: (json['comments'] as List)
-          .map((comment) => Comment.fromJson(comment))
-          .toList(),
+      comments: (json['comments'] as List<dynamic>?)
+              ?.map((comment) => Comment.fromJson(comment))
+              .toList() ??
+          [],
       isLiked: json['isLiked'],
+      exercice: ExercicesModel.fromJson(json['exercise']),
+      startAt: DateTime.parse(json['start_at']),
+      endAt: DateTime.parse(json['end_at']),
     );
   }
 
@@ -57,9 +56,10 @@ class SocialMediaPostModel extends SocialMediaPost {
       'timestamp': timestamp,
       'title': title,
       'description': description,
-      'postImageUrl': postImageUrl,
+      'photos': photos,
       'likes': likes,
       'comments': comments.map((comment) => comment.toJson()).toList(),
+      'isLiked': isLiked,
     };
   }
 }

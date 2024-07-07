@@ -1,20 +1,13 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/user.dart';
-import 'package:pulse/core/secrets/app_secrets.dart';
-import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/core/usecase/usercase.dart';
 import 'package:pulse/features/auth/domain/usecases/current_user.dart';
 import 'package:pulse/features/auth/domain/usecases/user_login.dart';
 import 'package:pulse/features/auth/domain/usecases/user_sign_up.dart';
-import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/profil/domain/usecases/signout.dart';
-import 'package:pulse/init_dependencies.dart';
-import 'package:get_it/get_it.dart'; // Assurez-vous d'importer le package get_it
+// Assurez-vous d'importer le package get_it
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -98,11 +91,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     User user,
     Emitter<AuthState> emit,
   ) {
-    /* GraphQLConfiguration.initGraphQL(
-      AppSecrets.apiGraphqlUrl,
-    ).then((client) {
-      serviceLocator.registerLazySingleton<GraphQLClient>(() => client);
-    }); */
     _appUserCubit.updateUser(user);
     emit(AuthSuccess(user));
   }

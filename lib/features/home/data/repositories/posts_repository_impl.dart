@@ -44,7 +44,28 @@ class PostsRepositoryImpl implements PostsRepository {
     try {
       await fn();
 
-      return Right(unit);
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> deletePost(int postId) {
+    return _deletePost(
+      postId,
+      () async => await postsDataSource.deletePost(postId),
+    );
+  }
+
+  Future<Either<Failure, Unit>> _deletePost(
+    int postId,
+    Future<Unit> Function() fn,
+  ) async {
+    try {
+      await fn();
+
+      return const Right(unit);
     } on ServerException catch (e) {
       return Left(Failure(e.message));
     }

@@ -9,8 +9,8 @@ class ChallengesModel {
   final int? exerciceId;
   final DateTime? endAt;
   final DateTime? startAt;
-  final List<int>? participants;
-  final List<int>? achievers;
+  final List<String>? participants;
+  final List<String>? achievers;
 
   ChallengesModel({
     required this.id,
@@ -39,8 +39,12 @@ class ChallengesModel {
       exerciceId: map['exercice_id'],
       endAt: map['end_at'] != null ? DateTime.parse(map['end_at']) : null,
       startAt: map['start_at'] != null ? DateTime.parse(map['start_at']) : null,
-      participants: (map['participants'] as List<dynamic>?)?.map((e) => e as int).toList(),
-      achievers: (map['achievers'] as List<dynamic>?)?.map((e) => e as int).toList(),
+      participants: (map['participants'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      achievers: (map['achievers'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
   }
 

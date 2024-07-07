@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
-import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
 import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_bloc.dart';
@@ -12,7 +11,7 @@ import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 class ProfilOtherPage extends StatefulWidget {
   final String userId;
 
-  ProfilOtherPage({required this.userId});
+  const ProfilOtherPage({super.key, required this.userId});
 
   @override
   _ProfilOtherPageState createState() => _ProfilOtherPageState();
@@ -27,7 +26,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
     super.initState();
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      currentUserId = authState.user.id.toString();
+      currentUserId = authState.user.uid;
     }
     // Lancer l'événement pour obtenir le profil
     context.read<OtherProfilBloc>().add(OtherProfilGetProfil(widget.userId));
@@ -50,7 +49,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
             title: const Text('Profil'),
             backgroundColor: Colors.black,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -69,8 +68,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
               ),
               BlocListener<ProfilFollowBloc, ProfilFollowState>(
                 listener: (context, followState) {
-                  print(followState);
-                  if (followState is ProfilFollowFailure || followState is ProfilFollowFailure) {
+                  if (followState is ProfilFollowFailure ||
+                      followState is ProfilFollowFailure) {
                     // Rafraîchir le profil après une opération de follow/unfollow réussie
                     _refreshProfile();
                   }
@@ -82,7 +81,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                 if (state is OtherProfilLoading) {
                   return const Loader();
                 } else if (state is OtherProfilSuccess) {
-                  bool isFollowing = state.followers.any((follower) => follower.id.toString() == currentUserId);
+                  bool isFollowing = state.followers
+                      .any((follower) => follower.uid == currentUserId);
                   return RefreshIndicator(
                     onRefresh: _refreshProfile,
                     child: ListView(
@@ -93,7 +93,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                             children: [
                               CircleAvatar(
                                 radius: 50,
-                                backgroundImage: NetworkImage(state.profil.profilePhoto),
+                                backgroundImage:
+                                    NetworkImage(state.profil.profilePhoto),
                                 backgroundColor: Colors.transparent,
                               ),
                               const SizedBox(height: 16.0),
@@ -115,11 +116,18 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                               ),
                               const SizedBox(height: 16.0),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildInfoColumn(state.followers.length.toString(), 'Abonnés'),
-                                  _buildInfoColumn(state.followings.length.toString(), 'Abonnements'),
-                                  _buildInfoColumn(state.trainings.length.toString(), 'Entrainements'),
+                                  _buildInfoColumn(
+                                      state.followers.length.toString(),
+                                      'Abonnés'),
+                                  _buildInfoColumn(
+                                      state.followings.length.toString(),
+                                      'Abonnements'),
+                                  _buildInfoColumn(
+                                      state.trainings.length.toString(),
+                                      'Entrainements'),
                                 ],
                               ),
                               const SizedBox(height: 16.0),
@@ -127,26 +135,41 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                                 onPressed: () {
                                   if (isFollowing) {
                                     context.read<ProfilFollowBloc>().add(
-                                      ProfilUnfollow(UnfollowParams(userId: currentUserId!, followerId: widget.userId)),
-                                    );
+                                          ProfilUnfollow(UnfollowParams(
+                                              userId: currentUserId!,
+                                              followerId: widget.userId)),
+                                        );
                                   } else {
                                     context.read<ProfilFollowBloc>().add(
-                                      ProfilFollow(FollowParams(userId: currentUserId!, followerId: widget.userId)),
-                                    );
+                                          ProfilFollow(FollowParams(
+                                              userId: currentUserId!,
+                                              followerId: widget.userId)),
+                                        );
                                   }
                                 },
-                                icon: Icon(isFollowing ? Icons.check : Icons.add, color: Colors.white),
-                                label: Text(isFollowing ? 'Suivi' : 'Suivre', style: TextStyle(color: Colors.white)),
+                                icon: Icon(
+                                    isFollowing ? Icons.check : Icons.add,
+                                    color: Colors.white),
+                                label: Text(isFollowing ? 'Suivi' : 'Suivre',
+                                    style:
+                                        const TextStyle(color: Colors.white)),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: isFollowing ? Colors.grey : Colors.greenAccent,
-                                  side: BorderSide(color: isFollowing ? Colors.grey : Colors.greenAccent),
+                                  backgroundColor: isFollowing
+                                      ? Colors.grey
+                                      : Colors.greenAccent,
+                                  side: BorderSide(
+                                      color: isFollowing
+                                          ? Colors.grey
+                                          : Colors.greenAccent),
                                 ),
                               ),
                               const Divider(color: Colors.grey, height: 32),
-                              _buildListTile('Entrainements', Icons.arrow_forward_ios),
-                              _buildListTile('Statistiques', Icons.arrow_forward_ios),
+                              _buildListTile(
+                                  'Entrainements', Icons.arrow_forward_ios),
+                              _buildListTile(
+                                  'Statistiques', Icons.arrow_forward_ios),
                               const Divider(color: Colors.grey, height: 32),
-                              Align(
+                              const Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Collection de trophées',
@@ -164,7 +187,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                   );
                 } else {
                   return const Center(
-                    child: Text('Profil Page', style: TextStyle(color: Colors.white)),
+                    child: Text('Profil Page',
+                        style: TextStyle(color: Colors.white)),
                   );
                 }
               },
@@ -178,8 +202,9 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
   Widget _buildInfoColumn(String value, String label) {
     return GestureDetector(
       onTap: () {
-        if(label != "Entrainements"){
-          context.push('/otherProfil/followOther',extra: widget.userId.toString());
+        if (label != "Entrainements") {
+          context.push('/otherProfil/followOther',
+              extra: widget.userId.toString());
         }
       },
       child: Column(
@@ -207,10 +232,10 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
 
   Widget _buildListTile(String title, IconData icon) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+      contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
       title: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 18,
           color: Colors.white,
         ),
@@ -220,8 +245,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
         color: Colors.white,
       ),
       onTap: () {
-        if(title == "Entrainements"){
-          context.push('/otherProfil/entrainementsOther',extra: widget.userId);
+        if (title == "Entrainements") {
+          context.push('/otherProfil/entrainementsOther', extra: widget.userId);
         }
         // Ajouter l'action de navigation
       },

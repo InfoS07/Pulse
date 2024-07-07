@@ -16,7 +16,8 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
   @override
   Future<ProfilModel?> getProfil(String userId) async {
     try {
-      final response = await supabaseClient.from('users').select().eq("id", userId);
+      final response =
+          await supabaseClient.from('users').select().eq("uid", userId);
       /* if (response.error != null) {
         throw const ServerException('Error fetching data');
       } */
@@ -28,23 +29,23 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
     }
   }
 
-
   @override
   Future<List<ProfilModel?>> getFollowers(String userId) async {
     try {
       // Récupérer les IDs des followers
       final response = await supabaseClient
           .from('user_followers')
-          .select('id_user')
-          .eq("id_follower", userId);
+          .select('user_id')
+          .eq("follower_id", userId);
 
-      final List<dynamic> followerIds = response.map((item) => item['id_user']).toList();
+      final List<dynamic> followerIds =
+          response.map((item) => item['user_id']).toList();
 
       // Récupérer les informations des utilisateurs par leurs IDs
       final userResponse = await supabaseClient
           .from('users')
           .select()
-          .inFilter('id', followerIds);
+          .inFilter('uid', followerIds);
 
       // Retourner la liste de ProfilModel
       return ProfilModel.fromJsonList(userResponse);
@@ -61,16 +62,17 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
       // Récupérer les IDs des followers
       final response = await supabaseClient
           .from('user_followers')
-          .select('id_follower')
-          .eq("id_user", userId);
+          .select('follower_id')
+          .eq("user_id", userId);
 
-      final List<dynamic> followerIds = response.map((item) => item['id_follower']).toList();
+      final List<dynamic> followerIds =
+          response.map((item) => item['follower_id']).toList();
 
       // Récupérer les informations des utilisateurs par leurs IDs
       final userResponse = await supabaseClient
           .from('users')
           .select()
-          .inFilter('id', followerIds);
+          .inFilter('uid', followerIds);
 
       // Retourner la liste de ProfilModel
       return ProfilModel.fromJsonList(userResponse);
@@ -80,5 +82,4 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
       throw ServerException(e.toString());
     }
   }
-
 }

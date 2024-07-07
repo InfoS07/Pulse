@@ -39,6 +39,7 @@ Future<void> initDependencies() async {
   _initTrainingList();
   _initChallenges();
   _initChallengesUsers();
+  _initSearchUser();
 }
 
 void _initAuth() {
@@ -94,6 +95,7 @@ void _initHome() {
     ..registerFactory<PostsRemoteDataSource>(
       () => PostsRemoteDataSourceImpl(
         serviceLocator(),
+        serviceLocator(),
       ),
     )
     // Repository
@@ -113,11 +115,17 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => DeletePostUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
         getPosts: serviceLocator(),
         likePost: serviceLocator(),
+        deletePost: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );
@@ -389,6 +397,33 @@ void _initActivity() {
       () => ActivityBloc(
         saveActivity: serviceLocator(),
         //createActivityUC: serviceLocator(),
+      ),
+    );
+}
+
+void _initSearchUser() {
+  serviceLocator
+    ..registerFactory<SearchUserRemoteDataSource>(
+      () => SearchUserRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<SearchUserRepository>(
+      () => SearchUserRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => SearchUserUC(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => SearchUsersBloc(
+        searchUser: serviceLocator(),
       ),
     );
 }

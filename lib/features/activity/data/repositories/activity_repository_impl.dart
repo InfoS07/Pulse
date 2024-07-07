@@ -6,7 +6,6 @@ import 'package:pulse/core/error/failures.dart';
 import 'package:pulse/features/activity/data/datasources/activity_local_data_source.dart';
 import 'package:pulse/features/activity/data/datasources/activity_remote_data_source.dart';
 import 'package:pulse/features/activity/domain/repository/activity_repository.dart';
-import 'package:pulse/features/activity/domain/usecases/create_activity_uc.dart';
 
 class ActivityRepositoryImpl implements ActivityRepository {
   final ActivityLocalDataSource localDataSource;

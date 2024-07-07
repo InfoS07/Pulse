@@ -44,7 +44,7 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
           .single();
 
       // Vérifier si le challenge existe
-      if ( response == null) {
+      if (response == null) {
         throw ServerException(); // Gérer l'erreur si le challenge n'est pas trouvé
       }
 
@@ -52,15 +52,13 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
       List<dynamic> participants = response['participants'];
 
       // Vérifier si l'utilisateur est déjà dans la liste des participants
-      if (!participants.contains(int.parse(userId))) {
+      if (!participants.contains(userId)) {
         // Ajouter userId au tableau des participants
-        participants.add(int.parse(userId));
+        participants.add(userId);
 
         // Mettre à jour la base de données avec les nouveaux participants
-        await supabaseClient
-            .from('challenges')
-            .update({'participants': participants})
-            .eq('id', challengeId.toString());
+        await supabaseClient.from('challenges').update(
+            {'participants': participants}).eq('id', challengeId.toString());
       }
     } on PostgrestException catch (e) {
       throw ServerException(); // Gérer les exceptions spécifiques à Supabase
@@ -68,8 +66,6 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
       throw ServerException(); // Gérer les autres exceptions
     }
   }
-
-
 
   @override
   Future<void> quitChallenge(int challengeId, String userId) async {
@@ -90,19 +86,15 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
       List<dynamic> participants = response['participants'];
 
       // Retirer userId du tableau des participants
-      participants.remove(int.parse(userId));
+      participants.remove(userId);
 
       // Mettre à jour la base de données avec les nouveaux participants
-      await supabaseClient
-          .from('challenges')
-          .update({'participants': participants})
-          .eq('id', challengeId.toString());
+      await supabaseClient.from('challenges').update(
+          {'participants': participants}).eq('id', challengeId.toString());
     } on PostgrestException catch (e) {
       throw ServerException(); // Gérer les exceptions spécifiques à Supabase
     } catch (e) {
       throw ServerException(); // Gérer les autres exceptions
     }
   }
-
 }
-

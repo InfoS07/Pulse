@@ -10,13 +10,14 @@ import 'dart:io' show Platform;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 
 class ActivityPage extends StatefulWidget {
   final Exercice exercise;
 
-  const ActivityPage(this.exercise);
+  const ActivityPage(this.exercise, {super.key});
 
   @override
   _ActivityPageState createState() => _ActivityPageState();
@@ -79,15 +80,15 @@ class _ActivityPageState extends State<ActivityPage>
 
   Future<void> reconnectIfNecessary() async {
     try {
-      FlutterBluePlus.connectedDevices.forEach((device) {
+      for (var device in FlutterBluePlus.connectedDevices) {
         print('reconnectIfNecessary...');
         print(device.platformName);
         if (device.platformName == 'Pulse') {
           print('Reconnecting to device...');
           connectToDevice(device);
-          return;
+          continue;
         }
-      });
+      }
       startScan();
     } catch (e) {
       print('Error reconnecting to Bluetooth device: $e');
@@ -236,8 +237,8 @@ class _ActivityPageState extends State<ActivityPage>
       setState(() {
         _isPaused = false;
       });
-      _timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-        _timeElapsed.value = _timeElapsed.value + Duration(milliseconds: 10);
+      _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+        _timeElapsed.value = _timeElapsed.value + const Duration(milliseconds: 10);
         _activityBloc.add(UpdateActivity(
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
@@ -250,8 +251,35 @@ class _ActivityPageState extends State<ActivityPage>
         _isPaused = true;
       });
       _timer.cancel();
-      _showPauseModal();
+      _showDeleteDialog();
     }
+  }
+
+  void _showDeleteDialog() {
+    BottomSheetUtil.showCustomBottomSheet(
+      context,
+      onConfirm: () {
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: 4, // Exemple de valeur
+          caloriesBurned: 200, // Exemple de valeur
+        ));
+
+        _activityBloc.add(StopActivity(
+          _timeElapsed.value,
+        ));
+
+        context.push('/activity/save');
+      },
+      onCancel: () {
+        _startStopTimer();
+      },
+      buttonText: 'Terminer',
+      buttonColor: AppPallete.primaryColor,
+      cancelText: 'Reprendre',
+      cancelTextColor: Colors.grey,
+    );
   }
 
   void _showPauseModal() {
@@ -260,20 +288,19 @@ class _ActivityPageState extends State<ActivityPage>
       isDismissible: false,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 62),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 62),
           color: Colors.black,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _closePauseModal();
                   _startStopTimer(); // Reprendre
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  side: BorderSide(color: AppPallete.primaryColor),
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  side: const BorderSide(color: AppPallete.primaryColor),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
                 child: const Text('Reprendre',
                     style: TextStyle(
@@ -296,9 +323,9 @@ class _ActivityPageState extends State<ActivityPage>
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppPallete.primaryColor,
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text('Terminer',
+                child: const Text('Terminer',
                     style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
             ],
@@ -306,12 +333,6 @@ class _ActivityPageState extends State<ActivityPage>
         );
       },
     );
-  }
-
-  void _closePauseModal() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
   }
 
   String _formatTime(Duration duration) {
@@ -335,7 +356,7 @@ class _ActivityPageState extends State<ActivityPage>
         title: Text(widget.exercise.title),
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             showExitConfirmationDialog(
               context,
@@ -364,7 +385,7 @@ class _ActivityPageState extends State<ActivityPage>
                               builder: (context, value, child) {
                                 return Text(
                                   _formatTime(value),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 48,
                                       fontWeight: FontWeight.bold),
@@ -374,9 +395,9 @@ class _ActivityPageState extends State<ActivityPage>
                             Text(
                               'Tour 1/${widget.exercise.laps}',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
+                                  const TextStyle(color: Colors.white, fontSize: 16),
                             ),
-                            SizedBox(height: 32),
+                            const SizedBox(height: 32),
                             GestureDetector(
                               onTap: () => _startStopTimer(),
                               child: CircleAvatar(
@@ -406,7 +427,7 @@ class _ActivityPageState extends State<ActivityPage>
                           ScrollController scrollController) {
                         return Container(
                           color: Colors.blueAccent,
-                          padding: EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: ListView(
                             controller: scrollController,
                             children: [
@@ -436,14 +457,14 @@ class _ActivityPageState extends State<ActivityPage>
                                     ],
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.notifications_active,
+                                    icon: const Icon(Icons.notifications_active,
                                         color: Colors.white),
                                     onPressed: () {
                                       sendDeviceNotification();
                                     },
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.refresh,
+                                    icon: const Icon(Icons.refresh,
                                         color: Colors.white),
                                     onPressed: () {
                                       print('Reconnecting...');
@@ -457,12 +478,12 @@ class _ActivityPageState extends State<ActivityPage>
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 'État de la connexion : $connectionStatus',
-                                style: TextStyle(color: Colors.white),
+                                style: const TextStyle(color: Colors.white),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Column(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
@@ -504,7 +525,7 @@ class _ActivityPageState extends State<ActivityPage>
 
   Widget _buildInfoCard(String value, String label, {bool highlight = false}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: highlight ? Colors.grey[800] : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
@@ -513,12 +534,12 @@ class _ActivityPageState extends State<ActivityPage>
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           Text(
             label,
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -532,11 +553,11 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Colors.black,
-        title: Text(
+        title: const Text(
           'Confirmation',
           style: TextStyle(color: Colors.white),
         ),
-        content: Text(
+        content: const Text(
           'Êtes-vous sûr de vouloir quitter l\'activité ?',
           style: TextStyle(color: Colors.white),
         ),
@@ -545,7 +566,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(
+            child: const Text(
               'Annuler',
               style: TextStyle(color: Colors.greenAccent),
             ),
@@ -555,7 +576,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
               Navigator.of(context).pop();
               onConfirm();
             },
-            child: Text(
+            child: const Text(
               'Confirmer',
               style: TextStyle(color: Colors.red),
             ),

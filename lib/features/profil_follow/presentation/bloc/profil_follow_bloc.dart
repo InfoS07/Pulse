@@ -1,12 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/entities/profil.dart';
-import 'package:pulse/core/usecase/usercase.dart';
-import 'package:pulse/features/profil/domain/usecases/get_followers.dart';
-import 'package:pulse/features/profil/domain/usecases/get_followings.dart';
-import 'package:pulse/features/profil/domain/usecases/get_profil.dart';
-import 'package:pulse/features/profil/domain/usecases/signout.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
 
@@ -37,7 +30,7 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
   final res = await _follow(event.params);
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
-      (r) => emit(ProfilFollowSuccess()),
+      (r) => emit(const ProfilFollowSuccess()),
     );
 }
 
@@ -50,7 +43,7 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
 
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
-      (r) => emit(ProfilFollowSuccess()),
+      (r) => emit(const ProfilFollowSuccess()),
     );
 }
 

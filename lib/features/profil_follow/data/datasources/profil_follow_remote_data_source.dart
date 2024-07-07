@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:pulse/core/error/exceptions.dart';
-import 'package:pulse/features/profil/domain/models/profil_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class ProfilFollowRemoteDataSource {
@@ -17,12 +14,10 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
   @override
   Future<void> Follow(String userId, String followerId) async {
     try {
-      final response = await supabaseClient
-          .from('user_followers')
-          .insert({
-            'id_user': userId,
-            'id_follower': followerId,
-          });
+      final response = await supabaseClient.from('user_followers').insert({
+        'user_id': userId,
+        'follower_id': followerId,
+      });
 
       if (response.error != null) {
         throw ServerException(response.error!.message);
@@ -40,9 +35,9 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
       final response = await supabaseClient
           .from('user_followers')
           .delete()
-          .eq('id_user', userId)
-          .eq('id_follower', followerId);
-        print(response);
+          .eq('user_id', userId)
+          .eq('follower_id', followerId);
+      print(response);
       if (response.error != null) {
         throw ServerException(response.error!.message);
       }
@@ -52,5 +47,4 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
       throw ServerException(e.toString());
     }
   }
-
 }

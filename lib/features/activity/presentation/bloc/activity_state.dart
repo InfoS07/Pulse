@@ -35,24 +35,26 @@ class ActivityInitial extends ActivityState {
 }
 
 class ActivityInProgress extends ActivityState {
-  ActivityInProgress(Activity activity) : super(activity);
+  const ActivityInProgress(super.activity);
 }
 
 class ActivityStopped extends ActivityState {
+  @override
   final Activity activity;
   final Training training;
 
-  ActivityStopped(this.activity, this.training) : super(activity);
+  const ActivityStopped(this.activity, this.training) : super(activity);
 
   @override
   List<Object> get props => [activity, training];
 }
 
 class ActivitySaved extends ActivityState {
+  @override
   final Activity activity;
   final Training training;
 
-  ActivitySaved(this.activity, this.training) : super(activity);
+  const ActivitySaved(this.activity, this.training) : super(activity);
 
   @override
   List<Object> get props => [activity, training];
@@ -60,11 +62,12 @@ class ActivitySaved extends ActivityState {
 
 class ActivitySavedError extends ActivityState {
   final String message;
+  @override
   final Activity activity;
   final Training training;
   final ActivityState previousState;
 
-  ActivitySavedError(
+  const ActivitySavedError(
       this.message, this.activity, this.training, this.previousState)
       : super(activity);
 

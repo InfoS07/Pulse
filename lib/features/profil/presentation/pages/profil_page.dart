@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
-import 'package:pulse/core/common/entities/profilFollowArguments.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class ProfilPage extends StatefulWidget {
+  const ProfilPage({super.key});
+
   @override
   _ProfilPageState createState() => _ProfilPageState();
 }
@@ -18,14 +20,13 @@ class _ProfilPageState extends State<ProfilPage> {
   List<Profil>? followers;
   List<Profil>? followings;
 
-
   @override
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir le profil
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
+      userId = authState.user.uid;
       context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
   }
@@ -45,7 +46,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
-        backgroundColor: Colors.black,
+        scrolledUnderElevation: 0,
+        backgroundColor: AppPallete.backgroundColor,
       ),
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
@@ -97,16 +99,20 @@ class _ProfilPageState extends State<ProfilPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildInfoColumn(followers!.length.toString() ?? "", 'Abonnés'),
-                            _buildInfoColumn(followings!.length.toString() ?? "", 'Abonnements'),
+                            _buildInfoColumn(
+                                followers!.length.toString() ?? "", 'Abonnés'),
+                            _buildInfoColumn(
+                                followings!.length.toString() ?? "",
+                                'Abonnements'),
                           ],
                         ),
                         const Divider(color: Colors.grey, height: 32),
-                        _buildListTile('Entrainements', Icons.arrow_forward_ios),
+                        _buildListTile(
+                            'Entrainements', Icons.arrow_forward_ios),
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
                         _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
-                        Align(
+                        const Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
                             'Collection de trophées',
@@ -120,7 +126,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         Center(
                           child: TextButton(
                             onPressed: _signOut,
-                            child: Text(
+                            child: const Text(
                               'Se déconnecter',
                               style: TextStyle(color: Colors.red),
                             ),
@@ -174,10 +180,10 @@ class _ProfilPageState extends State<ProfilPage> {
 
   Widget _buildListTile(String title, IconData icon) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(vertical: 4.0),
+      contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
       title: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 18,
           color: Colors.white,
         ),
@@ -187,7 +193,7 @@ class _ProfilPageState extends State<ProfilPage> {
         color: Colors.white,
       ),
       onTap: () {
-        if(title == "Entrainements"){
+        if (title == "Entrainements") {
           context.push('/profil/entrainements');
         }
         // Ajouter l'action de navigation

@@ -1,7 +1,7 @@
 import 'package:pulse/core/common/entities/activity.dart';
 
 class ActivityModel extends Activity {
-  ActivityModel({
+  const ActivityModel({
     required super.id,
     required super.exercise,
     required super.laps,

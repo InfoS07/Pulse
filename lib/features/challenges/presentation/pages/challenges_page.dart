@@ -24,7 +24,7 @@ class _GroupPageState extends State<GroupPage> {
     // Retrieve the logged-in user's ID
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
+      userId = authState.user.uid;
       // Fetch challenges and exercises after userId is set
       context.read<ChallengesBloc>().add(ChallengesGetChallenges());
       context.read<ExercicesBloc>().add(ExercicesLoad()); // Load exercises
@@ -97,7 +97,8 @@ class _GroupPageState extends State<GroupPage> {
                       return Center(child: Text('Error: ${state.message}'));
                     } else if (state is ChallengesSuccess) {
                       print("Success");
-                      List<ChallengesModel?> allChallenges = _mapChallenges(state.challenges, false);
+                      List<ChallengesModel?> allChallenges =
+                          _mapChallenges(state.challenges, false);
 
                       return TabBarView(
                         children: [
@@ -119,7 +120,8 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
-  List<ChallengesModel?> _mapChallenges(List<ChallengesModel?> challenges, bool isInProgress) {
+  List<ChallengesModel?> _mapChallenges(
+      List<ChallengesModel?> challenges, bool isInProgress) {
     if (!isInProgress) {
       // Return challenges with time remaining greater than 0
       return challenges.where((challenge) {
@@ -129,8 +131,8 @@ class _GroupPageState extends State<GroupPage> {
     }
 
     return challenges.where((challenge) {
-      final isParticipant = challenge?.participants?.contains(int.parse(userId!)) ?? false;
-      final isAchiever = challenge?.achievers?.contains(int.parse(userId!)) ?? false;
+      final isParticipant = challenge?.participants?.contains(userId!) ?? false;
+      final isAchiever = challenge?.achievers?.contains(userId!) ?? false;
       final timeRemaining = challenge!.endAt!.difference(DateTime.now());
       return isParticipant && !isAchiever && timeRemaining.inSeconds > 0;
     }).toList();
@@ -156,8 +158,8 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   Widget _buildChallengeCard(ChallengesModel challenge) {
-    final isParticipant = challenge.participants?.contains(int.parse(userId!)) ?? false;
-    final isAchiever = challenge.achievers?.contains(int.parse(userId!)) ?? false;
+    final isParticipant = challenge.participants?.contains(userId!) ?? false;
+    final isAchiever = challenge.achievers?.contains(userId!) ?? false;
     String status;
     Color statusColor;
     Color buttonColor = AppPallete.primaryColorFade;
@@ -211,40 +213,49 @@ class _GroupPageState extends State<GroupPage> {
                   if (!isParticipant && !isAchiever) ...[
                     ElevatedButton(
                       onPressed: () {
-                        context.read<ChallengesBloc>().add(JoinChallenge(challenge.id, userId!));
+                        context
+                            .read<ChallengesBloc>()
+                            .add(JoinChallenge(challenge.id, userId!));
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: statusColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 30.0, vertical: 8.0),
                       ),
                       child: Text(
                         status,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
                   if (isParticipant && !isAchiever) ...[
                     IconButton(
                       onPressed: () {
-                        context.read<ChallengesBloc>().add(QuitChallenge(challenge.id, userId!));
+                        context
+                            .read<ChallengesBloc>()
+                            .add(QuitChallenge(challenge.id, userId!));
                       },
-                      icon: Icon(Icons.exit_to_app, color: AppPallete.primaryColor),
+                      icon: Icon(Icons.exit_to_app,
+                          color: AppPallete.primaryColor),
                       color: buttonColor,
                       padding: EdgeInsets.all(16.0),
                     ),
                     BlocBuilder<ExercicesBloc, ExercicesState>(
                       builder: (context, state) {
                         if (state is ExercicesLoaded) {
-                          final exercise = _findExercise(state.exercisesByCategory, challenge.exerciceId!);
+                          final exercise = _findExercise(
+                              state.exercisesByCategory, challenge.exerciceId!);
                           if (exercise != null) {
                             return IconButton(
                               onPressed: () {
                                 context.push('/activity', extra: exercise);
                               },
-                              icon: Icon(Icons.play_arrow, color: AppPallete.primaryColor),
+                              icon: Icon(Icons.play_arrow,
+                                  color: AppPallete.primaryColor),
                               color: buttonColor,
                               padding: EdgeInsets.all(16.0),
                             );
@@ -262,11 +273,13 @@ class _GroupPageState extends State<GroupPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 30.0, vertical: 8.0),
                       ),
                       child: Text(
                         status,
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
@@ -279,20 +292,23 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
-  void _showChallengeDetailsBottomSheet(BuildContext context, ChallengesModel challenge) {
+  void _showChallengeDetailsBottomSheet(
+      BuildContext context, ChallengesModel challenge) {
     final Duration timeRemaining = challenge.endAt!.difference(DateTime.now());
     final int daysRemaining = timeRemaining.inDays;
     final int points = challenge.points;
 
-    final isParticipant = challenge.participants?.contains(int.parse(userId!)) ?? false;
-    final isAchiever = challenge.achievers?.contains(int.parse(userId!)) ?? false;
+    final isParticipant = challenge.participants?.contains(userId!) ?? false;
+    final isAchiever = challenge.achievers?.contains(userId!) ?? false;
 
     BottomSheetUtil.showCustomBottomSheet(
       context: context,
       onConfirm: () {
         if (!isParticipant && !isAchiever) {
           // Action when "Accepter" button is pressed
-          context.read<ChallengesBloc>().add(JoinChallenge(challenge.id, userId!));
+          context
+              .read<ChallengesBloc>()
+              .add(JoinChallenge(challenge.id, userId!));
         } else if (isParticipant && !isAchiever) {
           // Action when "Lancer" button is pressed
           Navigator.of(context).pop(); // Close bottom sheet
@@ -300,7 +316,8 @@ class _GroupPageState extends State<GroupPage> {
           final exerciseId = challenge.exerciceId;
           final state = context.read<ExercicesBloc>().state;
           if (state is ExercicesLoaded) {
-            final exercise = _findExercise(state.exercisesByCategory, exerciseId!);
+            final exercise =
+                _findExercise(state.exercisesByCategory, exerciseId!);
             if (exercise != null) {
               context.go('/activity', extra: exercise);
             }
@@ -310,8 +327,10 @@ class _GroupPageState extends State<GroupPage> {
       onCancel: () {
         // Action when "Cancel" button is pressed (e.g., close bottom sheet)
       },
-      buttonText: isAchiever ? 'Terminé' : (isParticipant ? 'Quitter' : 'Accepter'),
-      buttonColor: isAchiever ? AppPallete.primaryColorFade : AppPallete.primaryColor,
+      buttonText:
+          isAchiever ? 'Terminé' : (isParticipant ? 'Quitter' : 'Accepter'),
+      buttonColor:
+          isAchiever ? AppPallete.primaryColorFade : AppPallete.primaryColor,
       isDismissible: true,
       builder: (BuildContext context) {
         return Padding(
@@ -350,7 +369,9 @@ class _GroupPageState extends State<GroupPage> {
                 ElevatedButton(
                   onPressed: () {
                     // Action when "Quitter" button is pressed
-                    context.read<ChallengesBloc>().add(QuitChallenge(challenge.id, userId!));
+                    context
+                        .read<ChallengesBloc>()
+                        .add(QuitChallenge(challenge.id, userId!));
                     Navigator.of(context).pop(); // Close bottom sheet
                     _refreshChallenges(); // Refresh challenge list
                   },
@@ -360,7 +381,8 @@ class _GroupPageState extends State<GroupPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Quitter',
@@ -376,7 +398,8 @@ class _GroupPageState extends State<GroupPage> {
                     final exerciseId = challenge.exerciceId;
                     final state = context.read<ExercicesBloc>().state;
                     if (state is ExercicesLoaded) {
-                      final exercise = _findExercise(state.exercisesByCategory, exerciseId!);
+                      final exercise =
+                          _findExercise(state.exercisesByCategory, exerciseId!);
                       if (exercise != null) {
                         context.push('/activity', extra: exercise);
                       }
@@ -388,7 +411,8 @@ class _GroupPageState extends State<GroupPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Lancer',
@@ -400,7 +424,9 @@ class _GroupPageState extends State<GroupPage> {
                 ElevatedButton(
                   onPressed: () {
                     // Action when "Accepter" button is pressed
-                    context.read<ChallengesBloc>().add(JoinChallenge(challenge.id, userId!));
+                    context
+                        .read<ChallengesBloc>()
+                        .add(JoinChallenge(challenge.id, userId!));
                     Navigator.of(context).pop(); // Close bottom sheet
                   },
                   style: ElevatedButton.styleFrom(
@@ -409,7 +435,8 @@ class _GroupPageState extends State<GroupPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Accepter',
@@ -426,7 +453,8 @@ class _GroupPageState extends State<GroupPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Terminé',
@@ -442,7 +470,8 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   // New method to find the exercise by ID in the map of categories
-  Exercice? _findExercise(Map<String, List<Exercice?>> exercisesByCategory, int exerciseId) {
+  Exercice? _findExercise(
+      Map<String, List<Exercice?>> exercisesByCategory, int exerciseId) {
     for (var category in exercisesByCategory.values) {
       for (var exercise in category) {
         if (exercise?.id == exerciseId.toString()) {

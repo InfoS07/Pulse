@@ -6,8 +6,8 @@ class FilterButton extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  FilterButton(
-      {required this.text, required this.isSelected, required this.onTap});
+  const FilterButton(
+      {super.key, required this.text, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
