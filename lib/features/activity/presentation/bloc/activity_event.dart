@@ -51,16 +51,18 @@ class StopActivity extends ActivityEvent {
 }
 
 class SaveActivity extends ActivityEvent {
+  final String title;
   final String description;
   final List<XFile> photos;
 
   const SaveActivity({
+    required this.title,
     required this.description,
     required this.photos,
   });
 
   @override
-  List<Object> get props => [description, photos];
+  List<Object> get props => [title, description, photos];
 }
 
 class SaveFailed extends ActivityEvent {

@@ -18,29 +18,29 @@ class SaveActivityPage extends StatefulWidget {
 
 class _SaveActivityPageState extends State<SaveActivityPage> {
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
   final List<XFile> _photos = [];
   final ImagePicker _picker = ImagePicker();
 
   @override
   void dispose() {
     _descriptionController.dispose();
+    _titleController.dispose();
     super.dispose();
   }
 
   Future<void> _pickPhotos() async {
     final statusCamera = await Permission.camera.status;
-    final statusGallery = await Permission.photos.status;
+    //final statusGallery = await Permission.photos.status;
+
+    /* if (!statusGallery.isGranted) {
+      await Permission.photos.request();
+    } */
 
     if (!statusCamera.isGranted) {
       await Permission.camera.request();
     }
-
-    if (!statusGallery.isGranted) {
-      await Permission.photos.request();
-    }
-
-    if (await Permission.camera.isGranted &&
-        await Permission.photos.isGranted) {
+    if (await Permission.camera.isGranted) {
       _showPickerDialog();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,16 +103,17 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
   }
 
   void _handleSave(BuildContext context) {
-    if (_descriptionController.text.isNotEmpty) {
+    if (_titleController.text.isNotEmpty) {
       BlocProvider.of<ActivityBloc>(context).add(
         SaveActivity(
+          title: _titleController.text,
           description: _descriptionController.text,
           photos: _photos,
         ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez ajouter une description")),
+        const SnackBar(content: Text("Veuillez ajouter un titre")),
       );
     }
   }
@@ -121,12 +122,29 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     FocusScope.of(context).unfocus();
   }
 
+  String _generateTitle(String exerciseName) {
+    final now = DateTime.now();
+    final hour = now.hour;
+    String timeOfDay;
+
+    if (hour < 12) {
+      timeOfDay = 'matinée';
+    } else if (hour < 18) {
+      timeOfDay = 'journée';
+    } else {
+      timeOfDay = 'soirée';
+    }
+
+    return '$exerciseName dans la $timeOfDay';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enregistrer l\'activité'),
-        backgroundColor: Colors.black,
+        scrolledUnderElevation: 0,
+        backgroundColor: AppPallete.backgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -155,6 +173,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
               if (effectiveState is ActivityStopped ||
                   effectiveState is ActivitySavedError) {
                 final activity = effectiveState.activity;
+
+                if (_titleController.text.isEmpty) {
+                  _titleController.text =
+                      _generateTitle(activity.exercise.title);
+                }
 
                 return SingleChildScrollView(
                   child: Padding(
@@ -205,6 +228,27 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
+                          'Titre',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: _titleController,
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            hintText: 'Donnez un titre à votre activité',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            fillColor: Colors.grey[900],
+                            filled: true,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
                           'Description',
                           style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
@@ -213,7 +257,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                           controller: _descriptionController,
                           maxLines: 4,
                           decoration: InputDecoration(
-                            hintText: 'Décrivez votre activité',
+                            hintText: 'Décrivez votre activité (optionnel)',
                             hintStyle: const TextStyle(color: Colors.grey),
                             fillColor: Colors.grey[900],
                             filled: true,

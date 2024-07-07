@@ -6,6 +6,7 @@ import 'package:pulse/core/common/widgets/exercise_card.dart';
 import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -72,6 +73,64 @@ class _ExercicesPageState extends State<ExercicesPage> {
               child: SearchInput(
                 controller: _searchController,
                 placeholder: 'Rechercher un exercice',
+              ),
+            ),
+            /* SliverToBoxAdapter(
+              child: Container(
+                padding: EdgeInsets.all(12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    FilterButton(
+                      text: 'Tout',
+                      isSelected: true, //state.filter == 'Tout',
+                      onTap: () {
+                        /* BlocProvider.of<HomeBloc>(context)
+                            .add(FilterPosts('Tout')); */
+                      },
+                    ),
+                    SizedBox(width: 16),
+                    FilterButton(
+                      text: 'Moi',
+                      isSelected: true, //state.filter == 'Moi',
+                      onTap: () {},
+                    ),
+                    SizedBox(width: 16),
+                    FilterButton(
+                      text: 'Abonné',
+                      isSelected: true, //state.filter == 'Abonné',
+                      onTap: () {},
+                    ),
+                  ],
+                ),
+              ),
+            ), */
+            Container(
+              padding: EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  FilterButton(
+                    text: 'Tout',
+                    isSelected: true, //state.filter == 'Tout',
+                    onTap: () {
+                      /* BlocProvider.of<HomeBloc>(context)
+                            .add(FilterPosts('Tout')); */
+                    },
+                  ),
+                  SizedBox(width: 16),
+                  FilterButton(
+                    text: 'Moi',
+                    isSelected: false, //state.filter == 'Moi',
+                    onTap: () {},
+                  ),
+                  SizedBox(width: 16),
+                  FilterButton(
+                    text: 'Abonné',
+                    isSelected: false, //state.filter == 'Abonné',
+                    onTap: () {},
+                  ),
+                ],
               ),
             ),
             Expanded(

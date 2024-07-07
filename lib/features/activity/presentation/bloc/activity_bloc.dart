@@ -102,6 +102,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     if (state is ActivityStopped || state is ActivitySavedError) {
       final training = Training(
         id: DateTime.now().millisecondsSinceEpoch,
+        title: event.title,
         description: event.description,
         comments: const [],
         activity: state.activity,

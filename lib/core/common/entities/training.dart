@@ -4,6 +4,7 @@ import 'activity.dart';
 
 class Training extends Equatable {
   final int id;
+  final String title;
   final String description;
   final List comments;
   final Activity activity;
@@ -11,6 +12,7 @@ class Training extends Equatable {
 
   const Training({
     required this.id,
+    required this.title,
     required this.description,
     required this.comments,
     required this.activity,
@@ -18,11 +20,12 @@ class Training extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, description, comments, activity];
+  List<Object?> get props => [id, title, description, comments, activity];
 
   static Training empty(activity) {
     return Training(
       id: 0,
+      title: '',
       description: '',
       comments: const [],
       activity: activity,
