@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:redacted/redacted.dart';
 
 class ExerciseCard extends StatelessWidget {
   final Exercice exercise;
@@ -68,6 +69,62 @@ class ExerciseCard extends StatelessWidget {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ExerciseCardShimmer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 150,
+      margin: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 100,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 14,
+                    width: 100,
+                    color: const Color.fromARGB(255, 181, 44, 44),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    height: 10,
+                    width: 50,
+                    color: Colors.grey[300],
+                  ),
+                ],
+              ),
+              FaIcon(
+                FontAwesomeIcons.fire,
+                color: Colors.orange,
+              ),
+            ],
+          ),
+        ],
+      ).redacted(
+        context: context,
+        redact: true,
+        configuration: RedactedConfiguration(
+          animationDuration: const Duration(milliseconds: 800), //default
         ),
       ),
     );

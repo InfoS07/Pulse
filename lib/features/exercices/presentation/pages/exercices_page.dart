@@ -7,6 +7,7 @@ import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
+import 'package:redacted/redacted.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -75,64 +76,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 placeholder: 'Rechercher un exercice',
               ),
             ),
-            /* SliverToBoxAdapter(
-              child: Container(
-                padding: EdgeInsets.all(12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    FilterButton(
-                      text: 'Tout',
-                      isSelected: true, //state.filter == 'Tout',
-                      onTap: () {
-                        /* BlocProvider.of<HomeBloc>(context)
-                            .add(FilterPosts('Tout')); */
-                      },
-                    ),
-                    SizedBox(width: 16),
-                    FilterButton(
-                      text: 'Moi',
-                      isSelected: true, //state.filter == 'Moi',
-                      onTap: () {},
-                    ),
-                    SizedBox(width: 16),
-                    FilterButton(
-                      text: 'Abonné',
-                      isSelected: true, //state.filter == 'Abonné',
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ),
-            ), */
-            Container(
-              padding: EdgeInsets.all(12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  FilterButton(
-                    text: 'Tout',
-                    isSelected: true, //state.filter == 'Tout',
-                    onTap: () {
-                      /* BlocProvider.of<HomeBloc>(context)
-                            .add(FilterPosts('Tout')); */
-                    },
-                  ),
-                  SizedBox(width: 16),
-                  FilterButton(
-                    text: 'Moi',
-                    isSelected: false, //state.filter == 'Moi',
-                    onTap: () {},
-                  ),
-                  SizedBox(width: 16),
-                  FilterButton(
-                    text: 'Abonné',
-                    isSelected: false, //state.filter == 'Abonné',
-                    onTap: () {},
-                  ),
-                ],
-              ),
-            ),
+            _buildFilterButtons(),
             Expanded(
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
@@ -144,7 +88,10 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 },
                 builder: (context, state) {
                   if (state is ExercicesLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return RefreshIndicator(
+                      onRefresh: _refreshExercises,
+                      child: _buildShimmerEffect(),
+                    );
                   } else if (state is ExercicesLoaded) {
                     return RefreshIndicator(
                       onRefresh: _refreshExercises,
@@ -170,23 +117,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
   Widget _buildSearchBar() {
     return Row(
       children: [
-        /* Expanded(
-          child: SizedBox(
-            height: 40, // Adjust the height to make the TextField smaller
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Recherche',
-                prefixIcon: const Icon(Icons.search),
-                contentPadding: const EdgeInsets.symmetric(
-                    vertical: 8.0), // Adjust the padding as needed
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-        ), */
         const SizedBox(width: 8),
         DropdownButton<String>(
           icon: const Icon(Icons.more_vert),
@@ -201,6 +131,37 @@ class _ExercicesPageState extends State<ExercicesPage> {
           onChanged: _onCategorySelected,
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterButtons() {
+    return Container(
+      padding: EdgeInsets.all(12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          FilterButton(
+            text: 'Tout',
+            isSelected: selectedCategory == null,
+            onTap: () {
+              _onCategorySelected(null);
+            },
+          ),
+          SizedBox(width: 16),
+          ...categories.map((category) {
+            return Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: FilterButton(
+                text: category,
+                isSelected: selectedCategory == category,
+                onTap: () {
+                  _onCategorySelected(category);
+                },
+              ),
+            );
+          }).toList(),
+        ],
+      ),
     );
   }
 
@@ -230,10 +191,43 @@ class _ExercicesPageState extends State<ExercicesPage> {
                         context.push('/exercices/details/${exercise.id}',
                             extra: exercise);
                       },
+                    ).redacted(
+                      context: context,
+                      redact: exercise == null,
                     );
                   }
                   return const SizedBox();
                 }).toList(),
+              ),
+            ),
+          ],
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildShimmerEffect() {
+    final shimmerCategories = categories;
+
+    return ListView(
+      children: shimmerCategories.map((category) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Text(
+                category,
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              ),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: List.generate(5, (index) {
+                  return ExerciseCardShimmer();
+                }),
               ),
             ),
           ],
@@ -259,9 +253,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
-              _refreshExercises();
-            },
+            onPressed: _refreshExercises,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppPallete.primaryColor, // Couleur du bouton
               shape: RoundedRectangleBorder(
