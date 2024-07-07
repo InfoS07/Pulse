@@ -50,6 +50,7 @@ class SocialMediaPostModel extends SocialMediaPost {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'author_id': id,
       'profileImageUrl': profileImageUrl,
       'username': username,
       'timestamp': timestamp,

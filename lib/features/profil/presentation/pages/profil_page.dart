@@ -194,7 +194,7 @@ class _ProfilPageState extends State<ProfilPage> {
       ),
       onTap: () {
         if (title == "Entrainements") {
-          context.push('/entrainements');
+          context.push('/profil/entrainements');
         }
         // Ajouter l'action de navigation
       },
