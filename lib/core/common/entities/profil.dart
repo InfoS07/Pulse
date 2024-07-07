@@ -1,5 +1,4 @@
 class Profil {
-  final int id;
   final String uid;
   final String email;
   final String lastName;
@@ -9,7 +8,6 @@ class Profil {
   final String profilePhoto;
 
   Profil({
-    required this.id,
     required this.uid,
     required this.email,
     required this.lastName,

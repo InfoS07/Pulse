@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 
 class ExercicePage extends StatefulWidget {
   final Exercice exercice;
@@ -14,10 +15,6 @@ class ExercicePage extends StatefulWidget {
 }
 
 class _ExercicePageState extends State<ExercicePage> {
-  final List<String> imageUrls = [
-    'https://images.pexels.com/photos/317157/pexels-photo-317157.jpeg?auto=compress&cs=tinysrgb&w=600',
-  ];
-
   int _currentIndex = 0;
 
   @override
@@ -26,7 +23,8 @@ class _ExercicePageState extends State<ExercicePage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.transparent,
+            scrolledUnderElevation: 0,
+            backgroundColor: AppPallete.backgroundColor,
             expandedHeight: MediaQuery.of(context).size.height * 0.5,
             floating: false,
             pinned: true,
@@ -45,11 +43,11 @@ class _ExercicePageState extends State<ExercicePage> {
                         });
                       },
                     ),
-                    items: imageUrls.map((url) {
+                    items: widget.exercice.photos.map((url) {
                       return Builder(
                         builder: (BuildContext context) {
                           return Image.network(
-                            widget.exercice.urlPhoto,
+                            url,
                             width: double.infinity,
                             fit: BoxFit.cover,
                           );
@@ -77,13 +75,13 @@ class _ExercicePageState extends State<ExercicePage> {
               [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: imageUrls.map((url) {
-                    int index = imageUrls.indexOf(url);
+                  children: widget.exercice.photos.map((url) {
+                    int index = widget.exercice.photos.indexOf(url);
                     return Container(
                       width: 8.0,
                       height: 8.0,
-                      margin:
-                          const EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 2.0),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: _currentIndex == index
@@ -145,7 +143,8 @@ class _ExercicePageState extends State<ExercicePage> {
                       const SizedBox(height: 8),
                       Text(
                         widget.exercice.description,
-                        style: const TextStyle(fontSize: 14, color: Colors.white),
+                        style:
+                            const TextStyle(fontSize: 14, color: Colors.white),
                       ),
                       const SizedBox(height: 16),
                       const Text(
@@ -182,15 +181,15 @@ class _ExercicePageState extends State<ExercicePage> {
                             context.push('/activity', extra: widget.exercice);
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.greenAccent,
+                            backgroundColor: AppPallete.primaryColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 42, vertical: 16),
+                                horizontal: 36, vertical: 14),
                           ),
                           child: const Text(
-                            'Go',
+                            'Pulser',
                             style: TextStyle(
                               fontSize: 18,
                               color: Colors.black,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
@@ -23,6 +24,17 @@ class PostDetailsPage extends StatefulWidget {
 }
 
 class _PostDetailsPageState extends State<PostDetailsPage> {
+  String? userId;
+
+  @override
+  void initState() {
+    super.initState();
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.uid;
+    }
+  }
+
   void toggleLike() {
     setState(() {
       BlocProvider.of<HomeBloc>(context).add(LikePost(widget.post.id));
@@ -33,8 +45,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     BottomSheetUtil.showCustomBottomSheet(
       context,
       onConfirm: () {
-        // Ajoutez l'action de suppression ici
-        print("Activity deleted");
+        // si l'auteur de la publication est l'utilisateur connecté
+        // alors on peut supprimer la publication
+        BlocProvider.of<HomeBloc>(context).add(DeletePost(widget.post.id));
+        context.go('/home');
       },
       buttonText: 'Supprimer l\'entrainement',
       buttonColor: Colors.red,
@@ -61,22 +75,23 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
           },
         ),
         actions: [
-          PopupMenuButton<String>(
-            color: AppPallete.popUpBackgroundColor,
-            //surfaceTintColor: AppPallete.popUpBackgroundColor,
-            tooltip: 'Plus d\'options',
-            onSelected: (String result) {
-              if (result == 'delete') {
-                _showDeleteDialog();
-              }
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              const PopupMenuItem<String>(
-                value: 'delete',
-                child: Text('Supprimer l\'entraînement'),
-              ),
-            ],
-          ),
+          if (userId == widget.post.userUid)
+            PopupMenuButton<String>(
+              color: AppPallete.popUpBackgroundColor,
+              //surfaceTintColor: AppPallete.popUpBackgroundColor,
+              tooltip: 'Plus d\'options',
+              onSelected: (String result) {
+                if (result == 'delete') {
+                  _showDeleteDialog();
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: 'delete',
+                  child: Text('Supprimer l\'entraînement'),
+                ),
+              ],
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -103,14 +118,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                   description: widget.post.description,
                 ),
                 const SizedBox(height: 18),
-                if (widget.post.postImageUrls.isNotEmpty) ...[
+                if (widget.post.photos.isNotEmpty) ...[
                   const SizedBox(height: 19),
-                  ImageListWidget(imageUrls: widget.post.postImageUrls),
+                  ImageListWidget(imageUrls: widget.post.photos),
                 ],
                 const SizedBox(height: 18),
                 ExerciseCardWidget(
                   exerciseTitle: widget.post.exercice.title,
-                  exerciseUrlPhoto: widget.post.exercice.urlPhoto,
+                  exerciseUrlPhoto: widget.post.exercice.photos.first,
                   onTap: () {
                     context.push(
                         '/exercices/details/${widget.post.exercice.id}',

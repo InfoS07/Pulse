@@ -23,7 +23,7 @@ class ExerciseCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
               child: CachedNetworkImage(
-                imageUrl: exercise.urlPhoto,
+                imageUrl: exercise.photos.first,
                 height: 100,
                 width: double.infinity, // Make the image take full width
                 fit: BoxFit.cover,
@@ -37,7 +37,8 @@ class ExerciseCard extends StatelessWidget {
                   color: Colors.grey, // Error color
                   height: 100,
                   width: double.infinity,
-                  child: const Center(child: Icon(Icons.error, color: Colors.white)),
+                  child: const Center(
+                      child: Icon(Icons.error, color: Colors.white)),
                 ),
               ),
             ),
@@ -51,8 +52,8 @@ class ExerciseCard extends StatelessWidget {
                   children: [
                     Text(
                       exercise.title,
-                      style:
-                          const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 14, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '${exercise.podCount} Pods',

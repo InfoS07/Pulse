@@ -5,13 +5,14 @@ class SocialMediaPost {
   final int id;
   final String profileImageUrl;
   final String username;
+  final String userUid;
   final String timestamp;
   final DateTime startAt;
   final DateTime endAt;
   final String title;
   final String description;
   final Exercice exercice;
-  final List<String> postImageUrls;
+  final List<String> photos;
   final int likes;
   final List<Comment> comments;
   final bool isLiked;
@@ -21,11 +22,12 @@ class SocialMediaPost {
     required this.title,
     required this.description,
     required this.profileImageUrl,
+    required this.userUid,
     required this.username,
     required this.timestamp,
     required this.startAt,
     required this.endAt,
-    required this.postImageUrls,
+    required this.photos,
     required this.likes,
     required this.comments,
     required this.isLiked,
@@ -36,12 +38,13 @@ class SocialMediaPost {
     int? id,
     String? profileImageUrl,
     String? username,
+    String? userUid,
     String? timestamp,
     DateTime? startAt,
     DateTime? endAt,
     String? title,
     String? description,
-    List<String>? postImageUrls,
+    List<String>? photos,
     int? likes,
     List<Comment>? comments,
     bool? isLiked,
@@ -51,10 +54,11 @@ class SocialMediaPost {
       id: id ?? this.id,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       username: username ?? this.username,
+      userUid: userUid ?? this.userUid,
       timestamp: timestamp ?? this.timestamp,
       title: title ?? this.title,
       description: description ?? this.description,
-      postImageUrls: postImageUrls ?? this.postImageUrls,
+      photos: photos ?? this.photos,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       isLiked: isLiked ?? this.isLiked,

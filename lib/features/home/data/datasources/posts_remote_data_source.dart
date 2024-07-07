@@ -1,62 +1,90 @@
 import 'dart:typed_data';
 import 'package:fpdart/fpdart.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/error/exceptions.dart';
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/home/domain/models/social_media_post_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 
 abstract class PostsRemoteDataSource {
   Future<List<SocialMediaPost>> getPosts();
   Future<Unit> likePost(int postId);
+  Future<Unit> deletePost(int postId);
 }
 
 class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
   final SupabaseClient supabaseClient;
+  final GraphQLService graphQLService;
 
-  PostsRemoteDataSourceImpl(this.supabaseClient);
+  PostsRemoteDataSourceImpl(this.supabaseClient, this.graphQLService);
 
   @override
   Future<List<SocialMediaPost>> getPosts() async {
     try {
-      final response = await supabaseClient
-          .from('training')
-          .select(
-              '*,  user:users!training_author_id_fkey(*),  likes : training_like_users(* , user : users (username, profile_photo)) , comments: training_comments (* , user : users (username, profile_photo)), exercice : exercises(*)')
-          .order('created_at', ascending: false);
-
-      /* if (response.error != null) {
-        throw ServerException(response.error!.message);
-      }
-      */
-
-      final List<dynamic> postsData = response;
-
-      var data = postsData.map<Future<SocialMediaPostModel>>((post) async {
-        post['postImageUrls'] = <String>[];
-        post["exercice"]['exerciceImageUrl'] = "";
-
-        if (post["photos"] != null && post["photos"].length > 0) {
-          final List<dynamic> photos = post["photos"];
-          for (var photo in photos) {
-            final String url =
-                supabaseClient.storage.from('training').getPublicUrl(photo);
-            post['postImageUrls'].add(url);
+      const String query = '''
+        {
+          trainings {
+            id
+            title
+            description
+            created_at
+            start_at
+            end_at
+            exercise {
+              id
+              title
+              description
+              pod_count
+              calories_burned
+              photos
+              categories
+              photos
+              sequence
+            }
+            author {
+                id
+                uid
+                last_name
+                first_name
+                username
+                profile_photo
+            }
+            likes {
+                user {
+                    uid
+                }
+            }
+            comments {
+                user {
+                    id
+                }
+            }
+            photos
           }
         }
+      ''';
 
-        if (post["exercice"]["photos"].length > 0) {
-          final String url = supabaseClient.storage
-              .from('exercises_photos')
-              .getPublicUrl(post["exercice"]["photos"][0]);
+      final result = await graphQLService.client.query(
+        QueryOptions(
+          document: gql(query),
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      );
 
-          post["exercice"]['exerciceImageUrl'] = url;
-        }
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
+      }
 
-        final isLiked = post['likes'].any(
-            (like) => like['user_id'] == supabaseClient.auth.currentUser!.id);
+      final postsData = result.data?["trainings"] as List<dynamic>;
+
+      var data = postsData.map<Future<SocialMediaPostModel>>((post) async {
+        final isLiked = post['likes'].any((like) =>
+            like['user']['uid'] == supabaseClient.auth.currentUser!.id);
 
         post['isLiked'] = isLiked;
 
@@ -64,21 +92,11 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
       }).toList();
 
       return await Future.wait(data);
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
     } catch (e) {
-      throw ServerException(e.toString());
+      throw pulse_exceptions.ServerException(e.toString());
     }
   }
 
-  Future<XFile> uint8ListToXFile(Uint8List data, String filename) async {
-    final tempDir = await getTemporaryDirectory();
-    final filePath = '${tempDir.path}/$filename';
-    final file = await File(filePath).writeAsBytes(data);
-    return XFile(file.path);
-  }
-
-  //likePost
   @override
   Future<Unit> likePost(int postId) async {
     try {
@@ -116,11 +134,47 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         } */
       }
     } on PostgrestException catch (e) {
-      throw ServerException(e.message);
+      throw pulse_exceptions.ServerException(e.message);
     } catch (e) {
-      throw ServerException(e.toString());
+      throw pulse_exceptions.ServerException(e.toString());
     }
 
     return unit;
+  }
+
+  @override
+  Future<Unit> deletePost(int postId) async {
+    try {
+      print("postId: ${postId}");
+      String mutation = '''
+        mutation {
+          deleteTraining(input: {trainingId: "${postId.toString()}"}) {
+            success
+            errorCode
+          }
+        }
+      ''';
+
+      final result = await graphQLService.client.mutate(
+        MutationOptions(
+          document: gql(mutation),
+        ),
+      );
+
+      print("result: ${result}");
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
+      }
+
+      final success = result.data?['deleteTraining']['success'] as bool;
+      if (!success) {
+        final errorCode = result.data?['deleteTraining']['errorCode'] as String;
+        throw pulse_exceptions.ServerException('Error code: $errorCode');
+      }
+
+      return unit;
+    } catch (e) {
+      throw pulse_exceptions.ServerException(e.toString());
+    }
   }
 }

@@ -1,4 +1,3 @@
-
 import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
@@ -22,22 +21,17 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
     try {
       const String query = '''
         {
-          exercicesGroupByCategories {
+          exercises {
               id
-              category
-              exercises {
-                  id
-                  title
-                  pod_count
-                  description
-                  duration
-                  calories_burned
-                  media {
-                      url_photo
-                  }
-              }
+              title
+              description
+              pod_count
+              calories_burned
+              photos
+              categories
+              photos
+            }
           }
-        }
       ''';
 
       final result = await graphQLService.client.query(
@@ -51,31 +45,39 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
-      final data = result.data?["exercicesGroupByCategories"] as List;
+      final data = result.data?["exercises"] as List;
 
-      return transformData(data.cast<Map<String, dynamic>>());
+      return transformData(data);
     } catch (e) {
       throw pulse_exceptions.ServerException(e.toString());
     }
   }
 
-  Map<String, List<ExercicesModel?>> transformData(
-      List<Map<String, dynamic>> data) {
-    return data.fold<Map<String, List<ExercicesModel?>>>(
+  Map<String, List<ExercicesModel?>> transformData(List data) {
+    final categories = [];
+    for (var element in data) {
+      final categoriesData = element['categories'] as List;
+      //if categoriesData already exists in categories, skip
+      for (var category in categoriesData) {
+        if (!categories.contains(category)) {
+          categories.add(category);
+        }
+      }
+    }
+
+    return categories.fold<Map<String, List<ExercicesModel?>>>(
       {},
       (previousValue, element) {
-        final category = element['category'] as String;
-        final exercises = element['exercises'] as List;
+        final filteredData = data.where((el) {
+          final categories = el['categories'] as List;
+          return categories.contains(element);
+        }).toList();
 
-        for (var exerciseData in exercises) {
-          final exercice = ExercicesModel.fromJson(exerciseData);
+        final exercices = filteredData.map((e) {
+          return ExercicesModel.fromJson(e);
+        }).toList();
 
-          if (previousValue.containsKey(category)) {
-            previousValue[category]!.add(exercice);
-          } else {
-            previousValue[category] = [exercice];
-          }
-        }
+        previousValue[element] = exercices;
 
         return previousValue;
       },
@@ -87,17 +89,38 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
     String searchTerm,
     String? category,
   ) async {
-    /* final filteredData = data.map((key, value) {
-      final filteredValue = value.where((element) {
-        final title = element!.title.toLowerCase();
-        final search = searchTerm.toLowerCase();
-        return title.contains(search);
-      }).toList();
-      return MapEntry(key, filteredValue);
-    }); */
+    try {
+      String query = '''
+        {
+          exercises(query: "$searchTerm") {
+              id
+              title
+              description
+              pod_count
+              calories_burned
+              photos
+              categories
+              photos
+            }
+          }
+      ''';
 
-    final filteredData = <String, List<ExercicesModel?>>{};
+      final result = await graphQLService.client.query(
+        QueryOptions(
+          document: gql(query),
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      );
 
-    return filteredData;
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
+      }
+
+      final data = result.data?["exercises"] as List;
+
+      return transformData(data);
+    } catch (e) {
+      throw pulse_exceptions.ServerException(e.toString());
+    }
   }
 }

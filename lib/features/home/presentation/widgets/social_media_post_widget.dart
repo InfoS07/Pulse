@@ -56,7 +56,7 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
             const SizedBox(height: 18),
             ExerciseCardWidget(
               exerciseTitle: widget.post.exercice.title,
-              exerciseUrlPhoto: widget.post.exercice.urlPhoto,
+              exerciseUrlPhoto: widget.post.exercice.photos.first,
               onTap: () {
                 context.push('/exercices/details/${widget.post.exercice.id}',
                     extra: widget.post.exercice);
@@ -92,9 +92,9 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
               ),
             ),
             const SizedBox(height: 18),
-            if (widget.post.postImageUrls.isNotEmpty) ...[
+            if (widget.post.photos.isNotEmpty) ...[
               const SizedBox(height: 19),
-              ImageListWidget(imageUrls: widget.post.postImageUrls),
+              ImageListWidget(imageUrls: widget.post.photos),
             ],
             const SizedBox(height: 18),
             LikeCommentCountWidget(

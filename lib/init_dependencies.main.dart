@@ -93,6 +93,7 @@ void _initHome() {
     ..registerFactory<PostsRemoteDataSource>(
       () => PostsRemoteDataSourceImpl(
         serviceLocator(),
+        serviceLocator(),
       ),
     )
     // Repository
@@ -112,11 +113,17 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => DeletePostUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
         getPosts: serviceLocator(),
         likePost: serviceLocator(),
+        deletePost: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );

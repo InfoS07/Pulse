@@ -6,6 +6,7 @@ import 'package:pulse/core/common/entities/daily_stats.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/recommend_exercise_card_widget.dart';
+import 'package:pulse/features/home/presentation/widgets/session_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 
 class HomePage extends StatefulWidget {
@@ -177,19 +178,54 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SliverToBoxAdapter(
-                    child: SizedBox(height: 12),
+                    child: SizedBox(height: 32),
                   ),
                   SliverToBoxAdapter(
                     child: Container(
-                      height: 250, // Ajustez cette valeur selon vos besoins
+                      height: 200, // Ajustez cette valeur selon vos besoins
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        children: recommendedExercises,
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        children: [
+                          SessionCardWidget(
+                            title: 'Ma séance',
+                            duration: '15 minutes',
+                            points: '64',
+                            onStart: () {
+                              // Action lorsque le bouton "C'est parti !" est appuyé
+                            },
+                          ),
+                          SizedBox(width: 32),
+                          SessionCardWidget(
+                            title: 'Ma séance',
+                            duration: '15 minutes',
+                            points: '64',
+                            onStart: () {
+                              // Action lorsque le bouton "C'est parti !" est appuyé
+                            },
+                          ),
+                        ], //recommendedExercises,
                       ),
                     ),
                   ),
+                  /* SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: SessionCardWidget(
+                        imageUrl: 'https://your-image-url.com',
+                        title: 'Ma séance',
+                        duration: '15 minutes',
+                        kcal: '293 kcal',
+                        exercises: '3 exercices',
+                        points: '64',
+                        onStart: () {
+                          // Action lorsque le bouton "C'est parti !" est appuyé
+                        },
+                      ),
+                    ),
+                  ), */
                   const SliverToBoxAdapter(
-                    child: SizedBox(height: 12),
+                    child: SizedBox(height: 32),
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate(

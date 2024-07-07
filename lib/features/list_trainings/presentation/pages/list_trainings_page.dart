@@ -21,7 +21,7 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
     // Lancer l'événement pour obtenir les entraînements
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
+      userId = authState.user.uid;
       context.read<ListTrainingsBloc>().add(ListTrainingsGetTraining(userId!));
     }
   }
@@ -64,7 +64,8 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
             );
           } else {
             return const Center(
-              child: Text('Aucun entrainement trouvé.', style: TextStyle(color: Colors.white)),
+              child: Text('Aucun entrainement trouvé.',
+                  style: TextStyle(color: Colors.white)),
             );
           }
         },
@@ -108,4 +109,3 @@ class TrainingListItem extends StatelessWidget {
     );
   }
 }
-

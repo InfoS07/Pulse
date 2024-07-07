@@ -2,7 +2,6 @@ import 'package:pulse/core/common/entities/profil.dart';
 
 class ProfilModel extends Profil {
   ProfilModel({
-    required super.id,
     required super.uid,
     required super.email,
     required super.lastName,
@@ -14,8 +13,7 @@ class ProfilModel extends Profil {
 
   factory ProfilModel.fromJson(Map<String, dynamic> map) {
     return ProfilModel(
-      id: map['id'] ?? '',
-      uid: map['sub'] ?? '',
+      uid: map['uid'] ?? '',
       email: map['email'] ?? '',
       lastName: map['last_name'] ?? '',
       firstName: map['first_name'] ?? '',
@@ -30,7 +28,6 @@ class ProfilModel extends Profil {
   }
 
   ProfilModel copyWith({
-    int? id,
     String? uid,
     String? email,
     String? lastName,
@@ -40,7 +37,6 @@ class ProfilModel extends Profil {
     String? profilePhoto,
   }) {
     return ProfilModel(
-      id: id ?? this.id,
       uid: uid ?? this.uid,
       email: email ?? this.email,
       lastName: lastName ?? this.lastName,

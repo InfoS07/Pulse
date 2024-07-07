@@ -73,7 +73,7 @@ class SocialMediaPostWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0), // Rounded corners
             child: Image.network(
-              post.postImageUrls[0],
+              post.photos.first,
               fit: BoxFit.cover,
             ),
           ),

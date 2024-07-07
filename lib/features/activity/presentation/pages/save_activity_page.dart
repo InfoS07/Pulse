@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 
@@ -72,7 +73,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                       }
                     }
                   });
-                                },
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.photo_camera),
@@ -126,6 +127,12 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
       appBar: AppBar(
         title: const Text('Enregistrer l\'activité'),
         backgroundColor: Colors.black,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            context.pop();
+          },
+        ),
       ),
       body: BlocListener<ActivityBloc, ActivityState>(
         listener: (context, state) {
@@ -288,14 +295,20 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                               _dismissKeyboard();
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.greenAccent,
+                              backgroundColor: AppPallete.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 32, vertical: 16),
+                                  horizontal: 36, vertical: 14),
                             ),
                             child: const Text(
                               'Enregistrer',
-                              style:
-                                  TextStyle(fontSize: 18, color: Colors.black),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),

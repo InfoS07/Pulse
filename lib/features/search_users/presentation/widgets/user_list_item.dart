@@ -16,7 +16,7 @@ class UserListItem extends StatelessWidget {
       ),
       title: Text(profil.firstName + ' ' + profil.lastName),
       onTap: () {
-        context.push('/otherProfil', extra: profil.id.toString());
+        context.push('/otherProfil', extra: profil.uid);
       },
     );
   }

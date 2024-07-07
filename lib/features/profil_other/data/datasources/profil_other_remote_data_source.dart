@@ -19,7 +19,8 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
   @override
   Future<ProfilModel?> getProfil(String userId) async {
     try {
-      final response = await supabaseClient.from('users').select().eq("id", userId);
+      final response =
+          await supabaseClient.from('users').select().eq("uid", userId);
       /* if (response.error != null) {
         throw const ServerException('Error fetching data');
       } */
@@ -31,17 +32,17 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
     }
   }
 
-
   @override
   Future<List<ProfilModel?>> getFollowers(String userId) async {
     try {
       // Récupérer les IDs des followers
       final response = await supabaseClient
           .from('user_followers')
-          .select('id_user')
-          .eq("id_follower", userId);
+          .select('user_id')
+          .eq("follower_id", userId);
 
-      final List<dynamic> followerIds = response.map((item) => item['id_user']).toList();
+      final List<dynamic> followerIds =
+          response.map((item) => item['user_id']).toList();
 
       // Récupérer les informations des utilisateurs par leurs IDs
       final userResponse = await supabaseClient
@@ -64,10 +65,11 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
       // Récupérer les IDs des followers
       final response = await supabaseClient
           .from('user_followers')
-          .select('id_follower')
-          .eq("id_user", userId);
+          .select('follower_id')
+          .eq("user_id", userId);
 
-      final List<dynamic> followerIds = response.map((item) => item['id_follower']).toList();
+      final List<dynamic> followerIds =
+          response.map((item) => item['follower_id']).toList();
 
       // Récupérer les informations des utilisateurs par leurs IDs
       final userResponse = await supabaseClient
@@ -84,15 +86,12 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
     }
   }
 
-    @override
+  @override
   Future<List<TrainingModel>> getTrainings(String userId) async {
     try {
       // Récupérer l'utilisateur avec le paramètre userId
-      final userResponse = await supabaseClient
-          .from('users')
-          .select()
-          .eq('id', userId)
-          .single();
+      final userResponse =
+          await supabaseClient.from('users').select().eq('id', userId).single();
 
       final user = userResponse;
 
@@ -101,7 +100,6 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
           .from('training')
           .select()
           .eq('author_id', user['uid']);
-
 
       // Retourner la liste de TrainingModel
       return TrainingModel.fromJsonList(trainingResponse);

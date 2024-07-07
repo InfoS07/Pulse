@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
+import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 
@@ -58,12 +59,21 @@ class _ExercicesPageState extends State<ExercicesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exercices'),
+        scrolledUnderElevation: 0,
+        backgroundColor: AppPallete.backgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
             _buildSearchBar(),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SearchInput(
+                controller: _searchController,
+                placeholder: 'Rechercher un exercice',
+              ),
+            ),
             Expanded(
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
@@ -101,7 +111,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
   Widget _buildSearchBar() {
     return Row(
       children: [
-        Expanded(
+        /* Expanded(
           child: SizedBox(
             height: 40, // Adjust the height to make the TextField smaller
             child: TextField(
@@ -117,7 +127,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
               ),
             ),
           ),
-        ),
+        ), */
         const SizedBox(width: 8),
         DropdownButton<String>(
           icon: const Icon(Icons.more_vert),

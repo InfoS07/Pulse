@@ -17,3 +17,12 @@ class LikePost extends HomeEvent {
   @override
   List<Object> get props => [postId];
 }
+
+class DeletePost extends HomeEvent {
+  final int postId;
+
+  DeletePost(this.postId);
+
+  @override
+  List<Object> get props => [postId];
+}

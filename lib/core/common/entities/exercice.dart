@@ -1,10 +1,8 @@
-
-
 class Exercice {
   final int id;
   final String title;
   final String description;
-  final String urlPhoto;
+  final List<String> photos;
   final int duration;
   List<int> sequence = [1, 2, 3, 4, 5];
   int repetitions = 3;
@@ -19,7 +17,7 @@ class Exercice {
   Exercice(
       {required this.id,
       required this.title,
-      required this.urlPhoto,
+      required this.photos,
       required this.description,
       required this.duration,
       required this.sequence,
@@ -36,7 +34,7 @@ class Exercice {
     return Exercice(
       id: 0,
       title: '',
-      urlPhoto: '',
+      photos: [''],
       description: '',
       duration: 0,
       sequence: [],

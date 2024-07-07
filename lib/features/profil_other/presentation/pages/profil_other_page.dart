@@ -26,7 +26,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
     super.initState();
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      currentUserId = authState.user.id.toString();
+      currentUserId = authState.user.uid;
     }
     // Lancer l'événement pour obtenir le profil
     context.read<OtherProfilBloc>().add(OtherProfilGetProfil(widget.userId));
@@ -81,8 +81,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                 if (state is OtherProfilLoading) {
                   return const Loader();
                 } else if (state is OtherProfilSuccess) {
-                  bool isFollowing = state.followers.any(
-                      (follower) => follower.id.toString() == currentUserId);
+                  bool isFollowing = state.followers
+                      .any((follower) => follower.uid == currentUserId);
                   return RefreshIndicator(
                     onRefresh: _refreshProfile,
                     child: ListView(
@@ -151,7 +151,8 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                                     isFollowing ? Icons.check : Icons.add,
                                     color: Colors.white),
                                 label: Text(isFollowing ? 'Suivi' : 'Suivre',
-                                    style: const TextStyle(color: Colors.white)),
+                                    style:
+                                        const TextStyle(color: Colors.white)),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: isFollowing
                                       ? Colors.grey

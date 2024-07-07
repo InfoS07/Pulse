@@ -4,7 +4,7 @@ class ExercicesModel extends Exercice {
   ExercicesModel({
     required super.id,
     required super.title,
-    required super.urlPhoto,
+    required super.photos,
     required super.description,
     required super.duration,
     required super.sequence,
@@ -20,9 +20,14 @@ class ExercicesModel extends Exercice {
 
   factory ExercicesModel.fromJson(Map<String, dynamic> map) {
     return ExercicesModel(
-      id: map['id'] ?? 0,
+      id: map['id'] is int
+          ? map['id']
+          : int.tryParse(map['id'].toString()) ?? 0,
       title: map['title'] ?? '',
-      urlPhoto: map['exerciceImageUrl'] ?? '',
+      photos: (map['photos'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
       description: map['description'] ?? '',
       duration: map['duration'] ?? 0,
       sequence: (map['sequence'] as List<dynamic>?)
@@ -43,14 +48,14 @@ class ExercicesModel extends Exercice {
   ExercicesModel copyWith({
     int? id,
     String? title,
-    String? urlPhoto,
+    List<String>? photos,
     String? description,
     int? duration,
   }) {
     return ExercicesModel(
       id: id ?? this.id,
       title: title ?? this.title,
-      urlPhoto: urlPhoto ?? this.urlPhoto,
+      photos: photos ?? this.photos,
       description: description ?? this.description,
       duration: duration ?? this.duration,
       sequence: sequence,

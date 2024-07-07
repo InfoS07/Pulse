@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
@@ -19,14 +20,13 @@ class _ProfilPageState extends State<ProfilPage> {
   List<Profil>? followers;
   List<Profil>? followings;
 
-
   @override
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir le profil
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
-      userId = authState.user.id.toString();
+      userId = authState.user.uid;
       context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
   }
@@ -46,7 +46,8 @@ class _ProfilPageState extends State<ProfilPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profil'),
-        backgroundColor: Colors.black,
+        scrolledUnderElevation: 0,
+        backgroundColor: AppPallete.backgroundColor,
       ),
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
@@ -98,12 +99,16 @@ class _ProfilPageState extends State<ProfilPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _buildInfoColumn(followers!.length.toString() ?? "", 'Abonnés'),
-                            _buildInfoColumn(followings!.length.toString() ?? "", 'Abonnements'),
+                            _buildInfoColumn(
+                                followers!.length.toString() ?? "", 'Abonnés'),
+                            _buildInfoColumn(
+                                followings!.length.toString() ?? "",
+                                'Abonnements'),
                           ],
                         ),
                         const Divider(color: Colors.grey, height: 32),
-                        _buildListTile('Entrainements', Icons.arrow_forward_ios),
+                        _buildListTile(
+                            'Entrainements', Icons.arrow_forward_ios),
                         _buildListTile('Statistiques', Icons.arrow_forward_ios),
                         _buildListTile('Pods', Icons.arrow_forward_ios),
                         const Divider(color: Colors.grey, height: 32),
@@ -188,7 +193,7 @@ class _ProfilPageState extends State<ProfilPage> {
         color: Colors.white,
       ),
       onTap: () {
-        if(title == "Entrainements"){
+        if (title == "Entrainements") {
           context.push('/entrainements');
         }
         // Ajouter l'action de navigation

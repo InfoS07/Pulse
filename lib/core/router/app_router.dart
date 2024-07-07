@@ -155,11 +155,7 @@ final GoRouter goRouterProvider = GoRouter(
                     GoRoute(
                       path: RoutePath.searchUser.path,
                       name: RoutePath.searchUser.name,
-                      pageBuilder: (BuildContext context, GoRouterState state) {
-                        return DialogPage(
-                          builder: (_) => SearchUsersPage(),
-                        );
-                      },
+                      builder: (context, state) => SearchUsersPage(),
                       /* builder: (context, state) => DialogPage(
                           builder: (_) => SearchUsersPage(),
                         );, */

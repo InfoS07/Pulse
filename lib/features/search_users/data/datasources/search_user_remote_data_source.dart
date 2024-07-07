@@ -1,41 +1,53 @@
-import 'dart:typed_data';
-import 'package:image_picker/image_picker.dart';
-import 'package:pulse/core/error/exceptions.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/profil/domain/models/profil_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 abstract class SearchUserRemoteDataSource {
   Future<List<ProfilModel?>> searchUsers(String searchTerm);
 }
 
 class SearchUserRemoteDataSourceImpl implements SearchUserRemoteDataSource {
-  final SupabaseClient supabaseClient;
+  final GraphQLService graphQLService;
 
-  SearchUserRemoteDataSourceImpl(this.supabaseClient);
+  SearchUserRemoteDataSourceImpl(this.graphQLService);
 
   @override
   Future<List<ProfilModel?>> searchUsers(searchTerm) async {
     try {
-      final response = await supabaseClient.from('users').select().or(
-          'username.ilike.%$searchTerm%,first_name.ilike.%$searchTerm%,last_name.ilike.%$searchTerm%');
-      /* if (response.error != null) {
-        throw const ServerException('Error fetching data');
-      } */
+      String query = '''
+        {
+          users(query: "$searchTerm") {
+            id
+            uid
+            last_name
+            first_name
+            username
+            email
+            birth_date
+            profile_photo
+          }
+        }
+      ''';
 
-      return response.map((e) => ProfilModel.fromJson(e)).toList();
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
+      final result = await graphQLService.client.query(
+        QueryOptions(
+          document: gql(query),
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      );
+
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
+      }
+
+      print(result.data);
+      final data = result.data?["users"] as List;
+
+      return data.map((e) => ProfilModel.fromJson(e)).toList();
     } catch (e) {
-      throw ServerException(e.toString());
+      throw pulse_exceptions.ServerException(e.toString());
     }
-  }
-
-  Future<XFile> uint8ListToXFile(Uint8List data, String filename) async {
-    final tempDir = await getTemporaryDirectory();
-    final filePath = '${tempDir.path}/$filename';
-    final file = await File(filePath).writeAsBytes(data);
-    return XFile(file.path);
   }
 }

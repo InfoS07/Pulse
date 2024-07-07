@@ -30,6 +30,7 @@ import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/data/datasources/posts_remote_data_source.dart';
 import 'package:pulse/features/home/data/repositories/posts_repository_impl.dart';
 import 'package:pulse/features/home/domain/repository/posts_repository.dart';
+import 'package:pulse/features/home/domain/usecases/delete_post_uc.dart';
 import 'package:pulse/features/home/domain/usecases/get_posts_uc.dart';
 import 'package:pulse/features/home/domain/usecases/like_post_uc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';

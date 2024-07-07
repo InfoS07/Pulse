@@ -1,5 +1,4 @@
 class User {
-  final int id;
   final String uid;
   final String email;
   final String lastName;
@@ -9,7 +8,6 @@ class User {
   final String urlProfilePhoto;
 
   User({
-    required this.id,
     required this.uid,
     required this.email,
     required this.lastName,
@@ -21,7 +19,6 @@ class User {
 
   static User empty() {
     return User(
-      id: 0,
       uid: '',
       email: '',
       lastName: 'Joubert',

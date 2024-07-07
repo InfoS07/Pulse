@@ -2,7 +2,6 @@ import 'package:pulse/core/common/entities/user.dart';
 
 class UserModel extends User {
   UserModel({
-    required super.id,
     required super.uid,
     required super.email,
     required super.lastName,
@@ -14,7 +13,6 @@ class UserModel extends User {
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
     return UserModel(
-      id: map['id'] ?? 0,
       uid: map['uid'] ?? '',
       email: map['email'] ?? '',
       lastName: map['last_name'] ?? '',
@@ -26,7 +24,6 @@ class UserModel extends User {
   }
 
   UserModel copyWith({
-    int? id,
     String? uid,
     String? email,
     String? lastName,
@@ -36,7 +33,6 @@ class UserModel extends User {
     String? urlProfilePhoto,
   }) {
     return UserModel(
-      id: id ?? this.id,
       uid: uid ?? this.uid,
       email: email ?? this.email,
       lastName: lastName ?? this.lastName,

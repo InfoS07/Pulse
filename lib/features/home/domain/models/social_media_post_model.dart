@@ -9,10 +9,11 @@ class SocialMediaPostModel extends SocialMediaPost {
     required super.description,
     required super.profileImageUrl,
     required super.username,
+    required super.userUid,
     required super.timestamp,
     required super.startAt,
     required super.endAt,
-    required super.postImageUrls,
+    required super.photos,
     required super.likes,
     required super.comments,
     required super.isLiked,
@@ -21,20 +22,26 @@ class SocialMediaPostModel extends SocialMediaPost {
 
   factory SocialMediaPostModel.fromJson(Map<String, dynamic> json) {
     return SocialMediaPostModel(
-      id: json['id'] ?? 0,
-      profileImageUrl: json['user']?['profile_photo'] ??
-          'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
-      username: json['user']?['username'] ?? '',
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id'].toString()) ?? 0,
+      profileImageUrl: json['author']?['profile_photo'],
+      username: json['author']?['username'] ?? '',
+      userUid: json['author']?['uid'] ?? '',
       timestamp: json['created_at'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      postImageUrls: json['postImageUrls'] ?? [],
+      photos: (json['photos'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
       likes: json['likes'].length,
-      comments: (json['comments'] as List)
-          .map((comment) => Comment.fromJson(comment))
-          .toList(),
+      comments: (json['comments'] as List<dynamic>?)
+              ?.map((comment) => Comment.fromJson(comment))
+              .toList() ??
+          [],
       isLiked: json['isLiked'],
-      exercice: ExercicesModel.fromJson(json['exercice']),
+      exercice: ExercicesModel.fromJson(json['exercise']),
       startAt: DateTime.parse(json['start_at']),
       endAt: DateTime.parse(json['end_at']),
     );
@@ -48,7 +55,7 @@ class SocialMediaPostModel extends SocialMediaPost {
       'timestamp': timestamp,
       'title': title,
       'description': description,
-      'postImageUrl': postImageUrls,
+      'photos': photos,
       'likes': likes,
       'comments': comments.map((comment) => comment.toJson()).toList(),
       'isLiked': isLiked,

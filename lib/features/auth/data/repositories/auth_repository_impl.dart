@@ -27,7 +27,6 @@ class AuthRepositoryImpl implements AuthRepository {
         }
 
         return right(UserModel(
-          id: 1,
           uid: session.user.id,
           email: "",
           lastName: "",
