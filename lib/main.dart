@@ -9,6 +9,8 @@ import 'package:pulse/core/router/app_router.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
@@ -38,7 +40,9 @@ void main() async {
               BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
               BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
               BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>())
+              BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
+              BlocProvider(create: (_) => serviceLocator<ChallengesUsersBloc>())
             ],
             child: const MyApp(),
           )));

@@ -9,6 +9,7 @@ class SocialMediaPost {
   final String title;
   final String description;
   final String postImageUrl;
+  final String uid;
   final int likes;
   final List<Comment> comments;
   final bool isLiked;
@@ -24,6 +25,8 @@ class SocialMediaPost {
     required this.likes,
     required this.comments,
     required this.isLiked,
+    required this.uid,
+    
   });
 
   SocialMediaPost copyWith({
@@ -37,6 +40,8 @@ class SocialMediaPost {
     int? likes,
     List<Comment>? comments,
     bool? isLiked,
+    String? uid,
+
   }) {
     return SocialMediaPost(
       id: id ?? this.id,
@@ -49,6 +54,8 @@ class SocialMediaPost {
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       isLiked: isLiked ?? this.isLiked,
+      uid: uid ?? this.uid,
+
     );
   }
 }
