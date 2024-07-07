@@ -15,7 +15,7 @@ class UserModel extends User {
   factory UserModel.fromJson(Map<String, dynamic> map) {
     return UserModel(
       id: map['id'] ?? 0,
-      uid: map['sub'] ?? '',
+      uid: map['uid'] ?? '',
       email: map['email'] ?? '',
       lastName: map['last_name'] ?? '',
       firstName: map['first_name'] ?? '',

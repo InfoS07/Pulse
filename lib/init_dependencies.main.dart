@@ -37,6 +37,7 @@ Future<void> initDependencies() async {
   _initOtherProfil();
   _initProfileFollower();
   _initTrainingList();
+  _initChallenges();
 }
 
 void _initAuth() {
@@ -216,6 +217,34 @@ void _initTrainingList() {
     ..registerLazySingleton(
       () => ListTrainingsBloc(
         getTrainings: serviceLocator(),
+      ),
+    );
+}
+
+void _initChallenges() {
+  serviceLocator
+    ..registerFactory<ChallengesRemoteDataSource>(
+      () => ChallengesRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<ChallengesRepository>(
+      () => ChallengesRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => GetChallenges(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => ChallengesBloc(
+        getChallenges: serviceLocator(),
+        challengesRepository: serviceLocator(),
       ),
     );
 }

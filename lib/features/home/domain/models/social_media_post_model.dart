@@ -14,6 +14,7 @@ class SocialMediaPostModel extends SocialMediaPost {
     required int likes,
     required List<Comment> comments,
     required bool isLiked,
+    required String uid,
   }) : super(
           id: id,
           profileImageUrl: profileImageUrl,
@@ -25,11 +26,13 @@ class SocialMediaPostModel extends SocialMediaPost {
           likes: likes,
           comments: comments,
           isLiked: isLiked,
+          uid: uid,
         );
 
   factory SocialMediaPostModel.fromJson(Map<String, dynamic> json) {
     return SocialMediaPostModel(
       id: json['id'] ?? 0,
+      uid: json['author_id'] ?? "",
       profileImageUrl: json['user']?['profile_photo'] ??
           'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
       username: json['user']?['username'] ?? '',
@@ -48,6 +51,7 @@ class SocialMediaPostModel extends SocialMediaPost {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'author_id': id,
       'profileImageUrl': profileImageUrl,
       'username': username,
       'timestamp': timestamp,

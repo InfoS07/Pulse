@@ -26,7 +26,7 @@ import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_pa
 import 'package:pulse/features/profil_other/presentation/pages/list_trainings_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_follow_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
-import 'package:pulse/features/group/presentation/pages/group_page.dart';
+import 'package:pulse/features/challenges/presentation/pages/challenges_page.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
 import 'package:pulse/init_dependencies.dart';
 
@@ -197,11 +197,22 @@ final GoRouter goRouterProvider = GoRouter(
                       name: RoutePath.follow.name,
                       builder: (context, state) => ProfilFollowPage(),
                     ),
+                    GoRoute(
+                      path: 'entrainements',
+                      builder: (context, state) => TrainingListScreen(),
+                      routes: [
+                        GoRoute(
+                          path:'details/:postIndex',
+                          pageBuilder: (BuildContext context, GoRouterState state) {
+                            final post = state.extra as SocialMediaPost;
+                            return DialogPage(
+                              builder: (_) => PostDetailsPage(post: post),
+                            );
+                          },
+                        )
+                      ]
+                    ),
                   ],
-                ),
-                GoRoute(
-                  path: 'entrainements',
-                  builder: (context, state) => TrainingListScreen(),
                 ),
               ],
             ),
