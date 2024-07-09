@@ -7,7 +7,6 @@ import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
-import 'package:redacted/redacted.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -61,14 +60,12 @@ class _ExercicesPageState extends State<ExercicesPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Exercices'),
-        scrolledUnderElevation: 0,
-        backgroundColor: AppPallete.backgroundColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            _buildSearchBar(),
+            //_buildSearchBar(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SearchInput(
@@ -76,7 +73,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 placeholder: 'Rechercher un exercice',
               ),
             ),
-            _buildFilterButtons(),
+            //_buildFilterButtons(),
             Expanded(
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
@@ -135,10 +132,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
   }
 
   Widget _buildFilterButtons() {
-    return Container(
-      padding: EdgeInsets.all(12.0),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           FilterButton(
             text: 'Tout',
@@ -191,9 +187,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
                         context.push('/exercices/details/${exercise.id}',
                             extra: exercise);
                       },
-                    ).redacted(
-                      context: context,
-                      redact: exercise == null,
                     );
                   }
                   return const SizedBox();

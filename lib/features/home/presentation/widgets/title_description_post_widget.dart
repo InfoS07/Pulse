@@ -4,7 +4,8 @@ class TitleDescriptionWidget extends StatelessWidget {
   final String title;
   final String description;
 
-  const TitleDescriptionWidget({super.key, 
+  const TitleDescriptionWidget({
+    super.key,
     required this.title,
     required this.description,
   });
@@ -24,14 +25,16 @@ class TitleDescriptionWidget extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
+          if (description.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              description,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+              ),
             ),
-          ),
+          ],
         ],
       ),
     );

@@ -12,8 +12,6 @@ class SearchUsersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Rechercher'),
-        scrolledUnderElevation: 0,
-        backgroundColor: AppPallete.backgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {

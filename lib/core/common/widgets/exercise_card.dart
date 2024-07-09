@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
-import 'package:redacted/redacted.dart';
 
 class ExerciseCard extends StatelessWidget {
   final Exercice exercise;
@@ -120,13 +119,14 @@ class ExerciseCardShimmer extends StatelessWidget {
             ],
           ),
         ],
-      ).redacted(
+      ) /* .redacted(
         context: context,
         redact: true,
         configuration: RedactedConfiguration(
           animationDuration: const Duration(milliseconds: 800), //default
         ),
-      ),
+      ) */
+      ,
     );
   }
 }

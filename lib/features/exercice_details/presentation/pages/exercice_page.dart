@@ -25,6 +25,7 @@ class _ExercicePageState extends State<ExercicePage> {
           SliverAppBar(
             scrolledUnderElevation: 0,
             backgroundColor: AppPallete.backgroundColor,
+            centerTitle: true,
             expandedHeight: MediaQuery.of(context).size.height * 0.5,
             floating: false,
             pinned: true,

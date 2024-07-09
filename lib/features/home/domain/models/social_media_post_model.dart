@@ -1,5 +1,5 @@
-import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:pulse/features/comments/domain/models/comment_model.dart';
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 
 class SocialMediaPostModel extends SocialMediaPost {
@@ -37,7 +37,7 @@ class SocialMediaPostModel extends SocialMediaPost {
           [],
       likes: json['likes'].length,
       comments: (json['comments'] as List<dynamic>?)
-              ?.map((comment) => Comment.fromJson(comment))
+              ?.map((comment) => CommentModel.fromJson(comment))
               .toList() ??
           [],
       isLiked: json['isLiked'],

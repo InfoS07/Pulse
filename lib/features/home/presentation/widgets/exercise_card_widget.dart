@@ -6,7 +6,8 @@ class ExerciseCardWidget extends StatelessWidget {
   final String exerciseUrlPhoto;
   final VoidCallback onTap;
 
-  const ExerciseCardWidget({super.key, 
+  const ExerciseCardWidget({
+    super.key,
     required this.exerciseTitle,
     required this.exerciseUrlPhoto,
     required this.onTap,
@@ -28,7 +29,7 @@ class ExerciseCardWidget extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 18.0),
             child: Card(
               color: const Color.fromARGB(255, 38, 38, 38),
               child: ListTile(
@@ -39,7 +40,8 @@ class ExerciseCardWidget extends StatelessWidget {
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => const Icon(Icons.error),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.error),
                   ),
                 ),
                 title: Text(

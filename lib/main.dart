@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
+import 'package:pulse/features/comments/presentation/bloc/comment_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
@@ -22,6 +25,11 @@ void main() async {
 
   await initDependencies();
 
+  await initializeDateFormattingForLocale();
+
+  OneSignal.initialize("300b20c3-d537-46ee-b600-aca8dd2c8ae4");
+  OneSignal.Notifications.requestPermission(true);
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((value) => runApp(MultiBlocProvider(
             providers: [
@@ -32,6 +40,7 @@ void main() async {
                 create: (_) => serviceLocator<AuthBloc>(),
               ),
               BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
+              BlocProvider(create: (_) => serviceLocator<CommentBloc>()),
               BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
               BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
               BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
@@ -79,7 +88,9 @@ class _MyAppState extends State<MyApp> {
         ),
         scaffoldBackgroundColor: Colors.black, //AppPallete.backgroundColor
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.black,
+          centerTitle: true,
+          scrolledUnderElevation: 0,
+          backgroundColor: AppPallete.backgroundColor,
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
           iconTheme: IconThemeData(color: Colors.white),
         ),

@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
-import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/action_buttons_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
@@ -35,8 +34,8 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(
-        padding: const EdgeInsets.only(bottom: 28.0, top: 28.0),
-        color: AppPallete.backgroundColor,
+        padding: const EdgeInsets.only(bottom: 28.0, top: 20.0),
+        color: AppPallete.backgroundColorDarker,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -48,7 +47,7 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
                 //context.push('/otherProfil');
               },
             ),
-            const SizedBox(height: 22),
+            const SizedBox(height: 18),
             TitleDescriptionWidget(
               title: widget.post.title,
               description: widget.post.description,
@@ -63,37 +62,7 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
               },
             ),
             const SizedBox(height: 18),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Temps',
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      Text(
-                        formatDurationTraining(
-                          widget.post.startAt,
-                          widget.post.endAt,
-                        ), // Example value, replace with your actual data
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
             if (widget.post.photos.isNotEmpty) ...[
-              const SizedBox(height: 19),
               ImageListWidget(imageUrls: widget.post.photos),
             ],
             const SizedBox(height: 18),

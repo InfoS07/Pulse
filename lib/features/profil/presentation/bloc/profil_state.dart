@@ -1,6 +1,5 @@
 part of 'profil_bloc.dart';
 
-@immutable
 sealed class ProfilState {
   const ProfilState();
 }

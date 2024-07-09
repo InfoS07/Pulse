@@ -5,6 +5,7 @@ import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
 import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_bloc.dart';
+import 'package:pulse/features/profil_follow/presentation/widgets/follow_button_widget.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 
@@ -46,8 +47,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
       builder: (context, value, child) {
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Profil'),
-            backgroundColor: Colors.black,
+            title: const Text('Compte'),
             leading: IconButton(
               icon: const Icon(Icons.arrow_back),
               onPressed: () {
@@ -131,6 +131,17 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                                 ],
                               ),
                               const SizedBox(height: 16.0),
+                              /* FollowButton(
+                                userId: widget.userId ?? '',
+                                profileId: widget.profile.uid,
+                                isFollowing: isFollowing,
+                                onFollowChanged: (followStatus) {
+                                  setState(() {
+                                    isFollowing = followStatus;
+                                    widget.onFollowChanged(followStatus);
+                                  });
+                                },
+                              ),  */
                               ElevatedButton.icon(
                                 onPressed: () {
                                   if (isFollowing) {
@@ -168,17 +179,6 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                                   'Entrainements', Icons.arrow_forward_ios),
                               _buildListTile(
                                   'Statistiques', Icons.arrow_forward_ios),
-                              const Divider(color: Colors.grey, height: 32),
-                              const Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  'Collection de trophées',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                         ),

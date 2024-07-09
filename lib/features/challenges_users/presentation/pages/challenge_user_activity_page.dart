@@ -19,7 +19,8 @@ class ActivityChallengeUserPage extends StatefulWidget {
   const ActivityChallengeUserPage(this.exercise);
 
   @override
-  _ActivityChallengeUserPageState createState() => _ActivityChallengeUserPageState();
+  _ActivityChallengeUserPageState createState() =>
+      _ActivityChallengeUserPageState();
 }
 
 class _ActivityChallengeUserPageState extends State<ActivityChallengeUserPage>
@@ -332,6 +333,7 @@ class _ActivityChallengeUserPageState extends State<ActivityChallengeUserPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(widget.exercise.title),
         backgroundColor: Colors.black,
         leading: IconButton(

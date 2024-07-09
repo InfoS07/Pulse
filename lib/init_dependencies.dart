@@ -33,6 +33,12 @@ import 'package:pulse/features/challenges_users/data/repositories/challenges_use
 import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
 import 'package:pulse/features/challenges_users/domain/usecases/get_challenges_users.dart';
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
+import 'package:pulse/features/comments/data/datasources/comments_remote_data_source.dart';
+import 'package:pulse/features/comments/data/repositories/comments_repository_impl.dart';
+import 'package:pulse/features/comments/domain/repository/comments_repository.dart';
+import 'package:pulse/features/comments/domain/usecases/add_comment_uc.dart';
+import 'package:pulse/features/comments/domain/usecases/get_comments_uc.dart';
+import 'package:pulse/features/comments/presentation/bloc/comment_bloc.dart';
 import 'package:pulse/features/exercices/data/datasources/exercices_remote_data_source.dart';
 import 'package:pulse/features/exercices/data/repositories/exercices_repository_impl.dart';
 import 'package:pulse/features/exercices/domain/repository/exercices_repository.dart';

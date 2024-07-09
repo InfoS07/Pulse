@@ -1,5 +1,4 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/features/profil_other/domain/usecases/get_followers.dart';
@@ -30,34 +29,29 @@ class OtherProfilBloc extends Bloc<OtherProfilEvent, OtherProfilState> {
   }
 
   void _onGetProfil(
-  OtherProfilGetProfil event,
-  Emitter<OtherProfilState> emit,
-) async {
-  emit(OtherProfilLoading());
-  final res = await _getProfil(event.userId);
-  final followersRes = await _getFollowers(event.userId); 
-  final followingsRes = await _getFollowings(event.userId);
-  final trainingsRes = await _getTrainings(event.userId); // Utilisation du userId passé dans l'événement
+    OtherProfilGetProfil event,
+    Emitter<OtherProfilState> emit,
+  ) async {
+    emit(OtherProfilLoading());
+    final res = await _getProfil(event.userId);
+    final followersRes = await _getFollowers(event.userId);
+    final followingsRes = await _getFollowings(event.userId);
+    final trainingsRes = await _getTrainings(
+        event.userId); // Utilisation du userId passé dans l'événement
 
     res.fold(
       (l) => emit(OtherProfilFailure(l.message)),
       (r) {
-        followersRes.fold(
-          (lf) => emit(OtherProfilFailure(lf.message)),
-          (rf) {
-            followingsRes.fold(
-              (lff) => emit(OtherProfilFailure(lff.message)),
+        followersRes.fold((lf) => emit(OtherProfilFailure(lf.message)), (rf) {
+          followingsRes.fold((lff) => emit(OtherProfilFailure(lff.message)),
               (rff) {
-                trainingsRes.fold(
-                  (lfff) => emit(OtherProfilFailure(lfff.message)),
-                  (rfff) => emit(OtherProfilSuccess(r, rf,rff,rfff)),
-                );
-              }
+            trainingsRes.fold(
+              (lfff) => emit(OtherProfilFailure(lfff.message)),
+              (rfff) => emit(OtherProfilSuccess(r, rf, rff, rfff)),
             );
-          } 
-        );
+          });
+        });
       },
     );
-}
-
+  }
 }

@@ -1,10 +1,13 @@
+import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/daily_stats.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
+import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/recommend_exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/session_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
@@ -34,6 +37,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _refreshPosts() async {
+    OneSignal.InAppMessages.addTrigger("defis", "2");
+    OneSignal.Notifications.addClickListener((event) {
+      print('Key: ${event.notification.title}');
+      print('NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
+    });
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
   }
 
@@ -67,8 +75,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        scrolledUnderElevation: 0,
-        backgroundColor: AppPallete.backgroundColor,
         title: Padding(
           padding: const EdgeInsets.symmetric(
               horizontal: 8.0), // Ajoutez du padding ici
@@ -151,9 +157,84 @@ class _HomePageState extends State<HomePage> {
               onRefresh: _refreshPosts,
               child: CustomScrollView(
                 slivers: [
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 32),
+                  ),
+                  SliverToBoxAdapter(
+                    child: AchievementBadgeWidget(
+                      message:
+                          'Félicitation, vous avez 10,000 shatta coins. Foncez dasn la boutique',
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 32),
+                  ),
+                  /* SliverToBoxAdapter(
+                    child: Container(
+                      //color: AppPallete.backgroundColorDarker,
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Challenges',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            height:
+                                200, // Ajustez cette valeur selon vos besoins
+                            child: Swiper(
+                              itemBuilder: (BuildContext context, int index) {
+                                return SessionCardWidget(
+                                  title: 'Ma séance $index',
+                                  duration: '15 minutes',
+                                  points: '64',
+                                  onStart: () {
+                                    // Action lorsque le bouton "C'est parti !" est appuyé
+                                  },
+                                );
+                              },
+                              itemCount: 10,
+                              itemWidth: 300.0,
+                              itemHeight: 400.0,
+                              layout: SwiperLayout.TINDER,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ), */
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200, // Ajustez cette valeur selon vos besoins
+                      child: Swiper(
+                        itemBuilder: (BuildContext context, int index) {
+                          return SessionCardWidget(
+                            title: 'Ma séance $index',
+                            duration: '15 minutes',
+                            points: '64',
+                            onStart: () {
+                              // Action lorsque le bouton "C'est parti !" est appuyé
+                            },
+                          );
+                        },
+                        itemCount: 10,
+                        itemWidth: 350.0,
+                        layout: SwiperLayout.STACK,
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 32),
+                  ),
                   SliverToBoxAdapter(
                     child: Container(
-                      color: AppPallete.backgroundColor,
+                      color: AppPallete.backgroundColorDarker,
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,37 +258,6 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 32),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      height: 200, // Ajustez cette valeur selon vos besoins
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        children: [
-                          SessionCardWidget(
-                            title: 'Ma séance',
-                            duration: '15 minutes',
-                            points: '64',
-                            onStart: () {
-                              // Action lorsque le bouton "C'est parti !" est appuyé
-                            },
-                          ),
-                          SizedBox(width: 32),
-                          SessionCardWidget(
-                            title: 'Ma séance',
-                            duration: '15 minutes',
-                            points: '64',
-                            onStart: () {
-                              // Action lorsque le bouton "C'est parti !" est appuyé
-                            },
-                          ),
-                        ], //recommendedExercises,
-                      ),
-                    ),
-                  ),
                   /* SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -224,9 +274,9 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ), */
-                  const SliverToBoxAdapter(
+                  /* const SliverToBoxAdapter(
                     child: SizedBox(height: 32),
-                  ),
+                  ), */
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
@@ -235,7 +285,7 @@ class _HomePageState extends State<HomePage> {
                           child: SocialMediaPostWidget(
                             post: state.posts[index],
                             onTap: () {
-                              context.go('/home/details/$index',
+                              context.push('/home/details/$index',
                                   extra: state.posts[index]);
                             },
                           ),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -45,9 +46,7 @@ class _ProfilPageState extends State<ProfilPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profil'),
-        scrolledUnderElevation: 0,
-        backgroundColor: AppPallete.backgroundColor,
+        title: const Text('Compte'),
       ),
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
@@ -69,70 +68,23 @@ class _ProfilPageState extends State<ProfilPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16.0),
                 children: <Widget>[
+                  _buildProfileHeader(state),
+                  const SizedBox(height: 16.0),
+                  _buildSectionHeader('Cette semaine'),
+                  const SizedBox(height: 16.0),
+                  _buildWeeklyStats(),
+                  const SizedBox(height: 16.0),
+                  _buildListTile('Entrainements', Icons.arrow_forward_ios),
+                  _buildListTile('Statistiques', Icons.arrow_forward_ios),
+                  _buildListTile('Pods', Icons.arrow_forward_ios),
+                  const SizedBox(height: 16.0),
                   Center(
-                    child: Column(
-                      children: [
-                        CircleAvatar(
-                          radius: 50,
-                          backgroundImage:
-                              NetworkImage(state.profil.profilePhoto),
-                          backgroundColor: Colors.transparent,
-                        ),
-                        const SizedBox(height: 16.0),
-                        Text(
-                          '${state.profil.firstName} ${state.profil.lastName}',
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 8.0),
-                        Text(
-                          state.profil.username,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            _buildInfoColumn(
-                                followers!.length.toString() ?? "", 'Abonnés'),
-                            _buildInfoColumn(
-                                followings!.length.toString() ?? "",
-                                'Abonnements'),
-                          ],
-                        ),
-                        const Divider(color: Colors.grey, height: 32),
-                        _buildListTile(
-                            'Entrainements', Icons.arrow_forward_ios),
-                        _buildListTile('Statistiques', Icons.arrow_forward_ios),
-                        _buildListTile('Pods', Icons.arrow_forward_ios),
-                        const Divider(color: Colors.grey, height: 32),
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            'Collection de trophées',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                        Center(
-                          child: TextButton(
-                            onPressed: _signOut,
-                            child: const Text(
-                              'Se déconnecter',
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: TextButton(
+                      onPressed: _signOut,
+                      child: const Text(
+                        'Se déconnecter',
+                        style: TextStyle(color: Colors.red),
+                      ),
                     ),
                   ),
                 ],
@@ -148,11 +100,88 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
+  Widget _buildProfileHeader(ProfilSuccess state) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 35,
+              child: CachedNetworkImage(
+                imageUrl: state.profil.profilePhoto,
+                imageBuilder: (context, imageProvider) => Container(
+                  width: 80.0,
+                  height: 80.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+            const SizedBox(width: 16.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${state.profil.firstName} ${state.profil.lastName}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  state.profil.username,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 16.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _buildInfoColumn(followers!.length.toString() ?? "", 'Abonnés'),
+            _buildInfoColumn(
+                followings!.length.toString() ?? "", 'Abonnements'),
+            ElevatedButton.icon(
+              onPressed: () {
+                // Action de modification
+              },
+              icon: const Icon(Icons.edit, color: Colors.orange),
+              label: const Text('Modifier',
+                  style: TextStyle(color: Colors.orange)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                side: BorderSide(color: Colors.orange),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const Divider(color: Colors.grey, height: 32),
+      ],
+    );
+  }
+
   Widget _buildInfoColumn(String value, String label) {
     return GestureDetector(
       onTap: () {
         // Ajouter l'action de navigation
-        //var args = ProfilFollowArguments(followers: followers!, followings: followings!);
         context.push('/profil/follow');
       },
       child: Column(
@@ -160,7 +189,7 @@ class _ProfilPageState extends State<ProfilPage> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 20,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -169,7 +198,7 @@ class _ProfilPageState extends State<ProfilPage> {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               color: Colors.grey,
             ),
           ),
@@ -198,6 +227,65 @@ class _ProfilPageState extends State<ProfilPage> {
         }
         // Ajouter l'action de navigation
       },
+    );
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Widget _buildWeeklyStats() {
+    return Container(
+      padding: const EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: AppPallete.backgroundColor,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Distance',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[400],
+            ),
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            '0,00 km',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 8.0),
+          Text(
+            'Temps',
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[400],
+            ),
+          ),
+          const SizedBox(height: 4.0),
+          Text(
+            '0 h',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
