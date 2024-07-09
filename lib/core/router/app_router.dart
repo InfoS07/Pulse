@@ -18,6 +18,7 @@ import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart'
 import 'package:pulse/features/home/presentation/pages/home_page.dart';
 import 'package:pulse/features/likes/presentation/pages/likes_page.dart';
 import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
+import 'package:pulse/features/list_trainings/presentation/pages/my_post_details_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
@@ -217,7 +218,7 @@ final GoRouter goRouterProvider = GoRouter(
                                 (BuildContext context, GoRouterState state) {
                               final post = state.extra as SocialMediaPost;
                               return DialogPage(
-                                builder: (_) => PostDetailsPage(post: post),
+                                builder: (_) => PostMyDetailsPage(post: post),
                               );
                             },
                           )

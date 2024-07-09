@@ -260,7 +260,7 @@ void _initChallenges() {
 
 void _initChallengesUsers() {
   serviceLocator
-    ..registerFactory<ChallengeUserRemoteDataSourceImpl>(
+    ..registerFactory<ChallengesUsersRemoteDataSource>(
       () => ChallengeUserRemoteDataSourceImpl(
         serviceLocator(),
       ),
@@ -280,8 +280,7 @@ void _initChallengesUsers() {
     // Bloc
     ..registerLazySingleton(
       () => ChallengesUsersBloc(
-        getChallengesUsers: serviceLocator(),
-        challengesUsersRepository: serviceLocator(),
+        remoteDataSource: serviceLocator()
       ),
     );
 }

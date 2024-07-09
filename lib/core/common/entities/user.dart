@@ -17,6 +17,18 @@ class User {
     required this.urlProfilePhoto,
   });
 
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      uid: json['uid'],
+      email: json['email'],
+      lastName: json['last_name'],
+      firstName: json['first_name'],
+      username: json['username'],
+      birthDate: DateTime.parse(json['birth_date']),
+      urlProfilePhoto: json['profile_photo'],
+    );
+  }
+
   static User empty() {
     return User(
       uid: '',

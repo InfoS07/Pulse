@@ -250,6 +250,7 @@ class _GroupPageState extends State<GroupPage> {
                           final exercise = _findExercise(
                               state.exercisesByCategory, challenge.exerciceId!);
                           if (exercise != null) {
+
                             return IconButton(
                               onPressed: () {
                                 context.push('/activity', extra: exercise);
@@ -301,7 +302,7 @@ class _GroupPageState extends State<GroupPage> {
     final isParticipant = challenge.participants?.contains(userId!) ?? false;
     final isAchiever = challenge.achievers?.contains(userId!) ?? false;
 
-    BottomSheetUtil.showCustomBottomSheet(
+    BottomSheeChallengeUtil.showCustomBottomSheet(
       context: context,
       onConfirm: () {
         if (!isParticipant && !isAchiever) {
@@ -474,7 +475,7 @@ class _GroupPageState extends State<GroupPage> {
       Map<String, List<Exercice?>> exercisesByCategory, int exerciseId) {
     for (var category in exercisesByCategory.values) {
       for (var exercise in category) {
-        if (exercise?.id == exerciseId.toString()) {
+        if (exercise?.id == exerciseId) {
           return exercise;
         }
       }

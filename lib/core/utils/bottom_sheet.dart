@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class BottomSheetUtil {
+class BottomSheeChallengeUtil {
   // Méthode pour afficher une BottomSheet personnalisée avec un builder
   static void showCustomBottomSheet({
     required BuildContext context,

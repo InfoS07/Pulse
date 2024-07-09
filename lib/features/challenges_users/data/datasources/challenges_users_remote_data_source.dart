@@ -1,10 +1,19 @@
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
-import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
+import 'package:pulse/features/list_trainings/domain/models/create_challenge_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:pulse/core/error/exceptions.dart';
+import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:pulse/core/common/entities/user.dart' as custom_user;
 
 abstract class ChallengesUsersRemoteDataSource {
   Future<List<ChallengeUserModel>> getChallengeUsers();
+  Future<void> joinChallenge(int challengeId, String userId);
+  Future<void> quitChallenge(int challengeId, String userId);
+  Future<void> deleteChallenge(int challengeId);
+  Future<void> createChallenge(CreateChallengeUser challengeUser);
 }
 
 class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource {
@@ -16,18 +25,143 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
   Future<List<ChallengeUserModel>> getChallengeUsers() async {
     try {
       final response = await supabaseClient
-        .from('challenges_users')
-        .select();
+          .from('challenges_users')
+          .select();
 
-        print(response);
-      return (response as List)
-        .map((json) => ChallengeUserModel.fromJson(json))
-        .toList();
+      final challenges = (response as List)
+          .map((json) => ChallengeUserModel.fromJson(json))
+          .toList();
 
+      // Fetch users data
+      final List<dynamic>  userIds = challenges
+          .expand((challenge) => challenge.participants.values.map((participant) => participant.idUser))
+          .toSet()
+          .toList();
+      print(userIds);
+
+      if (userIds.isNotEmpty) {
+        print("ta mere");
+
+        final usersResponse = await supabaseClient
+            .from('users')
+            .select()
+            .inFilter('uid', userIds);
+      
+        print(usersResponse);
+
+        final users = (usersResponse as List)
+            .map((json) => custom_user.User.fromJson(json))
+            .toList();
+
+        // Map userId to User object
+        final userMap = {for (var user in users) user.uid: user};
+
+        // Update challenges with user data
+        for (var challenge in challenges) {
+          challenge.participants.forEach((key, participant) {
+            participant.user = userMap[participant.idUser]!;
+          });
+        }
+      }
+
+      return challenges;
     } on PostgrestException catch (e) {
-      throw ServerException();
+      throw ServerException("Error Zer");
     } catch (e) {
-      throw ServerException();
+      throw ServerException("Error fetching challenges");
+    }
+  }
+
+  @override
+  Future<void> deleteChallenge(int challengeId) async {
+    try {
+      await supabaseClient
+          .from('challenges_users')
+          .delete()
+          .eq('id', challengeId);
+    } on PostgrestException catch (e) {
+      throw ServerException("Error deleting challenge");
+    } catch (e) {
+      throw ServerException("Error deleting challenge");
+    }
+  }
+
+  @override
+  Future<void> joinChallenge(int challengeId, String userId) async {
+    try {
+      final response = await supabaseClient
+          .from('challenges_users')
+          .select()
+          .eq('id', challengeId)
+          .single();
+
+      if (response != null) {
+        final Map<String, dynamic> participants = Map<String, dynamic>.from(response['participants']);
+
+        // Find the first available ID
+        int newParticipantId = 1;
+        while (participants.containsKey(newParticipantId.toString())) {
+          newParticipantId++;
+        }
+
+        // Add the user to participants with the new ID
+        participants[newParticipantId.toString()] = {'score': 0, 'idUser': userId};
+
+        await supabaseClient
+            .from('challenges_users')
+            .update({'participants': participants})
+            .eq('id', challengeId);
+      }
+    } on PostgrestException catch (e) {
+      throw ServerException("Error joining challenge");
+    } catch (e) {
+      throw ServerException("Error joining challenge");
+    }
+  }
+
+  @override
+  Future<void> quitChallenge(int challengeId, String userId) async {
+    try {
+      final response = await supabaseClient
+          .from('challenges_users')
+          .select()
+          .eq('id', challengeId)
+          .single();
+
+      if (response != null) {
+        final Map<String, dynamic> participants = Map<String, dynamic>.from(response['participants']);
+        participants.removeWhere((key, value) => value['idUser'] == userId);
+
+        await supabaseClient
+            .from('challenges_users')
+            .update({'participants': participants})
+            .eq('id', challengeId);
+      }
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException("Error quitting challenge");
+    }
+  }
+
+    @override
+  Future<void> createChallenge(CreateChallengeUser challengeUser) async {
+    try {
+      // Convert challengeUser model to JSON
+      final json = challengeUser.toJson();
+
+      // Send POST request to create challenge user
+      print(json);
+      var response = await supabaseClient
+          .from('challenges_users')
+          .insert([json]);
+      print(response);
+    } on PostgrestException catch (e) {
+      throw ServerException("Error creating challenge");
+    } catch (e) {
+      throw ServerException("Error creating challenge");
     }
   }
 }
+
+//{"name": "dsqdq", "description": "qsdqs", "end_at": challengeUser.endDate.toIso8601String(), "training_id": 1, "author_id": "a2ee471c-b57b-4815-879e-5024b058abeb", "type": "Durée", "invites": ["a2ee471c-b57b-4815-879e-5024b058abeb"], "created_at": challengeUser.createdAt.toIso8601String()}

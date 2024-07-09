@@ -67,6 +67,7 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
 
       final List<dynamic> followerIds =
           response.map((item) => item['follower_id']).toList();
+      print(followerIds);
 
       // Récupérer les informations des utilisateurs par leurs IDs
       final userResponse = await supabaseClient
