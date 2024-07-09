@@ -332,6 +332,7 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(widget.exercise.title),
         backgroundColor: Colors.black,
         leading: IconButton(

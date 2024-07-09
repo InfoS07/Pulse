@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -31,6 +32,19 @@ class _ActivityPageState extends State<ActivityPage>
   Timer _timer = Timer(Duration.zero, () {});
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> _reactionTime = ValueNotifier(Duration.zero);
+  final player = AudioPlayer();
+
+  final buzzerClass = [
+    {"color": "red", "stop": "a", "start": "1", "trigger": "z"},
+    {"color": "blue", "stop": "b", "start": "2", "trigger": "y"}
+  ];
+
+  final sequence = [1, 2];
+  final repetitions = 10;
+
+  int currentBuzzerIndex = 0;
+  int currentRepetition = 0;
+  bool isActive = false;
 
   late ActivityBloc _activityBloc;
 
@@ -51,27 +65,30 @@ class _ActivityPageState extends State<ActivityPage>
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
     _activityBloc.add(StartActivity(widget.exercise));
     checkBluetoothPermissionsAndState();
+    isActive = false; // Initialisation de isActive
   }
 
   Future<void> checkBluetoothPermissionsAndState() async {
     try {
-      PermissionStatus bluetoothScanPermission =
-          await Permission.bluetoothScan.request();
-      PermissionStatus bluetoothConnectPermission =
-          await Permission.bluetoothConnect.request();
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.bluetooth,
+        Permission.location
+      ].request();
 
-      if (bluetoothScanPermission.isGranted &&
-          bluetoothConnectPermission.isGranted) {
+      if (statuses[Permission.bluetoothScan]!.isGranted &&
+          statuses[Permission.bluetoothConnect]!.isGranted &&
+          statuses[Permission.bluetooth]!.isGranted &&
+          statuses[Permission.location]!.isGranted) {
         bool isOn = await FlutterBluePlus.isOn;
         if (isOn) {
           reconnectIfNecessary();
         } else {
           print('Bluetooth is off. Requesting to turn it on...');
-          // Code to request user to turn on Bluetooth
         }
       } else {
         print('Bluetooth permissions not granted.');
-        // Handle permission not granted
       }
     } catch (e) {
       print('Error checking Bluetooth permissions and state: $e');
@@ -81,12 +98,9 @@ class _ActivityPageState extends State<ActivityPage>
   Future<void> reconnectIfNecessary() async {
     try {
       for (var device in FlutterBluePlus.connectedDevices) {
-        print('reconnectIfNecessary...');
-        print(device.platformName);
-        if (device.platformName == 'Pulse') {
-          print('Reconnecting to device...');
+        if (device.name == 'Pulse') {
           connectToDevice(device);
-          continue;
+          return;
         }
       }
       startScan();
@@ -96,28 +110,22 @@ class _ActivityPageState extends State<ActivityPage>
   }
 
   void startScan() {
-    print('startScan...');
-    print(!isScanning);
     if (!isScanning) {
-      setState(() {
-        isScanning = true;
-      });
-      FlutterBluePlus.startScan();
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
       FlutterBluePlus.scanResults.listen((results) {
-        print('FlutterBluePlus...');
         for (ScanResult r in results) {
-          print('Device found: ${r.device.platformName}');
-          if (r.device.platformName == 'Pulse') {
+          if (r.device.name == 'Pulse') {
             FlutterBluePlus.stopScan();
             connectToDevice(r.device);
             break;
           }
         }
+      }).onDone(() {
+        setState(() {
+          isScanning = false;
+        });
       });
     }
-    setState(() {
-      isScanning = false;
-    });
   }
 
   void connectToDevice(BluetoothDevice device) async {
@@ -146,35 +154,63 @@ class _ActivityPageState extends State<ActivityPage>
             characteristic.value.listen((value) {
               handleNotification(value);
             });
-            print('Sending OK notification...');
-            characteristic.write(utf8.encode("ok"));
           }
         }
       }
     }
+    turnOffAllBuzzer();
   }
 
-  void sendDeviceNotification() async {
-    print('Sending device notification...');
+  void sendDeviceNotification(String value) async {
     if (notifyCharacteristic != null) {
-      await notifyCharacteristic!.write(utf8.encode("ok"));
+      await notifyCharacteristic!.write(utf8.encode(value));
+    }
+  }
+
+  void turnOffAllBuzzer() {
+    for (var buzzer in buzzerClass) {
+      sendDeviceNotification(buzzer['stop']!);
+    }
+  }
+
+  void startBuzzerSequence() {
+    turnOffAllBuzzer();
+    currentBuzzerIndex = 0;
+    currentRepetition = 0;
+    activateNextBuzzer();
+  }
+
+  void activateNextBuzzer() {
+    if (currentRepetition < repetitions) {
+      sendDeviceNotification(buzzerClass[currentBuzzerIndex]['start']!);
+      isActive = true;
     }
   }
 
   void handleNotification(List<int> value) {
+    if (!_isRunning || !isActive) return; // Ignorer si inactif ou en pause
+
     String decodedValue = utf8.decode(value);
     DateTime currentTime = DateTime.now();
-    if (decodedValue == "ok" &&
-        (lastNotificationTime == null ||
-            currentTime.difference(lastNotificationTime!).inMilliseconds >
-                100)) {
+
+    if (decodedValue == buzzerClass[currentBuzzerIndex]['trigger']) {
+      player.play(AssetSource('sounds/allez-le-nwoar.mp3'));
       setState(() {
         messageCount++;
         if (lastNotificationTime != null) {
           _reactionTime.value = currentTime.difference(lastNotificationTime!);
         }
+        lastNotificationTime = currentTime;
       });
-      lastNotificationTime = currentTime;
+
+      sendDeviceNotification(buzzerClass[currentBuzzerIndex]['stop']!);
+      currentBuzzerIndex = (currentBuzzerIndex + 1) % buzzerClass.length;
+
+      if (currentBuzzerIndex == 0) {
+        currentRepetition++;
+      }
+
+      activateNextBuzzer();
     }
   }
 
@@ -186,6 +222,60 @@ class _ActivityPageState extends State<ActivityPage>
     _reactionTime.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _startStopTimer() {
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+
+    if (_isRunning) {
+      setState(() {
+        _isPaused = false;
+        isActive = true;
+      });
+      _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+        _timeElapsed.value =
+            _timeElapsed.value + const Duration(milliseconds: 10);
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: 4,
+          caloriesBurned: 200,
+        ));
+      });
+      startBuzzerSequence();
+    } else {
+      setState(() {
+        _isPaused = true;
+        isActive = false;
+      });
+      _timer.cancel();
+      _showDeleteDialog();
+    }
+  }
+
+  void _showDeleteDialog() {
+    BottomSheetUtil.showCustomBottomSheet(
+      context,
+      onConfirm: () {
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: 4,
+          caloriesBurned: 200,
+        ));
+        _activityBloc.add(StopActivity(_timeElapsed.value));
+        context.push('/activity/save');
+      },
+      onCancel: () {
+        _startStopTimer();
+      },
+      buttonText: 'Terminer',
+      buttonColor: AppPallete.primaryColor,
+      cancelText: 'Reprendre',
+      cancelTextColor: Colors.grey,
+    );
   }
 
   void _initializeNotifications() {
@@ -210,7 +300,6 @@ class _ActivityPageState extends State<ActivityPage>
         ongoing: true,
         playSound: false,
       );
-
       const NotificationDetails platformChannelSpecifics =
           NotificationDetails(android: androidPlatformChannelSpecifics);
       await flutterLocalNotificationsPlugin.show(
@@ -228,60 +317,6 @@ class _ActivityPageState extends State<ActivityPage>
     }
   }
 
-  void _startStopTimer() {
-    setState(() {
-      _isRunning = !_isRunning;
-    });
-
-    if (_isRunning) {
-      setState(() {
-        _isPaused = false;
-      });
-      _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
-        _timeElapsed.value = _timeElapsed.value + const Duration(milliseconds: 10);
-        _activityBloc.add(UpdateActivity(
-          timeElapsed: _timeElapsed.value,
-          touches: messageCount,
-          misses: 4, // Exemple de valeur
-          caloriesBurned: 200, // Exemple de valeur
-        ));
-      });
-    } else {
-      setState(() {
-        _isPaused = true;
-      });
-      _timer.cancel();
-      _showDeleteDialog();
-    }
-  }
-
-  void _showDeleteDialog() {
-    BottomSheetUtil.showCustomBottomSheet(
-      context,
-      onConfirm: () {
-        _activityBloc.add(UpdateActivity(
-          timeElapsed: _timeElapsed.value,
-          touches: messageCount,
-          misses: 4, // Exemple de valeur
-          caloriesBurned: 200, // Exemple de valeur
-        ));
-
-        _activityBloc.add(StopActivity(
-          _timeElapsed.value,
-        ));
-
-        context.push('/activity/save');
-      },
-      onCancel: () {
-        _startStopTimer();
-      },
-      buttonText: 'Terminer',
-      buttonColor: AppPallete.primaryColor,
-      cancelText: 'Reprendre',
-      cancelTextColor: Colors.grey,
-    );
-  }
-
   void _showPauseModal() {
     showModalBottomSheet(
       context: context,
@@ -295,12 +330,13 @@ class _ActivityPageState extends State<ActivityPage>
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _startStopTimer(); // Reprendre
+                  _startStopTimer();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
                   side: const BorderSide(color: AppPallete.primaryColor),
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
                 child: const Text('Reprendre',
                     style: TextStyle(
@@ -311,19 +347,16 @@ class _ActivityPageState extends State<ActivityPage>
                   _activityBloc.add(UpdateActivity(
                     timeElapsed: _timeElapsed.value,
                     touches: messageCount,
-                    misses: 4, // Exemple de valeur
-                    caloriesBurned: 200, // Exemple de valeur
+                    misses: 4,
+                    caloriesBurned: 200,
                   ));
-
-                  _activityBloc.add(StopActivity(
-                    _timeElapsed.value,
-                  ));
-
+                  _activityBloc.add(StopActivity(_timeElapsed.value));
                   context.push('/activity/save');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppPallete.primaryColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
                 child: const Text('Terminer',
                     style: TextStyle(fontSize: 18, color: Colors.black)),
@@ -354,7 +387,6 @@ class _ActivityPageState extends State<ActivityPage>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exercise.title),
-        backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -394,8 +426,8 @@ class _ActivityPageState extends State<ActivityPage>
                             ),
                             Text(
                               'Tour 1/${widget.exercise.laps}',
-                              style:
-                                  const TextStyle(color: Colors.white, fontSize: 16),
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 16),
                             ),
                             const SizedBox(height: 32),
                             GestureDetector(
@@ -417,8 +449,7 @@ class _ActivityPageState extends State<ActivityPage>
                   ),
                   Container(
                     color: Colors.red,
-                    height: MediaQuery.of(context).size.height *
-                        0.5, // Définit une hauteur fixe pour le tiroir
+                    height: MediaQuery.of(context).size.height * 0.5,
                     child: DraggableScrollableSheet(
                       initialChildSize: 1.0,
                       minChildSize: 0.2,
@@ -460,15 +491,13 @@ class _ActivityPageState extends State<ActivityPage>
                                     icon: const Icon(Icons.notifications_active,
                                         color: Colors.white),
                                     onPressed: () {
-                                      sendDeviceNotification();
+                                      sendDeviceNotification("1");
                                     },
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.refresh,
                                         color: Colors.white),
                                     onPressed: () {
-                                      print('Reconnecting...');
-                                      print(connectedDevice);
                                       if (connectedDevice == null) {
                                         reconnectIfNecessary();
                                       } else {
@@ -509,7 +538,7 @@ class _ActivityPageState extends State<ActivityPage>
                   ),
                 ],
               ),
-              if (_isPaused) // Appliquer le flou seulement si le chronomètre est en pause
+              if (_isPaused)
                 BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(

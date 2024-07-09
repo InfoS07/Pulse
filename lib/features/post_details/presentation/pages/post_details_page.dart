@@ -62,9 +62,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.post.title),
-        backgroundColor: AppPallete.backgroundColor,
-        scrolledUnderElevation: 0,
+        title: Text(
+          widget.post.title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 14),
+        ),
         /* notificationPredicate: (notification) {
           return false;
         }, */
@@ -96,7 +98,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       ),
       body: SingleChildScrollView(
         child: Container(
-          color: AppPallete.backgroundColor, // Ajouter un fond gris
+          color: AppPallete.backgroundColorDarker, // Ajouter un fond gris
           child: Padding(
             padding: const EdgeInsets.only(bottom: 28.0, top: 28.0),
             child: Column(
@@ -108,7 +110,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                   timestamp: widget.post.timestamp,
                   onTap: () {
                     // Ajouter l'action de navigation
-                    String userId = "24";
+                    String userId = widget.post.userUid;
                     context.push('/otherProfil', extra: userId);
                   },
                 ),

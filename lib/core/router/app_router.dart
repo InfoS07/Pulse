@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/entities/like.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
@@ -71,12 +70,8 @@ final GoRouter goRouterProvider = GoRouter(
         GoRoute(
           path: RoutePath.otherProfil.path,
           name: RoutePath.otherProfil.name,
-          pageBuilder: (BuildContext context, GoRouterState state) {
-            final userId = state.extra as String;
-            return DialogPage(
-              builder: (_) => ProfilOtherPage(userId: userId),
-            );
-          },
+          builder: (context, state) =>
+              ProfilOtherPage(userId: state.extra as String),
           routes: [
             GoRoute(
               path: RoutePath.followOther.path,
@@ -133,12 +128,8 @@ final GoRouter goRouterProvider = GoRouter(
                   routes: [
                     GoRoute(
                       path: 'details/:postIndex',
-                      pageBuilder: (BuildContext context, GoRouterState state) {
-                        final post = state.extra as SocialMediaPost;
-                        return DialogPage(
-                          builder: (_) => PostDetailsPage(post: post),
-                        );
-                      },
+                      builder: (context, state) =>
+                          PostDetailsPage(post: state.extra as SocialMediaPost),
                       routes: [
                         GoRoute(
                             path: RoutePath.comments.path,

@@ -127,7 +127,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     final hour = now.hour;
     String timeOfDay;
 
-    if (hour < 12) {
+    if (hour > 4 && hour < 12) {
       timeOfDay = 'matinée';
     } else if (hour < 18) {
       timeOfDay = 'journée';
@@ -143,8 +143,6 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enregistrer l\'activité'),
-        scrolledUnderElevation: 0,
-        backgroundColor: AppPallete.backgroundColor,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {

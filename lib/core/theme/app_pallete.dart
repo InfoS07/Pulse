@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 class AppPallete {
-  static const Color backgroundColor = Color.fromRGBO(16, 16, 16, 1);
+  static const Color backgroundColor = Color(0xFF20211F);
+  static const Color backgroundColorDarker = Color(0xFF141414);
   static const Color popUpBackgroundColor = Color.fromRGBO(8, 8, 8, 1);
-  static const Color primaryColor = Color.fromRGBO(175, 238, 39, 1);
+  static const Color primaryColor = Color(0xFFAFEE27);
   static const Color primaryColorFade = Color.fromRGBO(155, 253, 76, 0.2);
+  static const Color secondaryColor = Color(0xFF6526ED);
   static const Color gradient1 = Color.fromRGBO(187, 63, 221, 1);
   static const Color gradient2 = Color.fromRGBO(251, 109, 169, 1);
   static const Color gradient3 = Color.fromRGBO(255, 159, 124, 1);

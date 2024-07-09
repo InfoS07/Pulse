@@ -56,13 +56,21 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             }
             likes {
                 user {
-                    uid
+                  id
                 }
             }
             comments {
                 user {
-                    id
+                  id
+                  uid
+                  last_name
+                  first_name
+                  username
+                  profile_photo
+                  birth_date
                 }
+                content
+                created_at
             }
             photos
           }

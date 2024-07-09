@@ -1,7 +1,3 @@
-import 'dart:ffi';
-
-import 'package:pulse/core/common/entities/user.dart';
-
 class Challenges {
   final String id;
   final String title;

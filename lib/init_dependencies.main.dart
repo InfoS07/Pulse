@@ -40,6 +40,7 @@ Future<void> initDependencies() async {
   _initChallenges();
   _initChallengesUsers();
   _initSearchUser();
+  _initComments();
 }
 
 void _initAuth() {
@@ -424,6 +425,44 @@ void _initSearchUser() {
     ..registerLazySingleton(
       () => SearchUsersBloc(
         searchUser: serviceLocator(),
+      ),
+    );
+}
+
+void _initComments() {
+  serviceLocator
+    ..registerFactory<CommentsRemoteDataSource>(
+      () => CommentsRemoteDataSourceImpl(
+        serviceLocator(),
+      ),
+    )
+    // Repository
+    ..registerFactory<CommentsRepository>(
+      () => CommentsRepositoryImpl(
+        serviceLocator(),
+      ),
+    )
+    // Usecases
+    ..registerFactory(
+      () => GetCommentsUc(
+        serviceLocator(),
+      ),
+    )
+    /* ..registerFactory(
+      () => ReportCommentUC(
+        serviceLocator(),
+      ),
+    ) */
+    ..registerFactory(
+      () => AddCommentUc(
+        serviceLocator(),
+      ),
+    )
+    // Bloc
+    ..registerLazySingleton(
+      () => CommentBloc(
+        getCommentsUc: serviceLocator(),
+        addCommentUc: serviceLocator(),
       ),
     );
 }

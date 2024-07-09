@@ -8,7 +8,8 @@ class UserProfilePostHeader extends StatelessWidget {
   final String timestamp;
   final VoidCallback? onTap;
 
-  const UserProfilePostHeader({super.key, 
+  const UserProfilePostHeader({
+    super.key,
     required this.profileImageUrl,
     required this.username,
     required this.timestamp,
@@ -38,12 +39,13 @@ class UserProfilePostHeader extends StatelessWidget {
                     ),
                   ),
                 ),
-                placeholder: (context, url) => const CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                    const CircularProgressIndicator(),
                 errorWidget: (context, url, error) => const Icon(Icons.error),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

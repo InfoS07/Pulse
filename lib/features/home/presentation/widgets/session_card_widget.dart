@@ -58,7 +58,7 @@ class SessionCardWidget extends StatelessWidget {
               children: [
                 Spacer(),
                 Text(
-                  'Mon challenge du jour',
+                  title,
                   style: TextStyle(
                     fontSize: 24.0,
                     fontWeight: FontWeight.bold,
@@ -81,8 +81,9 @@ class SessionCardWidget extends StatelessWidget {
                       padding:
                           EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                       decoration: BoxDecoration(
-                        color: AppPallete.primaryColor.withOpacity(
-                            0.2), //Color.fromARGB(255, 190, 88, 233).withOpacity(0.8),
+                        color: /* AppPallete.primaryColor.withOpacity(
+                            0.2), // */
+                            Color.fromARGB(255, 193, 113, 227).withOpacity(0.8),
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: Text(

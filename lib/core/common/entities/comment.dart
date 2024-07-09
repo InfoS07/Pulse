@@ -1,30 +1,37 @@
+import 'package:pulse/core/common/entities/user.dart';
+import 'package:pulse/features/auth/domain/models/user_model.dart';
+
 class Comment {
-  final String profileImageUrl;
-  final String username;
+  final int id;
+  final User user;
   final String createdAt;
   final String content;
 
   Comment({
-    required this.profileImageUrl,
-    required this.username,
+    required this.id,
+    required this.user,
     required this.createdAt,
     required this.content,
   });
 
-  factory Comment.fromJson(Map<String, dynamic> json) {
+  Comment copyWith({
+    int? id,
+    User? user,
+    String? createdAt,
+    String? content,
+  }) {
     return Comment(
-      profileImageUrl: json['user']['profile_photo'],
-      username: json['user']['username'],
-      createdAt: json['created_at'],
-      content: json['content'],
+      id: id ?? this.id,
+      user: user ?? this.user,
+      createdAt: createdAt ?? this.createdAt,
+      content: content ?? this.content,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  toJson() {
     return {
-      'profileImageUrl': profileImageUrl,
-      'username': username,
-      'timestamp': createdAt,
+      'user': user,
+      'createdAt': createdAt,
       'content': content,
     };
   }

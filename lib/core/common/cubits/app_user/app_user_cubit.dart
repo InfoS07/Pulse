@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pulse/core/common/entities/user.dart';
 
 part 'app_user_state.dart';
@@ -10,6 +11,8 @@ class AppUserCubit extends Cubit<AppUserState> {
     if (user == null) {
       emit(AppUserLoggedOut());
     } else {
+      print("OneSignal login");
+      OneSignal.login(user.uid);
       emit(AppUserLoggedIn(user));
     }
   }

@@ -13,7 +13,6 @@ class LikesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('J\'aime'),
-        backgroundColor: Colors.black,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -53,7 +52,8 @@ class LikesPage extends StatelessWidget {
                         ),
                         placeholder: (context, url) =>
                             const CircularProgressIndicator(),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.error),
                       ),
                     ),
                   ),
@@ -68,26 +68,6 @@ class LikesPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  /* ElevatedButton.icon(
-                    onPressed: () {
-                      // Action pour suivre / ne plus suivre
-                    },
-                    icon: like.isFollowing
-                        ? Icon(Icons.check, color: Colors.white)
-                        : Icon(Icons.add, color: Colors.white),
-                    label: Text(
-                      like.isFollowing ? 'Suivi' : 'Suivre',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          like.isFollowing ? Colors.grey : Colors.greenAccent,
-                      side: BorderSide(
-                          color: like.isFollowing
-                              ? Colors.grey
-                              : Colors.greenAccent),
-                    ),
-                  ), */
                 ],
               ),
             );

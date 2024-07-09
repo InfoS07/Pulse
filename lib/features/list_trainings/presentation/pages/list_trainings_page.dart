@@ -40,7 +40,6 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tout vos entrainements'),
-        backgroundColor: Colors.black,
       ),
       body: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {

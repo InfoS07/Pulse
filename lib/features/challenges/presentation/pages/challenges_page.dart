@@ -42,6 +42,7 @@ class _GroupPageState extends State<GroupPage> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text('Challenges'),
           bottom: const TabBar(
             indicatorColor: AppPallete.primaryColor,

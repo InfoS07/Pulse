@@ -4,12 +4,13 @@ class LikeCommentCountWidget extends StatelessWidget {
   final int likeCount;
   final int commentCount;
 
-  const LikeCommentCountWidget({super.key, required this.likeCount, required this.commentCount});
+  const LikeCommentCountWidget(
+      {super.key, required this.likeCount, required this.commentCount});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
