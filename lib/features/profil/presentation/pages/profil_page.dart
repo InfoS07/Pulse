@@ -122,7 +122,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 ),
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) => const Icon(Icons.person),
               ),
             ),
             const SizedBox(width: 16.0),

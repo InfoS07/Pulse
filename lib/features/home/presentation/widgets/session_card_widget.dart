@@ -83,13 +83,15 @@ class SessionCardWidget extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: /* AppPallete.primaryColor.withOpacity(
                             0.2), // */
-                            Color.fromARGB(255, 193, 113, 227).withOpacity(0.8),
+                            AppPallete
+                                .secondaryColor, //Color.fromARGB(255, 193, 113, 227).withOpacity(0.8),
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: Text(
                         '+$points points',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
                     ),

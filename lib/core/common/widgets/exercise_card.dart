@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pulse/core/common/entities/difficulty.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 
 class ExerciseCard extends StatelessWidget {
@@ -14,7 +15,7 @@ class ExerciseCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 150,
+        width: 200,
         margin: const EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment:
@@ -24,7 +25,7 @@ class ExerciseCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
               child: CachedNetworkImage(
                 imageUrl: exercise.photos.first,
-                height: 100,
+                height: 120,
                 width: double.infinity, // Make the image take full width
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
@@ -61,9 +62,15 @@ class ExerciseCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const FaIcon(
+                FaIcon(
+                  size: 16,
                   FontAwesomeIcons.fire,
-                  color: Colors.orange,
+                  //change the color of the fire icon according to difficulty level
+                  color: exercise.difficulty == Difficulty.easy
+                      ? Colors.green
+                      : exercise.difficulty == Difficulty.medium
+                          ? Colors.orange
+                          : Colors.red,
                 ),
               ],
             ),

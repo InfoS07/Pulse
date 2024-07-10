@@ -30,6 +30,7 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
               photos
               categories
               photos
+              difficulty
             }
           }
       ''';

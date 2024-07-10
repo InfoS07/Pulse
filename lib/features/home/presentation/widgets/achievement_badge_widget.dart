@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 
 class AchievementBadgeWidget extends StatelessWidget {
   final String message;
@@ -14,7 +15,7 @@ class AchievementBadgeWidget extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16.0),
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.purple[100],
+        color: AppPallete.secondaryColorFade, //Colors.purple[100],
         borderRadius: BorderRadius.circular(24.0),
         boxShadow: [
           BoxShadow(
@@ -29,7 +30,7 @@ class AchievementBadgeWidget extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.purple[300],
+              color: AppPallete.secondaryColor, //Colors.purple[300],
               shape: BoxShape.circle,
             ),
             child: Icon(

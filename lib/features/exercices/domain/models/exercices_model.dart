@@ -14,7 +14,7 @@ class ExercicesModel extends Exercice {
     required super.durationOneRepetition,
     required super.caloriesBurned,
     required super.score,
-    required super.level,
+    required super.difficulty,
     required super.laps,
   });
 
@@ -40,7 +40,7 @@ class ExercicesModel extends Exercice {
       durationOneRepetition: map['duration_one_repetition'] ?? 0,
       caloriesBurned: map['calories_burned'] ?? 0,
       score: map['score'] ?? 0.0,
-      level: map['level'] ?? '',
+      difficulty: map['difficulty'] ?? '',
       laps: map['laps'] ?? 0,
     );
   }
@@ -65,7 +65,7 @@ class ExercicesModel extends Exercice {
       durationOneRepetition: durationOneRepetition,
       caloriesBurned: caloriesBurned,
       score: score,
-      level: level,
+      difficulty: difficulty,
       laps: laps,
     );
   }

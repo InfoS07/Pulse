@@ -34,9 +34,9 @@ class _ActivityPageState extends State<ActivityPage>
   final ValueNotifier<Duration> _reactionTime = ValueNotifier(Duration.zero);
   final player = AudioPlayer();
 
-  final buzzerClass = [
-    {"color": "red", "stop": "a", "start": "1", "trigger": "z"},
-    {"color": "blue", "stop": "b", "start": "2", "trigger": "y"}
+  final List<Map<String, String>> buzzerClass = [
+    {"color": "Colors.purple", "stop": "a", "start": "1", "trigger": "z"},
+    {"color": "Colors.yellow", "stop": "b", "start": "2", "trigger": "y"}
   ];
 
   final sequence = [1, 2];
@@ -182,8 +182,10 @@ class _ActivityPageState extends State<ActivityPage>
 
   void activateNextBuzzer() {
     if (currentRepetition < repetitions) {
+      setState(() {
+        isActive = true;
+      });
       sendDeviceNotification(buzzerClass[currentBuzzerIndex]['start']!);
-      isActive = true;
     }
   }
 
@@ -412,35 +414,73 @@ class _ActivityPageState extends State<ActivityPage>
                       children: [
                         Column(
                           children: [
-                            ValueListenableBuilder<Duration>(
-                              valueListenable: _timeElapsed,
-                              builder: (context, value, child) {
-                                return Text(
-                                  _formatTime(value),
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold),
-                                );
-                              },
+                            const SizedBox(height: 16),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                BuzzerIndicator(
+                                  isActive: currentBuzzerIndex == 0,
+                                  color: Colors.purple,
+                                ),
+                                const SizedBox(width: 16),
+                                BuzzerIndicator(
+                                  isActive: currentBuzzerIndex == 1,
+                                  color: Colors.yellow,
+                                ),
+                              ],
                             ),
+                            const SizedBox(height: 64),
+                            GestureDetector(
+                              onTap: () => _startStopTimer(),
+                              child: Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  color: AppPallete.primaryColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 16),
+                                margin: const EdgeInsets.only(top: 32),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    ConstrainedBox(
+                                      constraints:
+                                          BoxConstraints(minWidth: 100),
+                                      child: ValueListenableBuilder<Duration>(
+                                        valueListenable: _timeElapsed,
+                                        builder: (context, value, child) {
+                                          return Text(
+                                            _formatTime(value),
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 28,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Icon(
+                                      _isRunning
+                                          ? Icons.pause
+                                          : Icons.play_arrow,
+                                      color: Colors.black,
+                                      size: 32,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
                             Text(
                               'Tour 1/${widget.exercise.laps}',
                               style: const TextStyle(
                                   color: Colors.white, fontSize: 16),
-                            ),
-                            const SizedBox(height: 32),
-                            GestureDetector(
-                              onTap: () => _startStopTimer(),
-                              child: CircleAvatar(
-                                radius: 32,
-                                backgroundColor: AppPallete.primaryColor,
-                                child: Icon(
-                                  _isRunning ? Icons.pause : Icons.play_arrow,
-                                  color: Colors.black,
-                                  size: 32,
-                                ),
-                              ),
                             ),
                           ],
                         ),
@@ -449,7 +489,7 @@ class _ActivityPageState extends State<ActivityPage>
                   ),
                   Container(
                     color: Colors.red,
-                    height: MediaQuery.of(context).size.height * 0.5,
+                    height: MediaQuery.of(context).size.height * 0.4,
                     child: DraggableScrollableSheet(
                       initialChildSize: 1.0,
                       minChildSize: 0.2,
@@ -469,23 +509,9 @@ class _ActivityPageState extends State<ActivityPage>
                                   const Text(
                                     'Voir exercices',
                                     style: TextStyle(
-                                        color: AppPallete.primaryColor,
-                                        fontSize: 16),
-                                  ),
-                                  const Row(
-                                    children: [
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.greenAccent),
-                                      SizedBox(width: 4),
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.grey),
-                                      SizedBox(width: 4),
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.grey),
-                                    ],
+                                      color: AppPallete.primaryColor,
+                                      fontSize: 16,
+                                    ),
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.notifications_active,
@@ -517,9 +543,24 @@ class _ActivityPageState extends State<ActivityPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  _buildInfoCard(
-                                      messageCount.toString(), 'Touches',
-                                      highlight: true),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      _buildInfoCard('4', 'Erreurs'),
+                                      _buildInfoCard(
+                                          messageCount.toString(), 'Touches',
+                                          highlight: true),
+                                      ValueListenableBuilder<Duration>(
+                                        valueListenable: _reactionTime,
+                                        builder: (context, value, child) {
+                                          return _buildInfoCard(
+                                              _formatReactionTime(value),
+                                              'Réaction');
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                   ValueListenableBuilder<Duration>(
                                     valueListenable: _reactionTime,
                                     builder: (context, value, child) {
@@ -572,6 +613,21 @@ class _ActivityPageState extends State<ActivityPage>
           ),
         ],
       ),
+    );
+  }
+}
+
+class BuzzerIndicator extends StatelessWidget {
+  final bool isActive;
+  final Color color;
+
+  const BuzzerIndicator({required this.isActive, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 20,
+      backgroundColor: isActive ? color : Colors.grey,
     );
   }
 }

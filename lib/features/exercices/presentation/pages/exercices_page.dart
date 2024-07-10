@@ -100,7 +100,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   } else if (state is ExercicesError) {
                     return _buildErrorScreen(context, state.message);
                   }
-
                   return const Center(child: Text('Chargement des exercices'));
                 },
               ),
@@ -169,13 +168,15 @@ class _ExercicesPageState extends State<ExercicesPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12),
               child: Text(
                 category.key,
                 style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
+            const SizedBox(height: 8),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(

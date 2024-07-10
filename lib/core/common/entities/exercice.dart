@@ -11,7 +11,7 @@ class Exercice {
   int durationOneRepetition = 0;
   int caloriesBurned = 0;
   double score = 0.0;
-  String level = "Nul";
+  String difficulty = "Facile";
   int laps = 0;
 
   Exercice(
@@ -27,7 +27,7 @@ class Exercice {
       required this.durationOneRepetition,
       required this.caloriesBurned,
       required this.score,
-      required this.level,
+      required this.difficulty,
       required this.laps});
 
   static Exercice empty() {
@@ -44,7 +44,7 @@ class Exercice {
       durationOneRepetition: 0,
       caloriesBurned: 0,
       score: 0.0,
-      level: '',
+      difficulty: 'Facile',
       laps: 0,
     );
   }
