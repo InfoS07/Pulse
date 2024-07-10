@@ -14,6 +14,7 @@ abstract class ChallengesUsersRemoteDataSource {
   Future<void> quitChallenge(int challengeId, String userId);
   Future<void> deleteChallenge(int challengeId);
   Future<void> createChallenge(CreateChallengeUser challengeUser);
+  Future<void> addInvitesToChallenge(int challengeId, List<String> userIds);
 }
 
 class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource {
@@ -160,6 +161,32 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
       throw ServerException("Error creating challenge");
     } catch (e) {
       throw ServerException("Error creating challenge");
+    }
+  }
+
+  Future<void> addInvitesToChallenge(int challengeId, List<String> userIds) async {
+    try {
+      final response = await supabaseClient
+          .from('challenges_users')
+          .select()
+          .eq('id', challengeId)
+          .single();
+
+      if (response != null) {
+        final List<String> currentInvites = List<String>.from(response['invites'] ?? []);
+        
+        // Ajouter les nouveaux userIds à la liste des invites existants
+        currentInvites.addAll(userIds.where((userId) => !currentInvites.contains(userId)));
+
+        await supabaseClient
+            .from('challenges_users')
+            .update({'invites': currentInvites})
+            .eq('id', challengeId);
+      }
+    } on PostgrestException catch (e) {
+      throw ServerException("Error adding invites to challenge");
+    } catch (e) {
+      throw ServerException("Error adding invites to challenge");
     }
   }
 }

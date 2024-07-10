@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/bottom_sheet.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class ChallengeUserPage extends StatefulWidget {
   @override
@@ -17,6 +19,8 @@ class ChallengeUserPage extends StatefulWidget {
 class _ChallengeUserPageState extends State<ChallengeUserPage> {
   String? userId;
   BuildContext? bottomSheetContext;
+  List<Profil> followers = [];
+  List<Profil> followings = [];
 
   @override
   void initState() {
@@ -27,19 +31,21 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       userId = authState.user.uid;
       context.read<ChallengesUsersBloc>().add(ChallengesUsersGetChallenges());
       context.read<ExercicesBloc>().add(ExercicesLoad());
+      context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
   }
 
   Future<void> _refreshChallengesUsers() async {
     context.read<ChallengesUsersBloc>().add(ChallengesUsersGetChallenges());
     context.read<ExercicesBloc>().add(ExercicesLoad());
+    context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return userId == null
-        ? Center(child: CircularProgressIndicator())
-        : MultiBlocListener(
+@override
+Widget build(BuildContext context) {
+  return userId == null
+      ? Center(child: CircularProgressIndicator())
+      : MultiBlocListener(
           listeners: [
             BlocListener<ChallengesUsersBloc, ChallengesUsersState>(
               listener: (context, state) {
@@ -59,45 +65,59 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 }
               },
             ),
-          ],
-          child: BlocBuilder<ChallengesUsersBloc, ChallengesUsersState>(
-              builder: (context, state) {
-                if (state is ChallengesUsersLoading) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (state is ChallengesUsersSuccess) {
-                  final filteredChallenges = state.challenges.where((challengeUser) {
-                    return challengeUser!.invites.contains(userId);
-                  }).toList();
-          
-                  return RefreshIndicator(
-                    onRefresh: _refreshChallengesUsers,
-                    child: filteredChallenges.isEmpty
-                        ? Center(child: Text('No challenge users'))
-                        : GridView.builder(
-                            padding: const EdgeInsets.all(16.0),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.7,
-                            ),
-                            itemCount: filteredChallenges.length,
-                            itemBuilder: (context, index) {
-                              final challengeUser = filteredChallenges[index];
-                              return _buildChallengeUserCard(context, challengeUser!);
-                            },
-                          ),
+            BlocListener<ProfilBloc, ProfilState>(
+              listener: (context, state) {
+                if (state is ProfilSuccess) {
+                  followers = state.followers;
+                  followings = state.followings;
+                  setState(() {}); 
+                  // Appeler setState ici pour mettre à jour les variables d'état si nécessaire
+                } else if (state is ProfilFailure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${state.message}')),
                   );
-                } else if (state is ChallengesUsersError) {
-                  return Center(child: Text('Failed to fetch challenge users'));
                 }
-                return Center(child: Text('No challenge users'));
               },
             ),
-        );
-  }
+          ],
+          child: BlocBuilder<ChallengesUsersBloc, ChallengesUsersState>(
+            builder: (context, state) {
+              if (state is ChallengesUsersLoading) {
+                return Center(child: CircularProgressIndicator());
+              } else if (state is ChallengesUsersSuccess) {
+                final filteredChallenges = state.challenges.where((challengeUser) {
+                  return challengeUser!.invites.contains(userId);
+                }).toList();
 
-  Widget _buildChallengeUserCard(BuildContext context, ChallengeUserModel challengeUser) {
+                return RefreshIndicator(
+                  onRefresh: _refreshChallengesUsers,
+                  child: filteredChallenges.isEmpty
+                      ? Center(child: Text('No challenge users'))
+                      : GridView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 16,
+                            mainAxisSpacing: 16,
+                            childAspectRatio: 0.7,
+                          ),
+                          itemCount: filteredChallenges.length,
+                          itemBuilder: (context, index) {
+                            final challengeUser = filteredChallenges[index];
+                            return _buildChallengeUserCard(context, challengeUser!, followers, followings);
+                          },
+                        ),
+                );
+              } else if (state is ChallengesUsersError) {
+                return Center(child: Text('Failed to fetch challenge users'));
+              }
+              return Center(child: Text('No challenge users'));
+            },
+          ),
+        );
+}
+
+  Widget _buildChallengeUserCard(BuildContext context, ChallengeUserModel challengeUser,List<Profil> followers, List<Profil> followings) {
     final isParticipant = challengeUser.participants.values.any((participant) => participant.idUser == userId);
     final isAchiever = isParticipant && challengeUser.participants.values.firstWhere((participant) => participant.idUser == userId).score > 0;
     final isAuthor = challengeUser.authorId == userId; // Check if the user is the author
@@ -147,7 +167,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 ),
               ),
               SizedBox(height: 16),
-              if (isAuthor)
+              if (isAuthor) ...[
                 ElevatedButton(
                   onPressed: () => _showDeleteConfirmationDialog(context, challengeUser),
                   style: ElevatedButton.styleFrom(
@@ -161,8 +181,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     'Supprimer',
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
-                )
-              else
+                ),
+
+              ] else
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -192,26 +213,24 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                         icon: Icon(Icons.exit_to_app, color: AppPallete.primaryColor),
                         padding: EdgeInsets.all(16.0),
                       ),
-                  BlocBuilder<ExercicesBloc, ExercicesState>(
-                    builder: (context, state) {
-                      if (state is ExercicesLoaded) {
-                        final exercise = _findExercise(
-                            state.exercisesByCategory, challengeUser.trainingId);
-                        if (exercise != null) {
-                          return IconButton(
-                            onPressed: () {
-                              context.push('/activity', extra: exercise);
-                            },
-                            icon: Icon(Icons.play_arrow,
-                                color: AppPallete.primaryColor),
-                            color: Colors.white,
-                            padding: EdgeInsets.all(16.0),
-                          );
-                        }
-                      }
-                      return Container(); // Return an empty container if the exercise is not found
-                    },
-                  ),
+                      BlocBuilder<ExercicesBloc, ExercicesState>(
+                        builder: (context, state) {
+                          if (state is ExercicesLoaded) {
+                            final exercise = _findExercise(
+                                state.exercisesByCategory, challengeUser.trainingId);
+                            if (exercise != null) {
+                              return IconButton(
+                                onPressed: () {
+                                  context.push('/activity', extra: exercise);
+                                },
+                                icon: Icon(Icons.play_arrow, color: AppPallete.primaryColor),
+                                padding: EdgeInsets.all(16.0),
+                              );
+                            }
+                          }
+                          return Container(); // Return an empty container if the exercise is not found
+                        },
+                      ),
                     ],
                     if (isAchiever) ...[
                       ElevatedButton(
@@ -309,10 +328,26 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize: Size(double.infinity, 0), // Occupe toute la largeur
                   ),
                   child: Text(
                     'Supprimer',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
+                SizedBox(height: 8,),
+                ElevatedButton(
+                  onPressed: () => _showAddFriendsDialog(context, challengeUser,followers,followings),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppPallete.secondaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    minimumSize: Size(double.infinity, 0), // Occupe toute la largeur
+                  ),
+                  child: Text(
+                    'Ajouter des amis',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
@@ -322,11 +357,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     if (state is ExercicesLoaded) {
                       final exercise = _findExercise(
                           state.exercisesByCategory, challengeUser.trainingId);
-                          print(exercise);
                       if (exercise != null) {
                         return ElevatedButton(
                           onPressed: () {
-                            
                             context.push('/activity', extra: exercise);
                           },
                           style: ElevatedButton.styleFrom(
@@ -335,7 +368,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: Size(double.infinity, 0), // Occupies full width
+                            minimumSize: Size(double.infinity, 0), // Occupe toute la largeur
                           ),
                           child: Text(
                             'Lancer',
@@ -360,7 +393,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize: Size(double.infinity, 0), // Occupe toute la largeur
                   ),
                   child: Text(
                     'Accepter',
@@ -405,7 +438,79 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       },
     );
   }
+
+void _showAddFriendsDialog(BuildContext context, ChallengeUserModel challengeUser, List<Profil> followers, List<Profil> followings) {
+  final mutualFollowers = _getMutualFollowers(followers, followings);
+  final invitedFriends = challengeUser.invites.toSet(); // Supposons que `invites` est une liste des IDs des amis invités
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final _formKey = GlobalKey<FormState>();
+      final selectedFriends = <String>{};
+
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Ajouter des amis au challenge'),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: mutualFollowers.map((friend) {
+                  final isAlreadyInvited = invitedFriends.contains(friend.uid);
+                  return CheckboxListTile(
+                    title: Text(
+                      '${friend.firstName} ${friend.lastName}',
+                      style: TextStyle(color: isAlreadyInvited ? Colors.grey : Colors.white),
+                    ),
+                    value: selectedFriends.contains(friend.uid),
+                    onChanged: isAlreadyInvited
+                        ? null
+                        : (bool? value) {
+                            setState(() {
+                              if (value == true) {
+                                selectedFriends.add(friend.uid);
+                              } else {
+                                selectedFriends.remove(friend.uid);
+                              }
+                            });
+                          },
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Annuler'),
+              ),
+              TextButton(
+                onPressed: () {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    if (bottomSheetContext != null) {
+                      Navigator.of(bottomSheetContext!).pop(); // Ferme la bottom sheet
+                    }
+                    context.read<ChallengesUsersBloc>().add(AddInvitesToChallengeEvent(challengeUser.id, selectedFriends.toList()));
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text('Ajouter'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }
+
+
+
+}
+
 
 class BottomSheetUtilUser {
   static void showCustomBottomSheet(BuildContext context, WidgetBuilder builder) {
@@ -430,4 +535,9 @@ class BottomSheetUtilUser {
       }
     }
     return null;
+  }
+
+  List<Profil> _getMutualFollowers(List<Profil> followers, List<Profil> followings) {
+  final followingsSet = followings.map((p) => p.uid).toSet();
+  return followers.where((f) => followingsSet.contains(f.uid)).toList();
   }
