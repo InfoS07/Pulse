@@ -71,6 +71,13 @@ class CreateChallengeEvent extends ChallengesUsersEvent {
   ];
 }
 
+class AddInvitesToChallengeEvent extends ChallengesUsersEvent {
+  final int challengeId;
+  final List<String> userIds;
+
+  AddInvitesToChallengeEvent(this.challengeId, this.userIds);
+}
+
 
 
 
