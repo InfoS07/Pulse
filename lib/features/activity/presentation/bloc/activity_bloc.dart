@@ -67,10 +67,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
       final updatedActivity = state.activity.copyWith(
         laps: state.activity.laps + 1,
         caloriesBurned: event.caloriesBurned,
-        steps: state.activity.steps + event.touches + event.misses,
         endAt: DateTime.now(),
-        avgBpm: (state.activity.avgBpm + 100) ~/ 2, // Exemple
-        maxBpm: (state.activity.maxBpm + 120) ~/ 2, // Exemple
         avgSpeed: (state.activity.avgSpeed + 5) / 2, // Exemple
         maxSpeed: (state.activity.maxSpeed + 10) / 2, // Exemple
         timer: event.timeElapsed,

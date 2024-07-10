@@ -57,6 +57,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             likes {
                 user {
                   id
+                  uid
                 }
             }
             comments {
@@ -95,6 +96,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             like['user']['uid'] == supabaseClient.auth.currentUser!.id);
 
         post['isLiked'] = isLiked;
+        //print("isLiked ${post['likes']}");
 
         return SocialMediaPostModel.fromJson(post);
       }).toList();

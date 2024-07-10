@@ -10,6 +10,10 @@ class CommentModel extends Comment {
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
+    var id = json['id'] is int
+        ? json['id']
+        : int.tryParse(json['id'].toString()) ?? 0;
+    print("CommentModel CommentModel $id");
     return CommentModel(
       id: json['id'] is int
           ? json['id']

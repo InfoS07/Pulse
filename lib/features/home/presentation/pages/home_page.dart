@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
 
     final authState = context.read<AppUserCubit>().state;
-    print("authState: $authState");
     if (authState is AppUserLoggedIn) {
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;

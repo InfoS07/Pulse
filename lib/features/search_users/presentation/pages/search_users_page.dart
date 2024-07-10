@@ -19,10 +19,7 @@ class SearchUsersPage extends StatelessWidget {
           },
         ),
       ),
-      body: BlocProvider(
-        create: (_) => serviceLocator<SearchUsersBloc>(),
-        child: SearchUsersView(),
-      ),
+      body: SearchUsersView(),
     );
   }
 }
@@ -53,7 +50,7 @@ class _SearchUsersViewState extends State<SearchUsersView> {
               onCancel: () {
                 context
                     .read<SearchUsersBloc>()
-                    .add(SearchUsersQueryChanged(query: ''));
+                    .add(const SearchUsersQueryChanged(query: ''));
               },
             ),
           ),
@@ -63,10 +60,11 @@ class _SearchUsersViewState extends State<SearchUsersView> {
               child: BlocBuilder<SearchUsersBloc, SearchUsersState>(
                 builder: (context, state) {
                   if (state is SearchUsersLoading) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   } else if (state is SearchUsersLoaded) {
                     if (state.profils.isEmpty) {
-                      return Center(child: Text('Aucun utilisateur trouvé'));
+                      return const Center(
+                          child: Text('Aucun utilisateur trouvé'));
                     } else {
                       return ListView.builder(
                         itemCount: state.profils.length,
@@ -80,8 +78,10 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                     }
                   } else if (state is SearchUsersError) {
                     return Center(child: Text(state.message));
+                  } else if (state is SearchUsersEmpty) {
+                    return Center(child: Text(state.message));
                   } else {
-                    return Center(child: Text('Vous êtes seul :('));
+                    return const Center(child: Text('Vous êtes seul :('));
                   }
                 },
               ),

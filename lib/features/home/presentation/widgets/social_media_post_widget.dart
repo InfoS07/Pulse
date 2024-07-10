@@ -10,6 +10,8 @@ import 'package:pulse/features/home/presentation/widgets/image_list_view.dart';
 import 'package:pulse/features/home/presentation/widgets/like_comment_count_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/title_description_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/user_profile_post_header.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class SocialMediaPostWidget extends StatefulWidget {
   final SocialMediaPost post;

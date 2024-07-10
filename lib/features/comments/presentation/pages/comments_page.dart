@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pulse/features/comments/presentation/bloc/comment_bloc.dart';
-import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/formatters.dart';
+import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 
 class CommentsPage extends StatefulWidget {
-  final SocialMediaPost post;
+  final int postId;
 
-  const CommentsPage({super.key, required this.post});
+  const CommentsPage({super.key, required this.postId});
 
   @override
   _CommentsPageState createState() => _CommentsPageState();
@@ -18,12 +18,6 @@ class _CommentsPageState extends State<CommentsPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController commentController = TextEditingController();
   String _selectedReportReason = '';
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<CommentBloc>().add(GetComments());
-  }
 
   void _showReportModalBottomSheet(BuildContext context, int commentId) {
     showModalBottomSheet(
@@ -70,11 +64,10 @@ class _CommentsPageState extends State<CommentsPage> {
             ),
             TextButton(
               onPressed: () {
-                // Handle the report action
-                Navigator.of(context).pop();
-                context
+                /* context
                     .read<CommentBloc>()
-                    .add(ReportCommentEvent(commentId, _selectedReportReason));
+                    .add(ReportCommentEvent(commentId, _selectedReportReason)); */
+                Navigator.of(context).pop();
               },
               child: Text('Signaler'),
             ),
@@ -103,185 +96,134 @@ class _CommentsPageState extends State<CommentsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Discussion'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          UserProfilePostContainer(
-            profileImageUrl: widget.post.profileImageUrl,
-            username: widget.post.username,
-            timestamp: widget.post.timestamp,
-            title: widget.post.title,
-            commentCount: widget.post.comments.length,
-            onTap: () {
-              //context.push('/otherProfil');
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Discussion'),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
             },
           ),
-          Expanded(
-            child: BlocConsumer<CommentBloc, CommentState>(
-              listener: (context, state) {
-                if (state is CommentError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                }
-              },
-              builder: (context, state) {
-                if (state is CommentInitial || state is CommentLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (state is CommentLoaded) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: state.comments.length,
-                          itemBuilder: (context, index) {
-                            final comment = state.comments[index];
-                            return Container(
-                              margin: const EdgeInsets.fromLTRB(8.0, 8.0, 0, 0),
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      comment.user.urlProfilePhoto),
-                                ),
-                                title: Text(
-                                  comment.user.username,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                subtitle: Text(comment.content),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.more_vert),
-                                  onPressed: () {
-                                    _showReportModalBottomSheet(
-                                        context, comment.id);
-                                  },
-                                ),
+        ),
+        body: BlocBuilder<HomeBloc, HomeState>(
+          builder: (context, state) {
+            if (state is HomeLoaded) {
+              final post =
+                  state.posts.firstWhere((post) => post.id == widget.postId);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  UserProfilePostContainer(
+                    profileImageUrl: post.profileImageUrl,
+                    username: post.username,
+                    timestamp: post.timestamp,
+                    title: post.title,
+                    commentCount: post.comments.length,
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                    },
+                  ),
+                  Expanded(
+                    child: post.comments.isEmpty
+                        ? Center(
+                            child: Text(
+                              'Aucun commentaire pour le moment.',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
                               ),
-                            );
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Form(
-                          key: formKey,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: commentController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Écrire un commentaire...',
-                                    filled: true,
-                                    fillColor: AppPallete.backgroundColor,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide.none,
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: post.comments.length,
+                            itemBuilder: (context, index) {
+                              final comment = post.comments[index];
+                              return Container(
+                                margin:
+                                    const EdgeInsets.fromLTRB(8.0, 8.0, 0, 0),
+                                child: ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: NetworkImage(
+                                        comment.user.urlProfilePhoto),
+                                  ),
+                                  title: Text(
+                                    comment.user.username,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
                                     ),
                                   ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Le commentaire ne peut pas être vide';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    context
-                                        .read<CommentBloc>()
-                                        .add(AddCommentEvent(
-                                          widget.post.id,
-                                          commentController.text,
-                                        ));
-                                    commentController.clear();
-                                    FocusScope.of(context).unfocus();
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  );
-                } else if (state is CommentError) {
-                  return Center(child: Text(state.message));
-                } else if (state is CommentEmpty) {
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: Center(child: Text(state.message)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Form(
-                          key: formKey,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: commentController,
-                                  decoration: InputDecoration(
-                                    hintText: 'Écrire un commentaire...',
-                                    filled: true,
-                                    fillColor: AppPallete.backgroundColor,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: BorderSide.none,
-                                    ),
+                                  subtitle: Text(comment.content),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.more_vert),
+                                    onPressed: () {
+                                      _showReportModalBottomSheet(
+                                          context, comment.id);
+                                    },
                                   ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Le commentaire ne peut pas être vide';
-                                    }
-                                    return null;
-                                  },
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Form(
+                      key: formKey,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: commentController,
+                              decoration: InputDecoration(
+                                hintText: 'Écrire un commentaire...',
+                                filled: true,
+                                fillColor: AppPallete.backgroundColor,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide.none,
                                 ),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.send),
-                                onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    context
-                                        .read<CommentBloc>()
-                                        .add(AddCommentEvent(
-                                          widget.post.id,
-                                          commentController.text,
-                                        ));
-                                    commentController.clear();
-                                    FocusScope.of(context).unfocus();
-                                  }
-                                },
-                              ),
-                            ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Le commentaire ne peut pas être vide';
+                                }
+                                return null;
+                              },
+                            ),
                           ),
-                        ),
+                          IconButton(
+                            icon: const Icon(Icons.send),
+                            onPressed: () {
+                              if (formKey.currentState!.validate()) {
+                                BlocProvider.of<HomeBloc>(context).add(
+                                  AddCommentToPostEvent(
+                                    post.id,
+                                    commentController.text,
+                                  ),
+                                );
+                                commentController.clear();
+                                FocusScope.of(context).unfocus();
+                              }
+                            },
+                          ),
+                        ],
                       ),
-                    ],
-                  );
-                } else {
-                  return const Center(child: Text('Erreur !'));
-                }
-              },
-            ),
-          ),
-        ],
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
       ),
     );
   }

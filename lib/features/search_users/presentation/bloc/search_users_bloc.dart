@@ -21,6 +21,10 @@ class SearchUsersBloc extends Bloc<SearchUsersEvent, SearchUsersState> {
     SearchUsersQueryChanged event,
     Emitter<SearchUsersState> emit,
   ) async {
+    if (event.query.isEmpty) {
+      emit(SearchUsersEmpty('Vous êtes seul :('));
+      return;
+    }
     emit(SearchUsersLoading());
     final res = await _searchUser(SearchUserParams(event.query));
 

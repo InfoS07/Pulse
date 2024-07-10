@@ -26,3 +26,13 @@ class DeletePost extends HomeEvent {
   @override
   List<Object> get props => [postId];
 }
+
+class AddCommentToPostEvent extends HomeEvent {
+  final int trainingId;
+  final String text;
+
+  AddCommentToPostEvent(this.trainingId, this.text);
+
+  @override
+  List<Object> get props => [trainingId, text];
+}

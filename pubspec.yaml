@@ -61,6 +61,8 @@ dependencies:
   page_transition: ^2.1.0
   comment_box: ^0.0.18
   audioplayers: ^6.0.0
+  toasty_box: ^1.0.4
+  giffy_dialog: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -93,7 +95,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/sounds/allez-le-nwoar.mp3
+    - assets/sounds/notif.mp3
+    - assets/gif/load.gif
+    - assets/gif/refresh.gif
+    - assets/gif/dual.gif
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

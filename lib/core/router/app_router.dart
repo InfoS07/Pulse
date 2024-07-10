@@ -129,14 +129,21 @@ final GoRouter goRouterProvider = GoRouter(
                   routes: [
                     GoRoute(
                       path: 'details/:postIndex',
-                      builder: (context, state) =>
-                          PostDetailsPage(post: state.extra as SocialMediaPost),
+                      builder: (context, state) {
+                        final postIndex =
+                            int.parse(state.pathParameters['postIndex']!);
+                        return PostDetailsPage(postId: postIndex);
+                      },
                       routes: [
                         GoRoute(
-                            path: RoutePath.comments.path,
-                            name: RoutePath.comments.name,
-                            builder: (context, state) => CommentsPage(
-                                post: state.extra as SocialMediaPost)),
+                          path: RoutePath.comments.path,
+                          name: RoutePath.comments.name,
+                          builder: (context, state) {
+                            final postIndex =
+                                int.parse(state.pathParameters['postIndex']!);
+                            return CommentsPage(postId: postIndex);
+                          },
+                        ),
                         GoRoute(
                           path: 'likes',
                           builder: (context, state) =>

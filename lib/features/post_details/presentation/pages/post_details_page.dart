@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
@@ -12,12 +12,14 @@ import 'package:pulse/features/home/presentation/widgets/image_list_view.dart';
 import 'package:pulse/features/home/presentation/widgets/like_comment_count_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/title_description_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/user_profile_post_header.dart';
-import 'package:pulse/core/utils/bottom_sheet_util.dart'; // Ajoutez cette ligne
+import 'package:pulse/core/utils/bottom_sheet_util.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class PostDetailsPage extends StatefulWidget {
-  final SocialMediaPost post;
+  final int postId;
 
-  const PostDetailsPage({super.key, required this.post});
+  const PostDetailsPage({super.key, required this.postId});
 
   @override
   _PostDetailsPageState createState() => _PostDetailsPageState();
@@ -25,6 +27,7 @@ class PostDetailsPage extends StatefulWidget {
 
 class _PostDetailsPageState extends State<PostDetailsPage> {
   String? userId;
+  SocialMediaPost? post;
 
   @override
   void initState() {
@@ -33,29 +36,41 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     if (authState is AppUserLoggedIn) {
       userId = authState.user.uid;
     }
+
+    final homeState = context.read<HomeBloc>().state;
+    if (homeState is HomeLoaded) {
+      post = homeState.posts[widget.postId];
+    }
   }
 
   void toggleLike() {
-    setState(() {
-      BlocProvider.of<HomeBloc>(context).add(LikePost(widget.post.id));
-    });
+    if (post != null) {
+      BlocProvider.of<HomeBloc>(context).add(LikePost(post!.id));
+    }
   }
 
   void _showDeleteDialog() {
-    BottomSheetUtil.showCustomBottomSheet(
-      context,
-      onConfirm: () {
-        // si l'auteur de la publication est l'utilisateur connecté
-        // alors on peut supprimer la publication
-        BlocProvider.of<HomeBloc>(context).add(DeletePost(widget.post.id));
-        context.go('/home');
-      },
-      buttonText: 'Supprimer l\'entrainement',
-      buttonColor: Colors.red,
-      confirmTextColor: Colors.white,
-      cancelText: 'Annuler',
-      cancelTextColor: Colors.grey,
-    );
+    if (post != null) {
+      BottomSheetUtil.showCustomBottomSheet(
+        context,
+        onConfirm: () {
+          BlocProvider.of<HomeBloc>(context).add(DeletePost(post!.id));
+          context.go('/home');
+
+          ToastService.showSuccessToast(
+            context,
+            length: ToastLength.long,
+            expandedHeight: 100,
+            message: "Entrainement ${post!.id} supprimé",
+          );
+        },
+        buttonText: 'Supprimer l\'entrainement',
+        buttonColor: Colors.red,
+        confirmTextColor: Colors.white,
+        cancelText: 'Annuler',
+        cancelTextColor: Colors.grey,
+      );
+    }
   }
 
   @override
@@ -63,13 +78,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.post.title,
+          post?.title ?? '',
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 14),
         ),
-        /* notificationPredicate: (notification) {
-          return false;
-        }, */
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -77,10 +89,9 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
           },
         ),
         actions: [
-          if (userId == widget.post.userUid)
+          if (userId == post?.userUid)
             PopupMenuButton<String>(
               color: AppPallete.popUpBackgroundColor,
-              //surfaceTintColor: AppPallete.popUpBackgroundColor,
               tooltip: 'Plus d\'options',
               onSelected: (String result) {
                 if (result == 'delete') {
@@ -96,82 +107,98 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
             ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          color: AppPallete.backgroundColorDarker, // Ajouter un fond gris
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 28.0, top: 28.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                UserProfilePostHeader(
-                  profileImageUrl: widget.post.profileImageUrl,
-                  username: widget.post.username,
-                  timestamp: widget.post.timestamp,
-                  onTap: () {
-                    // Ajouter l'action de navigation
-                    String userId = widget.post.userUid;
-                    context.push('/otherProfil', extra: userId);
-                  },
-                ),
-                const SizedBox(height: 18),
-                TitleDescriptionWidget(
-                  title: widget.post.title,
-                  description: widget.post.description,
-                ),
-                const SizedBox(height: 18),
-                if (widget.post.photos.isNotEmpty) ...[
-                  const SizedBox(height: 19),
-                  ImageListWidget(imageUrls: widget.post.photos),
-                ],
-                const SizedBox(height: 18),
-                ExerciseCardWidget(
-                  exerciseTitle: widget.post.exercice.title,
-                  exerciseUrlPhoto: widget.post.exercice.photos.first,
-                  onTap: () {
-                    context.push(
-                        '/exercices/details/${widget.post.exercice.id}',
-                        extra: widget.post.exercice);
-                  },
-                ),
-                const SizedBox(height: 18),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildInfoCard(
-                        formatDurationTraining(
-                          widget.post.startAt,
-                          widget.post.endAt,
+      body: BlocConsumer<HomeBloc, HomeState>(
+        listener: (context, state) {
+          if (state is HomeError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        builder: (context, state) {
+          if (state is HomeLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is HomeLoaded) {
+            post = state.posts[widget.postId];
+            return SingleChildScrollView(
+              child: Container(
+                color: AppPallete.backgroundColorDarker,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 28.0, top: 28.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (post != null) ...[
+                        UserProfilePostHeader(
+                          profileImageUrl: post!.profileImageUrl,
+                          username: post!.username,
+                          timestamp: post!.timestamp,
+                          onTap: () {
+                            String userId = post!.userUid;
+                            context.push('/otherProfil', extra: userId);
+                          },
                         ),
-                        'Durée'),
-                    _buildInfoCard('230', 'calories kcal'),
-                  ],
+                        const SizedBox(height: 18),
+                        TitleDescriptionWidget(
+                          title: post!.title,
+                          description: post!.description,
+                        ),
+                        const SizedBox(height: 18),
+                        if (post!.photos.isNotEmpty) ...[
+                          const SizedBox(height: 19),
+                          ImageListWidget(imageUrls: post!.photos),
+                        ],
+                        const SizedBox(height: 18),
+                        ExerciseCardWidget(
+                          exerciseTitle: post!.exercice.title,
+                          exerciseUrlPhoto: post!.exercice.photos.first,
+                          onTap: () {
+                            context.push(
+                                '/exercices/details/${post!.exercice.id}',
+                                extra: post!.exercice);
+                          },
+                        ),
+                        const SizedBox(height: 18),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildInfoCard(
+                                formatDurationTraining(
+                                  post!.startAt,
+                                  post!.endAt,
+                                ),
+                                'Durée'),
+                            _buildInfoCard('230', 'calories kcal'),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        LikeCommentCountWidget(
+                          likeCount: post!.likes,
+                          commentCount: post!.comments.length,
+                        ),
+                        const SizedBox(height: 18),
+                        ActionButtonsPostWidget(
+                          isLiked: post!.isLiked,
+                          onLikeTap: toggleLike,
+                          onCommentTap: () {
+                            context.push('/home/details/${post!.id}/comments',
+                                extra: post);
+                          },
+                        ),
+                      ] else ...[
+                        const Center(child: Text('Post not found')),
+                      ],
+                    ],
+                  ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildInfoCard('00:12:45', 'Durée'),
-                    _buildInfoCard('230', 'calories kcal'),
-                  ],
-                ),
-                const SizedBox(height: 18),
-                LikeCommentCountWidget(
-                  likeCount: widget.post.likes,
-                  commentCount: widget.post.comments.length,
-                ),
-                const SizedBox(height: 18),
-                ActionButtonsPostWidget(
-                  isLiked: widget.post.isLiked,
-                  onLikeTap: toggleLike,
-                  onCommentTap: () {
-                    context.push('/home/details/${widget.post.id}/comments',
-                        extra: widget.post);
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
+            );
+          } else if (state is HomeError) {
+            return Center(child: Text(state.message));
+          } else {
+            return const Center(child: Text('Erreur !'));
+          }
+        },
       ),
     );
   }
