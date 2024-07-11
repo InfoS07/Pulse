@@ -5,6 +5,7 @@ class ExercicesModel extends Exercice {
     required super.id,
     required super.title,
     required super.photos,
+    required super.categories,
     required super.description,
     required super.duration,
     required super.sequence,
@@ -25,6 +26,10 @@ class ExercicesModel extends Exercice {
           : int.tryParse(map['id'].toString()) ?? 0,
       title: map['title'] ?? '',
       photos: (map['photos'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
+      categories: (map['categories'] as List<dynamic>?)
               ?.map((item) => item as String)
               .toList() ??
           [],
@@ -49,6 +54,7 @@ class ExercicesModel extends Exercice {
     int? id,
     String? title,
     List<String>? photos,
+    List<String>? categories,
     String? description,
     int? duration,
   }) {
@@ -56,6 +62,7 @@ class ExercicesModel extends Exercice {
       id: id ?? this.id,
       title: title ?? this.title,
       photos: photos ?? this.photos,
+      categories: categories ?? this.categories,
       description: description ?? this.description,
       duration: duration ?? this.duration,
       sequence: sequence,

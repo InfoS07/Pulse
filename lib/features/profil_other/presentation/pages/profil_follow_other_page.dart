@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/profil.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/follow.dart';
 import 'package:pulse/features/profil_follow/domain/usecases/unfollow.dart';
 import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_bloc.dart';
@@ -54,6 +55,12 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
             },
           ),
           bottom: const TabBar(
+            indicatorColor: AppPallete.primaryColor,
+            indicatorWeight: 3.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey,
             tabs: [
               Tab(text: 'Abonnés'),
               Tab(text: 'Abonnement'),

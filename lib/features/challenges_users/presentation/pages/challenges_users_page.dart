@@ -40,42 +40,44 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
     return userId == null
         ? Center(child: CircularProgressIndicator())
         : MultiBlocListener(
-          listeners: [
-            BlocListener<ChallengesUsersBloc, ChallengesUsersState>(
-              listener: (context, state) {
-                if (state is ChallengesUsersError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: ${state.message}')),
-                  );
-                }
-              },
-            ),
-            BlocListener<ExercicesBloc, ExercicesState>(
-              listener: (context, state) {
-                if (state is ExercicesError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Error: ${state.message}')),
-                  );
-                }
-              },
-            ),
-          ],
-          child: BlocBuilder<ChallengesUsersBloc, ChallengesUsersState>(
+            listeners: [
+              BlocListener<ChallengesUsersBloc, ChallengesUsersState>(
+                listener: (context, state) {
+                  if (state is ChallengesUsersError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${state.message}')),
+                    );
+                  }
+                },
+              ),
+              BlocListener<ExercicesBloc, ExercicesState>(
+                listener: (context, state) {
+                  if (state is ExercicesError) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${state.message}')),
+                    );
+                  }
+                },
+              ),
+            ],
+            child: BlocBuilder<ChallengesUsersBloc, ChallengesUsersState>(
               builder: (context, state) {
                 if (state is ChallengesUsersLoading) {
                   return Center(child: CircularProgressIndicator());
                 } else if (state is ChallengesUsersSuccess) {
-                  final filteredChallenges = state.challenges.where((challengeUser) {
+                  final filteredChallenges =
+                      state.challenges.where((challengeUser) {
                     return challengeUser!.invites.contains(userId);
                   }).toList();
-          
+
                   return RefreshIndicator(
                     onRefresh: _refreshChallengesUsers,
                     child: filteredChallenges.isEmpty
                         ? Center(child: Text('No challenge users'))
                         : GridView.builder(
                             padding: const EdgeInsets.all(16.0),
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
@@ -84,7 +86,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                             itemCount: filteredChallenges.length,
                             itemBuilder: (context, index) {
                               final challengeUser = filteredChallenges[index];
-                              return _buildChallengeUserCard(context, challengeUser!);
+                              return _buildChallengeUserCard(
+                                  context, challengeUser!);
                             },
                           ),
                   );
@@ -94,13 +97,20 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 return Center(child: Text('No challenge users'));
               },
             ),
-        );
+          );
   }
 
-  Widget _buildChallengeUserCard(BuildContext context, ChallengeUserModel challengeUser) {
-    final isParticipant = challengeUser.participants.values.any((participant) => participant.idUser == userId);
-    final isAchiever = isParticipant && challengeUser.participants.values.firstWhere((participant) => participant.idUser == userId).score > 0;
-    final isAuthor = challengeUser.authorId == userId; // Check if the user is the author
+  Widget _buildChallengeUserCard(
+      BuildContext context, ChallengeUserModel challengeUser) {
+    final isParticipant = challengeUser.participants.values
+        .any((participant) => participant.idUser == userId);
+    final isAchiever = isParticipant &&
+        challengeUser.participants.values
+                .firstWhere((participant) => participant.idUser == userId)
+                .score >
+            0;
+    final isAuthor =
+        challengeUser.authorId == userId; // Check if the user is the author
     String status;
     Color statusColor;
     Color buttonColor = AppPallete.primaryColorFade;
@@ -149,13 +159,15 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               SizedBox(height: 16),
               if (isAuthor)
                 ElevatedButton(
-                  onPressed: () => _showDeleteConfirmationDialog(context, challengeUser),
+                  onPressed: () =>
+                      _showDeleteConfirmationDialog(context, challengeUser),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
                   ),
                   child: Text(
                     'Supprimer',
@@ -169,49 +181,55 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     if (!isParticipant && !isAchiever) ...[
                       ElevatedButton(
                         onPressed: () {
-                          context.read<ChallengesUsersBloc>().add(JoinChallengeEvent(challengeUser.id, userId!));
+                          context.read<ChallengesUsersBloc>().add(
+                              JoinChallengeEvent(challengeUser.id, userId!));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: statusColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 8.0),
                         ),
                         child: Text(
                           status,
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
                     if (isParticipant && !isAchiever) ...[
                       IconButton(
                         onPressed: () {
-                          context.read<ChallengesUsersBloc>().add(QuitChallengeEvent(challengeUser.id, userId!));
+                          context.read<ChallengesUsersBloc>().add(
+                              QuitChallengeEvent(challengeUser.id, userId!));
                         },
-                        icon: Icon(Icons.exit_to_app, color: AppPallete.primaryColor),
+                        icon: Icon(Icons.exit_to_app,
+                            color: AppPallete.primaryColor),
                         padding: EdgeInsets.all(16.0),
                       ),
-                  BlocBuilder<ExercicesBloc, ExercicesState>(
-                    builder: (context, state) {
-                      if (state is ExercicesLoaded) {
-                        final exercise = _findExercise(
-                            state.exercisesByCategory, challengeUser.trainingId);
-                        if (exercise != null) {
-                          return IconButton(
-                            onPressed: () {
-                              context.push('/activity', extra: exercise);
-                            },
-                            icon: Icon(Icons.play_arrow,
-                                color: AppPallete.primaryColor),
-                            color: Colors.white,
-                            padding: EdgeInsets.all(16.0),
-                          );
-                        }
-                      }
-                      return Container(); // Return an empty container if the exercise is not found
-                    },
-                  ),
+                      BlocBuilder<ExercicesBloc, ExercicesState>(
+                        builder: (context, state) {
+                          if (state is ExercicesLoaded) {
+                            final exercise = _findExercise(
+                                state.exercisesByCategory,
+                                challengeUser.trainingId);
+                            if (exercise != null) {
+                              return IconButton(
+                                onPressed: () {
+                                  context.push('/activity', extra: exercise);
+                                },
+                                icon: Icon(Icons.play_arrow,
+                                    color: AppPallete.primaryColor),
+                                color: Colors.white,
+                                padding: EdgeInsets.all(16.0),
+                              );
+                            }
+                          }
+                          return Container(); // Return an empty container if the exercise is not found
+                        },
+                      ),
                     ],
                     if (isAchiever) ...[
                       ElevatedButton(
@@ -223,11 +241,13 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 8.0),
                         ),
                         child: Text(
                           status,
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],
@@ -240,10 +260,17 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
     );
   }
 
-  void _showChallengeDetailsBottomSheet(BuildContext context, ChallengeUserModel challengeUser) {
-    final isParticipant = challengeUser.participants.values.any((participant) => participant.idUser == userId);
-    final isAchiever = isParticipant && challengeUser.participants.values.firstWhere((participant) => participant.idUser == userId).score > 0;
-    final isAuthor = challengeUser.authorId == userId; // Check if the user is the author
+  void _showChallengeDetailsBottomSheet(
+      BuildContext context, ChallengeUserModel challengeUser) {
+    final isParticipant = challengeUser.participants.values
+        .any((participant) => participant.idUser == userId);
+    final isAchiever = isParticipant &&
+        challengeUser.participants.values
+                .firstWhere((participant) => participant.idUser == userId)
+                .score >
+            0;
+    final isAuthor =
+        challengeUser.authorId == userId; // Check if the user is the author
 
     // Trier les participants par score décroissant
     final sortedParticipants = challengeUser.participants.values.toList()
@@ -273,14 +300,17 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   itemCount: sortedParticipants.length,
                   itemBuilder: (context, index) {
                     final participant = sortedParticipants[index];
-                    final isOwner = participant.idUser == challengeUser.authorId;
+                    final isOwner =
+                        participant.idUser == challengeUser.authorId;
                     final isCurrentUser = participant.idUser == userId;
 
                     return ClipRRect(
-                      borderRadius: BorderRadius.circular(16), // Adjust radius as needed
+                      borderRadius:
+                          BorderRadius.circular(16), // Adjust radius as needed
                       child: ListTile(
                         leading: CircleAvatar(
-                          backgroundImage: NetworkImage(participant.user.urlProfilePhoto),
+                          backgroundImage:
+                              NetworkImage(participant.user.urlProfilePhoto),
                         ),
                         title: Row(
                           children: [
@@ -290,11 +320,13 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                             if (isCurrentUser)
                               Text('Moi')
                             else
-                              Text('${participant.user.firstName} ${participant.user.lastName}')
+                              Text(
+                                  '${participant.user.firstName} ${participant.user.lastName}')
                           ],
                         ),
                         trailing: Text('Score: ${participant.score}'),
-                        tileColor: isCurrentUser ? AppPallete.primaryColor : null,
+                        tileColor:
+                            isCurrentUser ? AppPallete.primaryColor : null,
                       ),
                     );
                   },
@@ -302,14 +334,16 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               ),
               if (isAuthor) ...[
                 ElevatedButton(
-                  onPressed: () => _showDeleteConfirmationDialog(context, challengeUser),
+                  onPressed: () =>
+                      _showDeleteConfirmationDialog(context, challengeUser),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Supprimer',
@@ -322,11 +356,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     if (state is ExercicesLoaded) {
                       final exercise = _findExercise(
                           state.exercisesByCategory, challengeUser.trainingId);
-                          print(exercise);
                       if (exercise != null) {
                         return ElevatedButton(
                           onPressed: () {
-                            
                             context.push('/activity', extra: exercise);
                           },
                           style: ElevatedButton.styleFrom(
@@ -335,7 +367,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                               borderRadius: BorderRadius.circular(16),
                             ),
                             padding: EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: Size(double.infinity, 0), // Occupies full width
+                            minimumSize:
+                                Size(double.infinity, 0), // Occupies full width
                           ),
                           child: Text(
                             'Lancer',
@@ -350,7 +383,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               ] else if (!isParticipant && !isAchiever) ...[
                 ElevatedButton(
                   onPressed: () {
-                    context.read<ChallengesUsersBloc>().add(JoinChallengeEvent(challengeUser.id, userId!));
+                    context
+                        .read<ChallengesUsersBloc>()
+                        .add(JoinChallengeEvent(challengeUser.id, userId!));
                     Navigator.of(context).pop();
                     _refreshChallengesUsers();
                   },
@@ -360,7 +395,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       borderRadius: BorderRadius.circular(16),
                     ),
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: Size(double.infinity, 0), // Occupies full width
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupies full width
                   ),
                   child: Text(
                     'Accepter',
@@ -375,7 +411,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context, ChallengeUserModel challengeUser) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, ChallengeUserModel challengeUser) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -391,10 +428,13 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
             ),
             TextButton(
               onPressed: () {
-                context.read<ChallengesUsersBloc>().add(DeleteChallengeEvent(challengeUser.id));
+                context
+                    .read<ChallengesUsersBloc>()
+                    .add(DeleteChallengeEvent(challengeUser.id));
                 Navigator.of(context).pop(); // Ferme la boîte de dialogue
                 if (bottomSheetContext != null) {
-                  Navigator.of(bottomSheetContext!).pop(); // Ferme la bottom sheet
+                  Navigator.of(bottomSheetContext!)
+                      .pop(); // Ferme la bottom sheet
                 }
                 _refreshChallengesUsers(); // Rafraîchit la liste des challenges
               },
@@ -408,7 +448,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 }
 
 class BottomSheetUtilUser {
-  static void showCustomBottomSheet(BuildContext context, WidgetBuilder builder) {
+  static void showCustomBottomSheet(
+      BuildContext context, WidgetBuilder builder) {
     showModalBottomSheet(
       context: context,
       builder: builder,
@@ -420,14 +461,14 @@ class BottomSheetUtilUser {
   }
 }
 
-  Exercice? _findExercise(
-      Map<String, List<Exercice?>> exercisesByCategory, int exerciseId) {
-    for (var category in exercisesByCategory.values) {
-      for (var exercise in category) {
-        if (exercise?.id == exerciseId) {
-          return exercise;
-        }
+Exercice? _findExercise(
+    Map<String, List<Exercice?>> exercisesByCategory, int exerciseId) {
+  for (var category in exercisesByCategory.values) {
+    for (var exercise in category) {
+      if (exercise?.id == exerciseId) {
+        return exercise;
       }
     }
-    return null;
   }
+  return null;
+}

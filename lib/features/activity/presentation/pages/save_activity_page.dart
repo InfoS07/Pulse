@@ -5,9 +5,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:pulse/core/common/entities/activity.dart';
+import 'package:pulse/core/common/entities/difficulty.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
+import 'package:pulse/features/activity/presentation/widgets/activity_stats_chart.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class SaveActivityPage extends StatefulWidget {
   const SaveActivityPage({super.key});
@@ -159,6 +164,13 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
           } else if (state is ActivitySaved) {
             context.go('/home');
             BlocProvider.of<HomeBloc>(context).add(LoadPosts());
+
+            ToastService.showSuccessToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: "Entrainement enregistré",
+            );
           }
         },
         child: GestureDetector(
@@ -194,25 +206,27 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                                 color: Colors.white,
                               ),
                             ),
-                            const FaIcon(
+                            FaIcon(
+                              size: 16,
                               FontAwesomeIcons.fire,
-                              color: Colors.orange,
+                              color: activity.exercise.difficulty ==
+                                      Difficulty.easy
+                                  ? Colors.green
+                                  : activity.exercise.difficulty ==
+                                          Difficulty.medium
+                                      ? Colors.orange
+                                      : Colors.red,
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
-                        const Row(
-                          children: [
-                            Chip(
-                              label: Text('Cardio'),
-                              backgroundColor: Colors.green,
-                            ),
-                            SizedBox(width: 8),
-                            Chip(
-                              label: Text('Course'),
-                              backgroundColor: Colors.green,
-                            ),
-                          ],
+                        Row(
+                          children:
+                              activity.exercise.categories.map((category) {
+                            return Chip(
+                              label: Text(category),
+                            );
+                          }).toList(),
                         ),
                         const SizedBox(height: 16),
                         Row(
@@ -223,6 +237,28 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                             _buildInfoCard(
                                 '${activity.caloriesBurned}', 'Calories kcal'),
                           ],
+                        ),
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildInfoCard(
+                                '${activity.touches}', 'Répétitions'),
+                            _buildInfoCard('${activity.misses}', 'Ratés'),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            /* _buildInfoCard(
+                                '${activity.stats[0].buzzerExpected}',
+                                'Buzzer 1 attendu'),
+                            _buildInfoCard('${activity.stats[0].buzzerPressed}',
+                                'Buzzer 1 touche'), */
+                          ],
+                        ),
+                        ActivityStatsChart(
+                          stats: activity.stats,
                         ),
                         const SizedBox(height: 8),
                         const Text(
@@ -392,7 +428,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        //color: Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -401,7 +437,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
             value,
             style: const TextStyle(
               color: Colors.white,
-              fontSize: 24,
+              fontSize: 22,
               fontWeight: FontWeight.bold,
             ),
           ),

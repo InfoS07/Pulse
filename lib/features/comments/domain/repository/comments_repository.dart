@@ -7,4 +7,6 @@ abstract interface class CommentsRepository {
   Future<Either<Failure, List<Comment?>>> getComments();
   Future<Either<Failure, Comment>> addComment(
       int trainingId, AddComment addComment);
+  Future<Either<Failure, Unit>> reportComment(
+      int commentId, String reportReason);
 }

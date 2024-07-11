@@ -5,7 +5,6 @@ class TrainingModel extends Training {
       {required super.id,
       required super.title,
       required super.description,
-      required super.comments,
       required super.activity,
       required super.photos});
 
@@ -14,7 +13,6 @@ class TrainingModel extends Training {
       id: json['id'],
       title: json['title'],
       description: json['description'],
-      comments: json['comments'],
       activity: json['activity'],
       photos: json['photos'],
     );

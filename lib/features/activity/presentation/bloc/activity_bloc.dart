@@ -9,31 +9,6 @@ import 'package:pulse/features/activity/domain/usecases/save_activity_uc.dart';
 part 'activity_event.dart';
 part 'activity_state.dart';
 
-/* class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
-  final CreateActivityUC _createActivityUC;
-
-  ActivityBloc({required CreateActivityUC createActivityUC})
-      : _createActivityUC = createActivityUC,
-        super(ActivityInitial()) {
-    on<ActivityLoad>(_onCreateActivity);
-
-    
-  }
-
-  void _onCreateActivity(
-    ActivityLoad event,
-    Emitter<ActivityState> emit,
-  ) async {
-    emit(ActivityLoading());
-    final res = await _createActivityUC(NoParams());
-
-    res.fold(
-      (l) => emit(ActivityError(l.message)),
-      (r) => emit(ActivityLoaded(r)),
-    );
-  }
-} */
-
 class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
   final SaveActivityUC _saveActivityUC;
 
@@ -64,15 +39,34 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
     Emitter<ActivityState> emit,
   ) {
     if (state is ActivityInProgress) {
-      final updatedActivity = state.activity.copyWith(
-        laps: state.activity.laps + 1,
-        caloriesBurned: event.caloriesBurned,
-        endAt: DateTime.now(),
-        avgSpeed: (state.activity.avgSpeed + 5) / 2, // Exemple
-        maxSpeed: (state.activity.maxSpeed + 10) / 2, // Exemple
-        timer: event.timeElapsed,
-      );
-      emit(ActivityInProgress(updatedActivity));
+      if (event.buzzerExpected != null &&
+          event.buzzerPressed != null &&
+          event.pressedAt != null) {
+        final buzzerStats = ActivityStats(
+          buzzerExpected: event.buzzerExpected!,
+          buzzerPressed: event.buzzerPressed!,
+          reactionTime: event.reactionTime!,
+          pressedAt: event.pressedAt!,
+        );
+        final updatedActivity = state.activity.copyWith(
+          caloriesBurned: event.caloriesBurned,
+          endAt: DateTime.now(),
+          timer: event.timeElapsed,
+          touches: event.touches,
+          misses: event.misses,
+          stats: [...state.activity.stats, buzzerStats],
+        );
+        emit(ActivityInProgress(updatedActivity));
+      } else {
+        final updatedActivity = state.activity.copyWith(
+          caloriesBurned: event.caloriesBurned,
+          endAt: DateTime.now(),
+          timer: event.timeElapsed,
+          touches: event.touches,
+          misses: event.misses,
+        );
+        emit(ActivityInProgress(updatedActivity));
+      }
     }
   }
 
@@ -101,7 +95,6 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
         id: DateTime.now().millisecondsSinceEpoch,
         title: event.title,
         description: event.description,
-        comments: const [],
         activity: state.activity,
         photos: event.photos,
       );

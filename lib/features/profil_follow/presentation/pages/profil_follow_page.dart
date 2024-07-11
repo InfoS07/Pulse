@@ -47,6 +47,12 @@ class _ProfilFollowPageState extends State<ProfilFollowPage> {
             },
           ),
           bottom: const TabBar(
+            indicatorColor: AppPallete.primaryColor,
+            indicatorWeight: 3.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey,
             tabs: [
               Tab(text: 'Abonnés'),
               Tab(text: 'Abonnement'),

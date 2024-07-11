@@ -126,6 +126,11 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => ReportCommentUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
@@ -133,6 +138,7 @@ void _initHome() {
         likePost: serviceLocator(),
         deletePost: serviceLocator(),
         addCommentUc: serviceLocator(),
+        reportComment: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );

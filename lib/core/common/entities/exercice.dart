@@ -3,8 +3,9 @@ class Exercice {
   final String title;
   final String description;
   final List<String> photos;
+  final List<String> categories;
   final int duration;
-  List<int> sequence = [1, 2, 3, 4, 5];
+  List<int> sequence = [1, 2, 3, 4];
   int repetitions = 3;
   int podCount = 0;
   int playerCount = 0;
@@ -18,6 +19,7 @@ class Exercice {
       {required this.id,
       required this.title,
       required this.photos,
+      required this.categories,
       required this.description,
       required this.duration,
       required this.sequence,
@@ -35,6 +37,7 @@ class Exercice {
       id: 0,
       title: '',
       photos: [''],
+      categories: [''],
       description: '',
       duration: 0,
       sequence: [],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'dart:math' as math;
 
 class AchievementBadgeWidget extends StatelessWidget {
   final String message;
@@ -33,10 +34,14 @@ class AchievementBadgeWidget extends StatelessWidget {
               color: AppPallete.secondaryColor, //Colors.purple[300],
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              Icons.emoji_events,
-              color: Colors.white,
-              size: 24.0,
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.rotationY(math.pi),
+              child: Image(
+                image: AssetImage('assets/images/coin.png'),
+                width: 50,
+                opacity: AlwaysStoppedAnimation(.8),
+              ),
             ),
           ),
           SizedBox(width: 16.0),

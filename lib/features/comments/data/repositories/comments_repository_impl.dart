@@ -49,4 +49,25 @@ class CommentsRepositoryImpl implements CommentsRepository {
       return Left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> reportComment(
+      int commentId, String reportReason) async {
+    return _reportComment(
+      () async =>
+          await commentsDataSource.reportComment(commentId, reportReason),
+    );
+  }
+
+  Future<Either<Failure, Unit>> _reportComment(
+    Future<void> Function() fn,
+  ) async {
+    try {
+      await fn();
+
+      return Right(unit);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
 }

@@ -54,9 +54,6 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
           if (state is HomeLoading) {
             return const Loader();
           } else if (state is HomeLoaded) {
-            // Filtrer les posts par l'ID de l'auteur
-            print(userId.toString());
-            //print(state.posts);
             final userPosts =
                 state.posts.where((post) => post.userUid == userId).toList();
 

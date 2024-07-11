@@ -42,7 +42,6 @@ class SearchUserRemoteDataSourceImpl implements SearchUserRemoteDataSource {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
-      print(result.data);
       final data = result.data?["users"] as List;
 
       return data.map((e) => ProfilModel.fromJson(e)).toList();

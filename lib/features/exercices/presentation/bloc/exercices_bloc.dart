@@ -45,7 +45,13 @@ class ExercicesBloc extends Bloc<ExercicesEvent, ExercicesState> {
 
     res.fold(
       (l) => emit(ExercicesError(l.message)),
-      (r) => emit(ExercicesLoaded(r)),
+      (r) {
+        if (r.isEmpty) {
+          emit(ExercicesEmpty());
+        } else {
+          emit(ExercicesLoaded(r));
+        }
+      },
     );
   }
 }

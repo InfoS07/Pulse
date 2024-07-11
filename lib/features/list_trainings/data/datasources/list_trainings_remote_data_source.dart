@@ -18,7 +18,7 @@ class ListTrainingsRemoteDataSourceImpl
     try {
       final trainingResponse = await supabaseClient
           .from('training')
-          .select()
+          .select('*')
           .eq('author_id', userId);
 
       // Retourner la liste de TrainingModel

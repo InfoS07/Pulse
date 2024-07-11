@@ -11,6 +11,7 @@ import 'package:pulse/features/home/presentation/widgets/achievement_badge_widge
 import 'package:pulse/features/home/presentation/widgets/recommend_exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/session_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
+import 'package:redacted/redacted.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -30,17 +31,18 @@ class _HomePageState extends State<HomePage> {
 
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
+      print("authState.user : ${authState.user.uid}");
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;
     }
   }
 
   Future<void> _refreshPosts() async {
-    OneSignal.InAppMessages.addTrigger("defis", "2");
+    /* OneSignal.InAppMessages.addTrigger("defis", "2");
     OneSignal.Notifications.addClickListener((event) {
       print('Key: ${event.notification.title}');
       print('NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
-    });
+    }); */
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
   }
 
@@ -150,7 +152,110 @@ class _HomePageState extends State<HomePage> {
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
+            //return const Center(child: CircularProgressIndicator());
+            return CustomScrollView(
+              slivers: [
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 32),
+                ),
+                SliverToBoxAdapter(
+                  child: AchievementBadgeWidget(
+                    message: 'Vous avez 10,000 points',
+                  ).redacted(
+                    context: context,
+                    redact: true,
+                    configuration: RedactedConfiguration(
+                      animationDuration:
+                          const Duration(milliseconds: 800), //default
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 32),
+                ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 200, // Ajustez cette valeur selon vos besoins
+                    child: Swiper(
+                      itemBuilder: (BuildContext context, int index) {
+                        return SessionCardWidget(
+                          title: 'Ma séance $index',
+                          duration: '15 minutes',
+                          points: '64',
+                          onStart: () {
+                            // Action lorsque le bouton "C'est parti !" est appuyé
+                          },
+                        ).redacted(
+                          context: context,
+                          redact: true,
+                          configuration: RedactedConfiguration(
+                            animationDuration:
+                                const Duration(milliseconds: 800), //default
+                          ),
+                        );
+                      },
+                      itemCount: 1,
+                      itemWidth: 350.0,
+                      layout: SwiperLayout.STACK,
+                    ),
+                  ),
+                ),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 32),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Votre résumé hebdomadaire',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: dailyStats
+                              .map((stat) => _buildSummaryCard(stat))
+                              .toList(),
+                        ),
+                      ],
+                    ),
+                  ).redacted(
+                    context: context,
+                    redact: true,
+                    configuration: RedactedConfiguration(
+                      animationDuration:
+                          const Duration(milliseconds: 800), //default
+                    ),
+                  ),
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: EmptySocialMediaPostWidget().redacted(
+                          context: context,
+                          redact: true,
+                          configuration: RedactedConfiguration(
+                            animationDuration:
+                                const Duration(milliseconds: 800), //default
+                          ),
+                        ),
+                      );
+                    },
+                    childCount: 5,
+                  ),
+                ),
+              ],
+            );
           } else if (state is HomeLoaded) {
             return RefreshIndicator(
               onRefresh: _refreshPosts,
@@ -161,8 +266,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SliverToBoxAdapter(
                     child: AchievementBadgeWidget(
-                      message:
-                          'Félicitation, vous avez 10,000 shatta coins. Foncez dasn la boutique',
+                      message: 'Vous avez 10,000 points',
                     ),
                   ),
                   const SliverToBoxAdapter(

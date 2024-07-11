@@ -65,7 +65,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            //_buildSearchBar(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SearchInput(
@@ -73,7 +72,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 placeholder: 'Rechercher un exercice',
               ),
             ),
-            //_buildFilterButtons(),
             Expanded(
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
@@ -110,56 +108,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return Row(
-      children: [
-        const SizedBox(width: 8),
-        DropdownButton<String>(
-          icon: const Icon(Icons.more_vert),
-          hint: const Text('Options'),
-          value: selectedCategory,
-          items: categories.map((String category) {
-            return DropdownMenuItem<String>(
-              value: category,
-              child: Text(category),
-            );
-          }).toList(),
-          onChanged: _onCategorySelected,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFilterButtons() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          FilterButton(
-            text: 'Tout',
-            isSelected: selectedCategory == null,
-            onTap: () {
-              _onCategorySelected(null);
-            },
-          ),
-          SizedBox(width: 16),
-          ...categories.map((category) {
-            return Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: FilterButton(
-                text: category,
-                isSelected: selectedCategory == category,
-                onTap: () {
-                  _onCategorySelected(category);
-                },
-              ),
-            );
-          }).toList(),
-        ],
-      ),
-    );
-  }
-
   Widget _buildExerciseList(
       BuildContext context, Map<String, List<Exercice?>> exercisesByCategory) {
     return ListView(
@@ -177,27 +125,44 @@ class _ExercicesPageState extends State<ExercicesPage> {
               ),
             ),
             const SizedBox(height: 8),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: category.value.map<Widget>((exercise) {
-                  if (exercise != null) {
-                    return ExerciseCard(
-                      exercise: exercise,
-                      onTap: () {
-                        context.push('/exercices/details/${exercise.id}',
-                            extra: exercise);
-                      },
-                    );
-                  }
-                  return const SizedBox();
-                }).toList(),
-              ),
+            Column(
+              children: _buildExerciseRows(category.value),
             ),
           ],
         );
       }).toList(),
     );
+  }
+
+  List<Widget> _buildExerciseRows(List<Exercice?> exercises) {
+    List<Widget> rows = [];
+    for (int i = 0; i < exercises.length; i += 5) {
+      rows.add(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: exercises
+                .sublist(i, i + 5 > exercises.length ? exercises.length : i + 5)
+                .map((exercise) {
+              if (exercise != null) {
+                return Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: ExerciseCard(
+                    exercise: exercise,
+                    onTap: () {
+                      context.push('/exercices/details/${exercise.id}',
+                          extra: exercise);
+                    },
+                  ),
+                );
+              }
+              return const SizedBox();
+            }).toList(),
+          ),
+        ),
+      );
+    }
+    return rows;
   }
 
   Widget _buildShimmerEffect() {

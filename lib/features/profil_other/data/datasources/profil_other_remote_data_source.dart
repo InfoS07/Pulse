@@ -98,7 +98,7 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
       // Récupérer les trainings pour cet utilisateur
       final trainingResponse = await supabaseClient
           .from('training')
-          .select()
+          .select('*')
           .eq('author_id', user['uid']);
 
       // Retourner la liste de TrainingModel

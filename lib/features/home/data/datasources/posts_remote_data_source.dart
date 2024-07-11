@@ -35,6 +35,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             created_at
             start_at
             end_at
+            repetitions
             exercise {
               id
               title
@@ -45,6 +46,12 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
               categories
               photos
               sequence
+            }
+            stats {
+                buzzer_expected
+                buzzer_pressed
+                reaction_time
+                pressed_at
             }
             author {
                 id
@@ -61,6 +68,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
                 }
             }
             comments {
+                id
                 user {
                   id
                   uid
@@ -96,7 +104,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             like['user']['uid'] == supabaseClient.auth.currentUser!.id);
 
         post['isLiked'] = isLiked;
-        //print("isLiked ${post['likes']}");
 
         return SocialMediaPostModel.fromJson(post);
       }).toList();

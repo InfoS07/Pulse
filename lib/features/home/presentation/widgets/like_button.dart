@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-class LikeButton extends StatelessWidget {
+/* class LikeButton extends StatelessWidget {
   final VoidCallback onTap;
   final IconData icon;
   final Color color;
@@ -24,4 +24,4 @@ class LikeButton extends StatelessWidget {
       ),
     );
   }
-}
+} */

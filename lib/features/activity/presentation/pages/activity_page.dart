@@ -224,8 +224,19 @@ class _ActivityPageState extends State<ActivityPage>
     if (!_isRunning || !isActive) return;
 
     if (decodedValue == "z" || decodedValue == "y" || decodedValue == "x") {
+      final int reactionTime = lastNotificationTime != null
+          ? currentTime.difference(lastNotificationTime!).inMilliseconds
+          : 0;
+      _activityBloc.add(UpdateActivity(
+        reactionTime: reactionTime,
+        buzzerExpected: buzzerClass[currentBuzzerIndex]['trigger']!,
+        buzzerPressed: decodedValue,
+        pressedAt: DateTime.now(),
+      ));
+
       if (decodedValue == buzzerClass[currentBuzzerIndex]['trigger']) {
         player.play(AssetSource('sounds/notif.mp3'));
+
         setState(() {
           messageCount++;
           if (lastNotificationTime != null) {
@@ -283,8 +294,8 @@ class _ActivityPageState extends State<ActivityPage>
         _activityBloc.add(UpdateActivity(
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
-          misses: errorCount, // Utilisation du compteur d'erreurs
-          caloriesBurned: 200,
+          misses: errorCount,
+          caloriesBurned: 10,
         ));
       });
       startBuzzerSequence();
@@ -390,7 +401,7 @@ class _ActivityPageState extends State<ActivityPage>
                   _activityBloc.add(UpdateActivity(
                     timeElapsed: _timeElapsed.value,
                     touches: messageCount,
-                    misses: errorCount, // Utilisation du compteur d'erreurs
+                    misses: errorCount,
                     caloriesBurned: 200,
                   ));
                   _activityBloc.add(StopActivity(_timeElapsed.value));
@@ -669,12 +680,6 @@ class _ActivityPageState extends State<ActivityPage>
                                   ],
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 32),
-                            Text(
-                              'Tour 1/${widget.exercise.laps}',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16),
                             ),
                           ],
                         ),

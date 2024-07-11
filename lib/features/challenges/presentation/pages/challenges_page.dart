@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
@@ -43,10 +44,12 @@ class _GroupPageState extends State<GroupPage> {
       child: Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('Challenges'),
+          title: const Text('Challenges'),
           bottom: const TabBar(
             indicatorColor: AppPallete.primaryColor,
             indicatorWeight: 3.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
             labelColor: Colors.white,
             unselectedLabelColor: Colors.grey,
             tabs: [
@@ -66,7 +69,7 @@ class _GroupPageState extends State<GroupPage> {
           ),
         ),
         body: userId == null
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : MultiBlocListener(
                 listeners: [
                   BlocListener<ChallengesBloc, ChallengesState>(
@@ -92,7 +95,7 @@ class _GroupPageState extends State<GroupPage> {
                   builder: (context, state) {
                     if (state is ChallengesLoading) {
                       print("Loading");
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     } else if (state is ChallengesError) {
                       print("Error");
                       return Center(child: Text('Error: ${state.message}'));
@@ -105,14 +108,21 @@ class _GroupPageState extends State<GroupPage> {
                         children: [
                           RefreshIndicator(
                             onRefresh: _refreshChallenges,
-                            child: _buildChallengeGrid(allChallenges),
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildHeaderSection(),
+                                  _buildChallengesList(allChallenges),
+                                ],
+                              ),
+                            ),
                           ),
-                          //Center(child: Text('Autres Challenges à venir...')), // Placeholder for future implementation
-                          ChallengeUserPage()
+                          ChallengeUserPage(),
                         ],
                       );
                     } else {
-                      return Center(child: Text('No Challenges'));
+                      return const Center(child: Text('No Challenges'));
                     }
                   },
                 ),
@@ -126,7 +136,9 @@ class _GroupPageState extends State<GroupPage> {
     if (!isInProgress) {
       // Return challenges with time remaining greater than 0
       return challenges.where((challenge) {
-        final timeRemaining = challenge!.endAt!.difference(DateTime.now());
+        // attention j'ai _TypeError (Null check operator used on a null value)
+        final timeRemaining =
+            challenge!.endAt!.difference(DateTime.now()) ?? Duration();
         return timeRemaining.inSeconds > 0;
       }).toList();
     }
@@ -139,22 +151,47 @@ class _GroupPageState extends State<GroupPage> {
     }).toList();
   }
 
-  Widget _buildChallengeGrid(List<ChallengesModel?> challenges) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          childAspectRatio: 0.7,
+  Widget _buildHeaderSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          color: AppPallete.backgroundColorDarker,
+          padding: const EdgeInsets.all(20.0),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Challenges hebdomadaires',
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Mesurez-vous à nos dis défis et tener de remporter des points. Chaque jours de nouveau défis vous attendent.',
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+            ],
+          ),
         ),
-        itemCount: challenges.length,
-        itemBuilder: (context, index) {
-          final challenge = challenges[index];
-          return _buildChallengeCard(challenge!);
-        },
-      ),
+        SizedBox(height: 16),
+        Text(
+          'Challenges disponibles',
+          style: TextStyle(
+              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChallengesList(List<ChallengesModel?> challenges) {
+    return Column(
+      children: challenges
+          .map((challenge) => _buildChallengeCard(challenge!))
+          .toList(),
     );
   }
 
@@ -184,7 +221,7 @@ class _GroupPageState extends State<GroupPage> {
       child: Card(
         color: Colors.black,
         shape: RoundedRectangleBorder(
-          side: BorderSide(color: Colors.white, width: 0.5),
+          side: const BorderSide(color: Colors.white, width: 0.5),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Padding(
@@ -194,20 +231,18 @@ class _GroupPageState extends State<GroupPage> {
             children: [
               Text(
                 challenge.name,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
-              Expanded(
-                child: Text(
-                  challenge.description,
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
+              const SizedBox(height: 8),
+              Text(
+                challenge.description,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -223,12 +258,12 @@ class _GroupPageState extends State<GroupPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             horizontal: 30.0, vertical: 8.0),
                       ),
                       child: Text(
                         status,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -240,10 +275,10 @@ class _GroupPageState extends State<GroupPage> {
                             .read<ChallengesBloc>()
                             .add(QuitChallenge(challenge.id, userId!));
                       },
-                      icon: Icon(Icons.exit_to_app,
+                      icon: const Icon(Icons.exit_to_app,
                           color: AppPallete.primaryColor),
                       color: buttonColor,
-                      padding: EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16.0),
                     ),
                     BlocBuilder<ExercicesBloc, ExercicesState>(
                       builder: (context, state) {
@@ -251,15 +286,14 @@ class _GroupPageState extends State<GroupPage> {
                           final exercise = _findExercise(
                               state.exercisesByCategory, challenge.exerciceId!);
                           if (exercise != null) {
-
                             return IconButton(
                               onPressed: () {
                                 context.push('/activity', extra: exercise);
                               },
-                              icon: Icon(Icons.play_arrow,
+                              icon: const Icon(Icons.play_arrow,
                                   color: AppPallete.primaryColor),
                               color: buttonColor,
-                              padding: EdgeInsets.all(16.0),
+                              padding: const EdgeInsets.all(16.0),
                             );
                           }
                         }
@@ -275,12 +309,12 @@ class _GroupPageState extends State<GroupPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                             horizontal: 30.0, vertical: 8.0),
                       ),
                       child: Text(
                         status,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -343,30 +377,30 @@ class _GroupPageState extends State<GroupPage> {
             children: [
               Text(
                 challenge.name,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 challenge.description,
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               if (daysRemaining > 0) ...[
                 Text(
                   'Temps restant: $daysRemaining jours',
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
               ],
               Text(
                 'Points: $points',
-                style: TextStyle(fontSize: 16, color: Colors.white),
+                style: const TextStyle(fontSize: 16, color: Colors.white),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               if (isParticipant && !isAchiever) ...[
                 ElevatedButton(
                   onPressed: () {
@@ -382,16 +416,16 @@ class _GroupPageState extends State<GroupPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize:
-                        Size(double.infinity, 0), // Occupies full width
+                        const Size(double.infinity, 0), // Occupies full width
                   ),
-                  child: Text(
+                  child: const Text(
                     'Quitter',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () {
                     // Action when "Lancer" button is pressed
@@ -412,11 +446,11 @@ class _GroupPageState extends State<GroupPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize:
-                        Size(double.infinity, 0), // Occupies full width
+                        const Size(double.infinity, 0), // Occupies full width
                   ),
-                  child: Text(
+                  child: const Text(
                     'Lancer',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
@@ -436,11 +470,11 @@ class _GroupPageState extends State<GroupPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize:
-                        Size(double.infinity, 0), // Occupies full width
+                        const Size(double.infinity, 0), // Occupies full width
                   ),
-                  child: Text(
+                  child: const Text(
                     'Accepter',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
@@ -454,11 +488,11 @@ class _GroupPageState extends State<GroupPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     minimumSize:
-                        Size(double.infinity, 0), // Occupies full width
+                        const Size(double.infinity, 0), // Occupies full width
                   ),
-                  child: Text(
+                  child: const Text(
                     'Terminé',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),

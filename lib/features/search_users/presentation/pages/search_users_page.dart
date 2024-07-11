@@ -59,12 +59,29 @@ class _SearchUsersViewState extends State<SearchUsersView> {
               //color: Colors.grey[900],
               child: BlocBuilder<SearchUsersBloc, SearchUsersState>(
                 builder: (context, state) {
-                  if (state is SearchUsersLoading) {
+                  /*  if (state is SearchUsersLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is SearchUsersLoaded) {
+                  } else */
+                  if (state is SearchUsersLoaded) {
                     if (state.profils.isEmpty) {
                       return const Center(
-                          child: Text('Aucun utilisateur trouvé'));
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image(
+                              image: AssetImage('assets/images/search.png'),
+                              width: 150,
+                              opacity: AlwaysStoppedAnimation(.8),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Aucun utilisateur trouvé',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      );
                     } else {
                       return ListView.builder(
                         itemCount: state.profils.length,
@@ -79,9 +96,19 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                   } else if (state is SearchUsersError) {
                     return Center(child: Text(state.message));
                   } else if (state is SearchUsersEmpty) {
-                    return Center(child: Text(state.message));
+                    return const Center(
+                        child: Image(
+                      image: AssetImage('assets/images/avocado.png'),
+                      width: 150,
+                      opacity: const AlwaysStoppedAnimation(.8),
+                    ));
                   } else {
-                    return const Center(child: Text('Vous êtes seul :('));
+                    return const Center(
+                        child: Image(
+                      image: AssetImage('assets/images/avocado.png'),
+                      width: 150,
+                      opacity: const AlwaysStoppedAnimation(.8),
+                    ));
                   }
                 },
               ),

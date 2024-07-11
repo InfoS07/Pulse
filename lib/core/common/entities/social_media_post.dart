@@ -1,3 +1,4 @@
+import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 
@@ -16,6 +17,8 @@ class SocialMediaPost {
   final int likes;
   final List<Comment> comments;
   final bool isLiked;
+  final int repetitions;
+  final List<ActivityStats> stats;
 
   SocialMediaPost({
     required this.id,
@@ -32,6 +35,8 @@ class SocialMediaPost {
     required this.comments,
     required this.isLiked,
     required this.exercice,
+    required this.repetitions,
+    required this.stats,
   });
 
   SocialMediaPost copyWith({
@@ -49,6 +54,8 @@ class SocialMediaPost {
     List<Comment>? comments,
     bool? isLiked,
     Exercice? exercice,
+    int? repetitions,
+    List<ActivityStats>? stats,
   }) {
     return SocialMediaPost(
       id: id ?? this.id,
@@ -65,6 +72,8 @@ class SocialMediaPost {
       exercice: exercice ?? this.exercice,
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
+      repetitions: repetitions ?? this.repetitions,
+      stats: stats ?? this.stats,
     );
   }
 }

@@ -48,12 +48,18 @@ class _CommentsPageState extends State<CommentsPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Signaler le commentaire'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildReportOption('Caractère sexuel'),
-              _buildReportOption('Inapproprié'),
-            ],
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildReportOption('Caractère sexuel', setState),
+                  _buildReportOption('Inapproprié', setState),
+                  _buildReportOption('Racisme', setState),
+                  _buildReportOption('Offensant', setState),
+                ],
+              );
+            },
           ),
           actions: [
             TextButton(
@@ -64,9 +70,9 @@ class _CommentsPageState extends State<CommentsPage> {
             ),
             TextButton(
               onPressed: () {
-                /* context
-                    .read<CommentBloc>()
-                    .add(ReportCommentEvent(commentId, _selectedReportReason)); */
+                context
+                    .read<HomeBloc>()
+                    .add(ReportCommentEvent(commentId, _selectedReportReason));
                 Navigator.of(context).pop();
               },
               child: Text('Signaler'),
@@ -77,7 +83,7 @@ class _CommentsPageState extends State<CommentsPage> {
     );
   }
 
-  Widget _buildReportOption(String reason) {
+  Widget _buildReportOption(String reason, StateSetter setState) {
     return ListTile(
       title: Text(reason),
       trailing: Icon(
@@ -131,13 +137,23 @@ class _CommentsPageState extends State<CommentsPage> {
                   ),
                   Expanded(
                     child: post.comments.isEmpty
-                        ? Center(
-                            child: Text(
-                              'Aucun commentaire pour le moment.',
-                              style: TextStyle(
-                                color: Colors.grey,
-                                fontSize: 16,
-                              ),
+                        ? const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image(
+                                  image:
+                                      AssetImage('assets/images/friends.png'),
+                                  width: 150,
+                                  opacity: AlwaysStoppedAnimation(.8),
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Aucun commentaire pour le moment',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14),
+                                ),
+                              ],
                             ),
                           )
                         : ListView.builder(

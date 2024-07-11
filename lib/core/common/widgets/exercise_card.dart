@@ -24,7 +24,8 @@ class ExerciseCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
               child: CachedNetworkImage(
-                imageUrl: exercise.photos.first,
+                imageUrl:
+                    exercise.photos.isNotEmpty ? exercise.photos.first : '',
                 height: 120,
                 width: double.infinity, // Make the image take full width
                 fit: BoxFit.cover,
@@ -65,7 +66,6 @@ class ExerciseCard extends StatelessWidget {
                 FaIcon(
                   size: 16,
                   FontAwesomeIcons.fire,
-                  //change the color of the fire icon according to difficulty level
                   color: exercise.difficulty == Difficulty.easy
                       ? Colors.green
                       : exercise.difficulty == Difficulty.medium

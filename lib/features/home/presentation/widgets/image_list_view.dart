@@ -11,7 +11,7 @@ class ImageListWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
       child: SizedBox(
-        height: 250,
+        height: 280,
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           itemCount: imageUrls.length,

@@ -36,3 +36,13 @@ class AddCommentToPostEvent extends HomeEvent {
   @override
   List<Object> get props => [trainingId, text];
 }
+
+class ReportCommentEvent extends HomeEvent {
+  final int commentId;
+  final String reason;
+
+  ReportCommentEvent(this.commentId, this.reason);
+
+  @override
+  List<Object> get props => [commentId, reason];
+}

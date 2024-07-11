@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pulse/core/common/entities/difficulty.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 
@@ -19,6 +20,12 @@ class _ExercicePageState extends State<ExercicePage> {
 
   @override
   Widget build(BuildContext context) {
+    final sequence =
+        widget.exercice.sequence.length > 1 ? "Suite" : "Aléatoire";
+    final nbColor = widget.exercice.sequence.length > 0
+        ? widget.exercice.sequence.length
+        : 3;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -107,33 +114,41 @@ class _ExercicePageState extends State<ExercicePage> {
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           ),
-                          const Row(
+                          Row(
                             children: [
                               FaIcon(
+                                size: 16,
                                 FontAwesomeIcons.fire,
-                                color: Colors.orange,
+                                color: widget.exercice.difficulty ==
+                                        Difficulty.easy
+                                    ? Colors.green
+                                    : widget.exercice.difficulty ==
+                                            Difficulty.medium
+                                        ? Colors.orange
+                                        : Colors.red,
                               ),
                             ],
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 22),
                       Row(
                         children: [
-                          Chip(
-                            label: const Text('Cardio'),
-                            backgroundColor: Colors.grey[800],
-                            labelStyle: const TextStyle(color: Colors.white),
-                          ),
-                          const SizedBox(width: 8),
-                          Chip(
-                            label: const Text('Course'),
-                            backgroundColor: Colors.grey[800],
-                            labelStyle: const TextStyle(color: Colors.white),
+                          Wrap(
+                            spacing: 8.0,
+                            children:
+                                widget.exercice.categories.map((category) {
+                              return Chip(
+                                label: Text(category),
+                                backgroundColor: Colors.grey[800],
+                                labelStyle:
+                                    const TextStyle(color: Colors.white),
+                              );
+                            }).toList(),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 40),
                       const Text(
                         'Détails',
                         style: TextStyle(
@@ -141,39 +156,34 @@ class _ExercicePageState extends State<ExercicePage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 22),
                       Text(
                         widget.exercice.description,
                         style:
                             const TextStyle(fontSize: 14, color: Colors.white),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 40),
                       const Text(
-                        'Informations complémentaires',
+                        'Mise en place',
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _buildInfoCard(
-                              '${widget.exercice.duration}', 'Durée (min)'),
-                          const SizedBox(width: 16),
-                          _buildInfoCard(
-                              '${widget.exercice.caloriesBurned}', 'Calories'),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          _buildInfoCard('${widget.exercice.podCount}', 'Pods'),
-                          const SizedBox(width: 16),
-                          _buildInfoCard('${widget.exercice.laps}', 'Tour'),
-                        ],
+                      const SizedBox(height: 22),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            _buildInfoCard(
+                                '${widget.exercice.playerCount}', 'Joueur'),
+                            const SizedBox(width: 16),
+                            _buildInfoCard('${nbColor}', 'Couleur'),
+                            const SizedBox(width: 16),
+                            _buildInfoCard('$sequence', 'Sequence'),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 60),
                       Center(
@@ -214,7 +224,7 @@ class _ExercicePageState extends State<ExercicePage> {
   Widget _buildInfoCard(String value, String label) {
     return Container(
       width: 120,
-      height: 100,
+      height: 80,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey[900],
@@ -226,13 +236,13 @@ class _ExercicePageState extends State<ExercicePage> {
           Text(
             value,
             style: const TextStyle(
-                fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 14, color: Colors.white),
+            style: const TextStyle(fontSize: 12, color: Colors.white),
           ),
         ],
       ),

@@ -172,14 +172,8 @@ final GoRouter goRouterProvider = GoRouter(
                   routes: [
                     GoRoute(
                       path: 'details/:exerciceIndex',
-                      pageBuilder: (BuildContext context, GoRouterState state) {
-                        /* final exerciceIndex =
-                            int.parse(state.pathParameters['exerciceIndex']!); */
-                        final exercice = state.extra as Exercice;
-                        return DialogPage(
-                          builder: (_) => ExercicePage(exercice: exercice),
-                        );
-                      },
+                      builder: (context, state) =>
+                          ExercicePage(exercice: state.extra as Exercice),
                     ),
                   ],
                 ),
