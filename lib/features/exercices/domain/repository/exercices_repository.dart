@@ -5,5 +5,5 @@ import 'package:pulse/core/error/failures.dart';
 abstract interface class ExercicesRepository {
   Future<Either<Failure, Map<String, List<Exercice?>>>> getExercices();
   Future<Either<Failure, Map<String, List<Exercice?>>>> searchExercices(
-      String searchTerm, String? category);
+      String searchTerm);
 }

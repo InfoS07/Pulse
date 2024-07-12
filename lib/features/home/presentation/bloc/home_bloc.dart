@@ -41,12 +41,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _onLoadPosts(LoadPosts event, Emitter<HomeState> emit) async {
-    emit(HomeLoading());
+    //emit(HomeLoading());
     final res = await _getPosts(NoParams());
 
     res.fold(
       (l) => emit(HomeError(l.message)),
-      (r) => emit(HomeLoaded(r)),
+      (r) {
+        if (r.isEmpty) {
+          emit(HomeEmpty());
+        } else {
+          emit(HomeLoaded(r));
+        }
+      },
     );
   }
 
@@ -57,16 +63,20 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       res.fold(
         (l) => emit(HomeError(l.toString())),
         (_) {
-          final updatedPosts = currentState.posts.map((post) {
-            if (post.id == event.postId) {
-              return post.copyWith(
-                  isLiked: !post.isLiked,
-                  likes: !post.isLiked ? post.likes + 1 : post.likes - 1);
-            }
-            return post;
-          }).toList();
+          if (currentState.posts.isEmpty)
+            return;
+          else {
+            final updatedPosts = currentState.posts.map((post) {
+              if (post!.id == event.postId) {
+                return post.copyWith(
+                    isLiked: !post.isLiked,
+                    likes: !post.isLiked ? post.likes + 1 : post.likes - 1);
+              }
+              return post;
+            }).toList();
 
-          emit(HomeLoaded(updatedPosts));
+            emit(HomeLoaded(updatedPosts));
+          }
         },
       );
     }
@@ -81,8 +91,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       res.fold(
         (l) => emit(HomeError(l.toString())),
         (r) {
+          if (currentState.posts.isEmpty) return;
+
           final updatedPosts = currentState.posts.map((post) {
-            if (post.id == event.trainingId) {
+            if (post!.id == event.trainingId) {
               final updatedComments = List<Comment>.from(post.comments)..add(r);
               return post.copyWith(comments: updatedComments);
             }
@@ -95,15 +107,19 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     }
   }
 
-  void _onDeletePost(DeletePost event, Emitter<HomeState> emit) async {
+  void _onDeletePost(
+    DeletePost event,
+    Emitter<HomeState> emit,
+  ) async {
     final currentState = state;
     if (currentState is HomeLoaded) {
       final res = await _deletePost(DeletePostParams(event.postId));
       res.fold(
         (l) => emit(HomeError(l.toString())),
         (_) {
+          if (currentState.posts.isEmpty) return;
           final updatedPosts = currentState.posts
-              .where((post) => post.id != event.postId)
+              .where((post) => post!.id != event.postId)
               .toList();
           emit(HomeLoaded(updatedPosts));
         },

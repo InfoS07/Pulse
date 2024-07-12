@@ -286,13 +286,15 @@ void _initChallengesUsers() {
     )
     // Usecases
     ..registerFactory(
-      () => GetChallengeUsers(
+      () => GetChallengeUsersUc(
         serviceLocator(),
       ),
     )
     // Bloc
     ..registerLazySingleton(
-      () => ChallengesUsersBloc(remoteDataSource: serviceLocator()),
+      () => ChallengesUsersBloc(
+        getChallengeUsersUc: serviceLocator(),
+      ),
     );
 }
 

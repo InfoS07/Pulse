@@ -138,7 +138,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         children: [
                           if (post != null) ...[
                             UserProfilePostHeader(
-                              profileImageUrl: post!.profileImageUrl,
+                              profileImageUrl: post!.profileImageUrl ??
+                                  'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
                               username: post!.username,
                               timestamp: post!.timestamp,
                               onTap: () {

@@ -6,7 +6,7 @@ import 'package:pulse/core/common/widgets/exercise_card.dart';
 import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
-import 'package:pulse/features/home/presentation/widgets/filter_button.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -16,8 +16,6 @@ class ExercicesPage extends StatefulWidget {
 }
 
 class _ExercicesPageState extends State<ExercicesPage> {
-  String? selectedCategory;
-  final List<String> categories = ['Cardio', 'Force', 'Souplesse', 'Équilibre'];
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -39,9 +37,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
   }
 
   void _onCategorySelected(String? category) {
-    setState(() {
-      selectedCategory = category;
-    });
     _triggerSearch();
   }
 
@@ -51,8 +46,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
 
   void _triggerSearch() {
     final searchTerm = _searchController.text;
-    final category = selectedCategory;
-    context.read<ExercicesBloc>().add(ExercicesSearch(searchTerm, category));
+    context.read<ExercicesBloc>().add(ExercicesSearch(searchTerm));
   }
 
   @override
@@ -84,9 +78,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 builder: (context, state) {
                   if (state is ExercicesLoading) {
                     return RefreshIndicator(
-                      onRefresh: _refreshExercises,
-                      child: _buildShimmerEffect(),
-                    );
+                        onRefresh: _refreshExercises,
+                        child: _buildShimmerEffect() //_buildShimmerEffect(),
+                        );
                   } else if (state is ExercicesLoaded) {
                     return RefreshIndicator(
                       onRefresh: _refreshExercises,
@@ -94,7 +88,23 @@ class _ExercicesPageState extends State<ExercicesPage> {
                           context, state.exercisesByCategory),
                     );
                   } else if (state is ExercicesEmpty) {
-                    return const Center(child: Text('Aucun exercice trouvé.'));
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/search.png'),
+                            width: 150,
+                            opacity: AlwaysStoppedAnimation(.8),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Aucun exercice trouvé',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    );
                   } else if (state is ExercicesError) {
                     return _buildErrorScreen(context, state.message);
                   }
@@ -165,29 +175,81 @@ class _ExercicesPageState extends State<ExercicesPage> {
     return rows;
   }
 
+  List<Widget> _buildExerciseRowsShimmer(List<Exercice?> exercises) {
+    List<Widget> rows = [];
+    for (int i = 0; i < exercises.length; i += 5) {
+      rows.add(
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: exercises
+                .sublist(i, i + 5 > exercises.length ? exercises.length : i + 5)
+                .map((exercise) {
+              if (exercise != null) {
+                return Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: ExerciseCardShimmer(),
+                );
+              }
+              return const SizedBox();
+            }).toList(),
+          ),
+        ),
+      );
+    }
+    return rows;
+  }
+
   Widget _buildShimmerEffect() {
-    final shimmerCategories = categories;
+    final exercisesByCategory = {
+      "test": [
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty()
+      ],
+      "test2": [
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty(),
+        Exercice.empty()
+      ],
+      "test3": [Exercice.empty(), Exercice.empty(), Exercice.empty()]
+    };
 
     return ListView(
-      children: shimmerCategories.map((category) {
+      children: exercisesByCategory.entries.map((category) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                category,
-                style:
-                    const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12),
+              child: Shimmer.fromColors(
+                baseColor: Colors.white,
+                highlightColor: Colors.grey,
+                child: Container(
+                  height: 28,
+                  width: 100,
+                  color: Colors.grey[300],
+                ),
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(5, (index) {
-                  return ExerciseCardShimmer();
-                }),
-              ),
+            const SizedBox(height: 8),
+            Column(
+              children: _buildExerciseRowsShimmer(category.value),
             ),
           ],
         );

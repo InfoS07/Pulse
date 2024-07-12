@@ -95,20 +95,48 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                     }
                   } else if (state is SearchUsersError) {
                     return Center(child: Text(state.message));
-                  } else if (state is SearchUsersEmpty) {
+                  } /* else if (state is SearchUsersEmpty) {
                     return const Center(
-                        child: Image(
-                      image: AssetImage('assets/images/avocado.png'),
-                      width: 150,
-                      opacity: const AlwaysStoppedAnimation(.8),
-                    ));
-                  } else {
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/avocado.png'),
+                            width: 150,
+                            opacity: AlwaysStoppedAnimation(.8),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Rechercher des gens qui pulse, suivez les et partagez vos moments forts avec eux.',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    );
+                  }  */
+                  else {
                     return const Center(
-                        child: Image(
-                      image: AssetImage('assets/images/avocado.png'),
-                      width: 150,
-                      opacity: const AlwaysStoppedAnimation(.8),
-                    ));
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/avocado.png'),
+                            width: 150,
+                            opacity: AlwaysStoppedAnimation(.8),
+                          ),
+                          SizedBox(height: 16),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 30.0),
+                            child: Text(
+                              'Rechercher des gens qui pulse, suivez les et partagez vos séances.',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   }
                 },
               ),

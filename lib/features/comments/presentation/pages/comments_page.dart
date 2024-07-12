@@ -120,13 +120,13 @@ class _CommentsPageState extends State<CommentsPage> {
           builder: (context, state) {
             if (state is HomeLoaded) {
               final post =
-                  state.posts.firstWhere((post) => post.id == widget.postId);
+                  state.posts.firstWhere((post) => post!.id == widget.postId);
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   UserProfilePostContainer(
-                    profileImageUrl: post.profileImageUrl,
+                    profileImageUrl: post!.profileImageUrl,
                     username: post.username,
                     timestamp: post.timestamp,
                     title: post.title,

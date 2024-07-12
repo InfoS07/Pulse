@@ -7,7 +7,6 @@ abstract class ExercicesRemoteDataSource {
   Future<Map<String, List<ExercicesModel?>>> getExercices();
   Future<Map<String, List<ExercicesModel?>>> searchExercices(
     String searchTerm,
-    String? category,
   );
 }
 
@@ -86,9 +85,7 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
 
   @override
   Future<Map<String, List<ExercicesModel?>>> searchExercices(
-    String searchTerm,
-    String? category,
-  ) async {
+      String searchTerm) async {
     try {
       String query = '''
         {

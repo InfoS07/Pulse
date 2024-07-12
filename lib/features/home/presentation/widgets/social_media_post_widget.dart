@@ -1,19 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/action_buttons_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/image_list_view.dart';
-import 'package:pulse/features/home/presentation/widgets/like_comment_count_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/title_description_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/user_profile_post_header.dart';
-import 'package:redacted/redacted.dart';
-import 'package:toasty_box/toast_enums.dart';
-import 'package:toasty_box/toasty_box.dart';
 
 class SocialMediaPostWidget extends StatefulWidget {
   final SocialMediaPost post;
@@ -108,12 +103,6 @@ class EmptySocialMediaPostWidget extends StatelessWidget {
             username: 'Loading...',
             timestamp: DateTime.now().toString(),
             onTap: () {},
-          ).redacted(
-            context: context,
-            redact: true,
-            configuration: RedactedConfiguration(
-              animationDuration: const Duration(milliseconds: 800), //default
-            ),
           ),
           const SizedBox(height: 18),
           TitleDescriptionWidget(
@@ -128,7 +117,9 @@ class EmptySocialMediaPostWidget extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           ImageListWidget(
-            imageUrls: [''],
+            imageUrls: [
+              'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg'
+            ],
           ),
           const SizedBox(height: 18),
           ActionButtonsPostWidget(

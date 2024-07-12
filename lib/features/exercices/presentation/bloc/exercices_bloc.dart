@@ -39,9 +39,8 @@ class ExercicesBloc extends Bloc<ExercicesEvent, ExercicesState> {
     ExercicesSearch event,
     Emitter<ExercicesState> emit,
   ) async {
-    emit(ExercicesLoading());
-    final res = await _searchExercices(
-        SearchExercicesParams(event.searchTerm, event.category));
+    //emit(ExercicesLoading());
+    final res = await _searchExercices(SearchExercicesParams(event.searchTerm));
 
     res.fold(
       (l) => emit(ExercicesError(l.message)),

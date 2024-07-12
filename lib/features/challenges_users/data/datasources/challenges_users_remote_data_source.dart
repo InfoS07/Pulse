@@ -16,7 +16,8 @@ abstract class ChallengesUsersRemoteDataSource {
   Future<void> createChallenge(CreateChallengeUser challengeUser);
 }
 
-class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource {
+class ChallengeUserRemoteDataSourceImpl
+    extends ChallengesUsersRemoteDataSource {
   final SupabaseClient supabaseClient;
 
   ChallengeUserRemoteDataSourceImpl(this.supabaseClient);
@@ -24,39 +25,31 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
   @override
   Future<List<ChallengeUserModel>> getChallengeUsers() async {
     try {
-      final response = await supabaseClient
-          .from('challenges_users')
-          .select();
+      final response = await supabaseClient.from('challenges_users').select();
 
       final challenges = (response as List)
           .map((json) => ChallengeUserModel.fromJson(json))
           .toList();
 
       // Fetch users data
-      final List<dynamic>  userIds = challenges
-          .expand((challenge) => challenge.participants.values.map((participant) => participant.idUser))
+      final List<dynamic> userIds = challenges
+          .expand((challenge) => challenge.participants.values
+              .map((participant) => participant.idUser))
           .toSet()
           .toList();
-      print(userIds);
 
       if (userIds.isNotEmpty) {
-        print("ta mere");
-
         final usersResponse = await supabaseClient
             .from('users')
             .select()
             .inFilter('uid', userIds);
-      
-        print(usersResponse);
 
         final users = (usersResponse as List)
             .map((json) => custom_user.User.fromJson(json))
             .toList();
 
-        // Map userId to User object
         final userMap = {for (var user in users) user.uid: user};
 
-        // Update challenges with user data
         for (var challenge in challenges) {
           challenge.participants.forEach((key, participant) {
             participant.user = userMap[participant.idUser]!;
@@ -96,7 +89,8 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
           .single();
 
       if (response != null) {
-        final Map<String, dynamic> participants = Map<String, dynamic>.from(response['participants']);
+        final Map<String, dynamic> participants =
+            Map<String, dynamic>.from(response['participants']);
 
         // Find the first available ID
         int newParticipantId = 1;
@@ -105,12 +99,14 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
         }
 
         // Add the user to participants with the new ID
-        participants[newParticipantId.toString()] = {'score': 0, 'idUser': userId};
+        participants[newParticipantId.toString()] = {
+          'score': 0,
+          'idUser': userId
+        };
 
         await supabaseClient
             .from('challenges_users')
-            .update({'participants': participants})
-            .eq('id', challengeId);
+            .update({'participants': participants}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
       throw ServerException("Error joining challenge");
@@ -129,13 +125,13 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
           .single();
 
       if (response != null) {
-        final Map<String, dynamic> participants = Map<String, dynamic>.from(response['participants']);
+        final Map<String, dynamic> participants =
+            Map<String, dynamic>.from(response['participants']);
         participants.removeWhere((key, value) => value['idUser'] == userId);
 
         await supabaseClient
             .from('challenges_users')
-            .update({'participants': participants})
-            .eq('id', challengeId);
+            .update({'participants': participants}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
@@ -144,7 +140,7 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
     }
   }
 
-    @override
+  @override
   Future<void> createChallenge(CreateChallengeUser challengeUser) async {
     try {
       // Convert challengeUser model to JSON
@@ -152,9 +148,8 @@ class ChallengeUserRemoteDataSourceImpl extends ChallengesUsersRemoteDataSource 
 
       // Send POST request to create challenge user
       print(json);
-      var response = await supabaseClient
-          .from('challenges_users')
-          .insert([json]);
+      var response =
+          await supabaseClient.from('challenges_users').insert([json]);
       print(response);
     } on PostgrestException catch (e) {
       throw ServerException("Error creating challenge");

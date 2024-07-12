@@ -94,13 +94,10 @@ class _GroupPageState extends State<GroupPage> {
                 child: BlocBuilder<ChallengesBloc, ChallengesState>(
                   builder: (context, state) {
                     if (state is ChallengesLoading) {
-                      print("Loading");
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is ChallengesError) {
-                      print("Error");
                       return Center(child: Text('Error: ${state.message}'));
                     } else if (state is ChallengesSuccess) {
-                      print("Success");
                       List<ChallengesModel?> allChallenges =
                           _mapChallenges(state.challenges, false);
 

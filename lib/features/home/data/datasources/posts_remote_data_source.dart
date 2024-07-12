@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 
 abstract class PostsRemoteDataSource {
-  Future<List<SocialMediaPost>> getPosts();
+  Future<List<SocialMediaPost?>> getPosts();
   Future<Unit> likePost(int postId);
   Future<Unit> deletePost(int postId);
 }
@@ -24,7 +24,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
   PostsRemoteDataSourceImpl(this.supabaseClient, this.graphQLService);
 
   @override
-  Future<List<SocialMediaPost>> getPosts() async {
+  Future<List<SocialMediaPost?>> getPosts() async {
     try {
       const String query = '''
         {
@@ -93,13 +93,24 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         ),
       );
 
+      print(result);
       if (result.hasException) {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
-      final postsData = result.data?["trainings"] as List<dynamic>;
+      if (result.data == null) {
+        throw pulse_exceptions.ServerException("No data found");
+      }
 
-      var data = postsData.map<Future<SocialMediaPostModel>>((post) async {
+      if (result.data!.isEmpty) {
+        return [];
+      }
+
+      print(result);
+
+      final postsData = result.data!["trainings"] as List<dynamic>;
+
+      var data = postsData.map((post) {
         final isLiked = post['likes'].any((like) =>
             like['user']['uid'] == supabaseClient.auth.currentUser!.id);
 
@@ -108,7 +119,7 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         return SocialMediaPostModel.fromJson(post);
       }).toList();
 
-      return await Future.wait(data);
+      return data;
     } catch (e) {
       throw pulse_exceptions.ServerException(e.toString());
     }

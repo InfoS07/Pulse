@@ -12,13 +12,15 @@ class HomeInitial extends HomeState {}
 class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
-  final List<SocialMediaPost> posts;
+  final List<SocialMediaPost?> posts;
 
   const HomeLoaded(this.posts);
 
   @override
   List<Object> get props => [posts];
 }
+
+class HomeEmpty extends HomeState {}
 
 class HomeError extends HomeState {
   final String message;

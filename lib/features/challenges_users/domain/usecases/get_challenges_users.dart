@@ -8,13 +8,15 @@ import 'package:pulse/features/challenges_users/domain/models/challenges_users_m
 import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
 import 'package:pulse/features/exercices/domain/repository/exercices_repository.dart';
 
-class GetChallengeUsers implements UseCase<List<ChallengeUserModel>, NoParams> {
+class GetChallengeUsersUc
+    implements UseCase<List<ChallengeUserModel?>, NoParams> {
   final ChallengeUserRepository repository;
 
-  GetChallengeUsers(this.repository);
+  GetChallengeUsersUc(this.repository);
 
   @override
-  Future<Either<Failure, List<ChallengeUserModel>>> call(NoParams params) async {
+  Future<Either<Failure, List<ChallengeUserModel?>>> call(
+      NoParams params) async {
     return await repository.getChallengeUsers();
   }
 }
