@@ -307,8 +307,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     return PostListItem(
                       post: post,
                       onTap: () {
-                        context.go('/profil/entrainements/details/$index',
-                            extra: post);
+                        context.push('/home/details/$index', extra: post);
                       },
                     );
                   }),

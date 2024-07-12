@@ -69,8 +69,7 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
                   return PostListItem(
                     post: post!,
                     onTap: () {
-                      context.go('/profil/entrainements/details/$index',
-                          extra: post);
+                      context.go('/home/details/$index', extra: post);
                     },
                   );
                 },

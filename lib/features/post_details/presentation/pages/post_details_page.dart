@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/action_buttons_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/image_list_view.dart';
-import 'package:pulse/features/home/presentation/widgets/like_comment_count_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/title_description_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/user_profile_post_header.dart';
-import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:toasty_box/toast_enums.dart';
 import 'package:toasty_box/toasty_box.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 
 class PostDetailsPage extends StatefulWidget {
   final int postId;
@@ -75,6 +75,130 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     }
   }
 
+  void _showCreateChallengeUserDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final _formKey = GlobalKey<FormState>();
+        String challengeName = '';
+        String description = '';
+        DateTime endDate =
+            DateTime.now(); // Implement date picker or use a predefined date
+        String type = 'Répétitions'; // Example, modify based on user input
+        List<String> invites = [userId!]; // Example, modify based on user input
+
+        return AlertDialog(
+          title: Text('Créer un Défi Utilisateur'),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Nom du Défi'),
+                  onSaved: (value) => challengeName = value ?? '',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer un nom pour le défi';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Description'),
+                  onSaved: (value) => description = value ?? '',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer une description';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Date de fin'),
+                  readOnly: true,
+                  controller: TextEditingController(
+                    text: DateFormat('dd/MM/yyyy').format(endDate),
+                  ),
+                  onTap: () async {
+                    final pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: endDate,
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100),
+                    );
+                    if (pickedDate != null && pickedDate != endDate) {
+                      setState(() {
+                        endDate = pickedDate;
+                      });
+                    }
+                  },
+                  validator: (value) {
+                    // Implement validation if needed
+                    return null;
+                  },
+                ),
+                DropdownButtonFormField<String>(
+                  value: type,
+                  onChanged: (newValue) {
+                    setState(() {
+                      type = newValue!;
+                    });
+                  },
+                  items: ['Répétitions', 'Durée'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(labelText: 'Type'),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Annuler'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                'Créer',
+                style: TextStyle(color: Colors.black, fontSize: 14),
+              ),
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  _formKey.currentState!.save();
+                  // Dispatch an event to create the challenge user
+                  context.read<ChallengesUsersBloc>().add(CreateChallengeEvent(
+                        challengeName: challengeName,
+                        description: description,
+                        endDate: endDate,
+                        trainingId:
+                            post!.exercice.id, // Modify based on your data
+                        authorId: userId!,
+                        type: type,
+                        invites: invites,
+                        createdAt: DateTime.now(),
+                        participant: {
+                          '1': {'score': 0, 'idUser': userId}
+                        },
+                      ));
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+            SizedBox(
+              width: 25,
+            )
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,9 +249,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
 
             return CustomScrollView(
               slivers: [
-                //
-                //const SizedBox(height: 18),
-                //_buildAnalysisSection(),
                 SliverToBoxAdapter(
                   child: Container(
                     color: AppPallete.backgroundColorDarker,
@@ -196,13 +317,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                                 ),
                               ],
                             ),
-
-                            const SizedBox(height: 18),
-                            /* LikeCommentCountWidget(
-                              likeCount: post!.likes,
-                              commentCount: post!.comments.length,
-                            ),
-                            const SizedBox(height: 18), */
+                            const SizedBox(height: 20),
                             ActionButtonsPostWidget(
                               isLiked: post!.isLiked,
                               likeCount: post!.likes,
@@ -214,7 +329,33 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                                     extra: post);
                               },
                             ),
-                            // fl chart line chart
+                            const SizedBox(height: 40),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: SizedBox(
+                                width: double
+                                    .infinity, // Button takes the full width
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _showCreateChallengeUserDialog(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppPallete.primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                  ),
+                                  child: Text(
+                                    'Créer un défi',
+                                    style: TextStyle(
+                                        color: Colors.black, fontSize: 14),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ] else ...[
                             const Center(child: Text('Post not found')),
                           ],
@@ -304,7 +445,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     isCurved: true,
                     color: AppPallete.thirdColor,
                     barWidth: 2,
-                    //belowBarData: BarAreaData(show: false),
                     belowBarData: BarAreaData(
                       show: true,
                       gradient: LinearGradient(
