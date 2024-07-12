@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/bottom_sheet.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class ChallengeUserPage extends StatefulWidget {
   @override
@@ -17,6 +19,8 @@ class ChallengeUserPage extends StatefulWidget {
 class _ChallengeUserPageState extends State<ChallengeUserPage> {
   String? userId;
   BuildContext? bottomSheetContext;
+  List<Profil> followers = [];
+  List<Profil> followings = [];
 
   @override
   void initState() {
@@ -26,18 +30,20 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       userId = authState.user.uid;
       context.read<ChallengesUsersBloc>().add(ChallengesUsersGetChallenges());
       context.read<ExercicesBloc>().add(ExercicesLoad());
+      context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
   }
 
   Future<void> _refreshChallengesUsers() async {
     context.read<ChallengesUsersBloc>().add(ChallengesUsersGetChallenges());
     context.read<ExercicesBloc>().add(ExercicesLoad());
+    context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
   }
 
   @override
   Widget build(BuildContext context) {
     return userId == null
-        ? const Center(child: CircularProgressIndicator())
+        ? Center(child: CircularProgressIndicator())
         : MultiBlocListener(
             listeners: [
               BlocListener<ChallengesUsersBloc, ChallengesUsersState>(
@@ -58,11 +64,25 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   }
                 },
               ),
+              BlocListener<ProfilBloc, ProfilState>(
+                listener: (context, state) {
+                  if (state is ProfilSuccess) {
+                    followers = state.followers;
+                    followings = state.followings;
+                    setState(() {});
+                    // Appeler setState ici pour mettre à jour les variables d'état si nécessaire
+                  } else if (state is ProfilFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: ${state.message}')),
+                    );
+                  }
+                },
+              ),
             ],
             child: BlocBuilder<ChallengesUsersBloc, ChallengesUsersState>(
               builder: (context, state) {
                 if (state is ChallengesUsersLoading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 } else if (state is ChallengesUsersSuccess) {
                   final filteredChallenges =
                       state.challenges.where((challengeUser) {
@@ -71,184 +91,39 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
                   return RefreshIndicator(
                     onRefresh: _refreshChallengesUsers,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildHeaderSection(),
-                        filteredChallenges.isEmpty
-                            ? _buildErrorScreen(context, 'No challenge users')
-                            : Expanded(
-                                child: GridView.builder(
-                                  padding: const EdgeInsets.all(16.0),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 2,
-                                    crossAxisSpacing: 16,
-                                    mainAxisSpacing: 16,
-                                    childAspectRatio: 0.7,
-                                  ),
-                                  itemCount: filteredChallenges.length,
-                                  itemBuilder: (context, index) {
-                                    final challengeUser =
-                                        filteredChallenges[index];
-                                    return _buildChallengeUserCard(
-                                        context, challengeUser!);
-                                  },
-                                ),
-                              ),
-                      ],
-                    ),
+                    child: filteredChallenges.isEmpty
+                        ? Center(child: Text('No challenge users'))
+                        : GridView.builder(
+                            padding: const EdgeInsets.all(16.0),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.7,
+                            ),
+                            itemCount: filteredChallenges.length,
+                            itemBuilder: (context, index) {
+                              final challengeUser = filteredChallenges[index];
+                              return _buildChallengeUserCard(context,
+                                  challengeUser!, followers, followings);
+                            },
+                          ),
                   );
                 } else if (state is ChallengesUsersError) {
-                  return const Center(
-                      child: Text('Failed to fetch challenge users'));
-                } else if (state is ChallengesUsersEmpty) {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image(
-                          image: AssetImage('assets/images/friends.png'),
-                          width: 150,
-                          opacity: AlwaysStoppedAnimation(.8),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'No challenges for now',
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image(
-                          image: AssetImage('assets/images/friends.png'),
-                          width: 150,
-                          opacity: AlwaysStoppedAnimation(.8),
-                        ),
-                        SizedBox(height: 16),
-                        Text(
-                          'Aucun défis pour le moment',
-                          style: TextStyle(color: Colors.grey, fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  );
+                  return Center(child: Text('Failed to fetch challenge users'));
                 }
+                return Center(child: Text('No challenge users'));
               },
             ),
           );
   }
 
-  Widget _buildHeaderSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          color: AppPallete.backgroundColorDarker,
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Défis entre amis',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Vous avez fait une belle performance ?',
-                style: TextStyle(fontSize: 14, color: Colors.white),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Sélectionnez un entraîneemnt. Transformez le en défis, invitez vos amis et montrez-leur de quoi vous êtes capable !',
-                style: TextStyle(fontSize: 14, color: Colors.white),
-              ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity, // Button takes the full width
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppPallete.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  child: Text(
-                    'Créer un défi',
-                    style: TextStyle(color: Colors.black, fontSize: 14),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          'Challenges disponibles',
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildErrorScreen(BuildContext context, String message) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text(
-            'Impossible de charger cette page.',
-            style: TextStyle(
-                color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              _refreshChallengesUsers();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppPallete.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.refresh, color: Colors.black),
-                SizedBox(width: 8),
-                Text(
-                  'Réessayer',
-                  style: TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildChallengeUserCard(
-      BuildContext context, ChallengeUserModel challengeUser) {
+      BuildContext context,
+      ChallengeUserModel challengeUser,
+      List<Profil> followers,
+      List<Profil> followings) {
     final isParticipant = challengeUser.participants.values
         .any((participant) => participant.idUser == userId);
     final isAchiever = isParticipant &&
@@ -303,8 +178,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
-              const SizedBox(height: 16),
-              if (isAuthor)
+              SizedBox(height: 16),
+              if (isAuthor) ...[
                 ElevatedButton(
                   onPressed: () =>
                       _showDeleteConfirmationDialog(context, challengeUser),
@@ -320,8 +195,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     'Supprimer',
                     style: TextStyle(color: Colors.white, fontSize: 14),
                   ),
-                )
-              else
+                ),
+              ] else
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -375,6 +250,26 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                             }
                           }
                           return Container();
+                        },
+                      ),
+                      BlocBuilder<ExercicesBloc, ExercicesState>(
+                        builder: (context, state) {
+                          if (state is ExercicesLoaded) {
+                            final exercise = _findExercise(
+                                state.exercisesByCategory,
+                                challengeUser.trainingId);
+                            if (exercise != null) {
+                              return IconButton(
+                                onPressed: () {
+                                  context.push('/activity', extra: exercise);
+                                },
+                                icon: Icon(Icons.play_arrow,
+                                    color: AppPallete.primaryColor),
+                                padding: EdgeInsets.all(16.0),
+                              );
+                            }
+                          }
+                          return Container(); // Return an empty container if the exercise is not found
                         },
                       ),
                     ],
@@ -495,6 +390,26 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
+                SizedBox(
+                  height: 8,
+                ),
+                ElevatedButton(
+                  onPressed: () => _showAddFriendsDialog(
+                      context, challengeUser, followers, followings),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppPallete.secondaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupe toute la largeur
+                  ),
+                  child: Text(
+                    'Ajouter des amis',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                ),
               ] else if (isParticipant && !isAchiever) ...[
                 BlocBuilder<ExercicesBloc, ExercicesState>(
                   builder: (context, state) {
@@ -511,8 +426,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: const Size(double.infinity, 0),
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            minimumSize: Size(
+                                double.infinity, 0), // Occupe toute la largeur
                           ),
                           child: const Text(
                             'Lancer',
@@ -538,8 +454,9 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize: const Size(double.infinity, 0),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    minimumSize:
+                        Size(double.infinity, 0), // Occupe toute la largeur
                   ),
                   child: const Text(
                     'Accepter',
@@ -588,6 +505,85 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       },
     );
   }
+
+  void _showAddFriendsDialog(
+      BuildContext context,
+      ChallengeUserModel challengeUser,
+      List<Profil> followers,
+      List<Profil> followings) {
+    final mutualFollowers = _getMutualFollowers(followers, followings);
+    final invitedFriends = challengeUser.invites
+        .toSet(); // Supposons que `invites` est une liste des IDs des amis invités
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final _formKey = GlobalKey<FormState>();
+        final selectedFriends = <String>{};
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Ajouter des amis au challenge'),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: mutualFollowers.map((friend) {
+                    final isAlreadyInvited =
+                        invitedFriends.contains(friend.uid);
+                    return CheckboxListTile(
+                      title: Text(
+                        '${friend.firstName} ${friend.lastName}',
+                        style: TextStyle(
+                            color:
+                                isAlreadyInvited ? Colors.grey : Colors.white),
+                      ),
+                      value: selectedFriends.contains(friend.uid),
+                      onChanged: isAlreadyInvited
+                          ? null
+                          : (bool? value) {
+                              setState(() {
+                                if (value == true) {
+                                  selectedFriends.add(friend.uid);
+                                } else {
+                                  selectedFriends.remove(friend.uid);
+                                }
+                              });
+                            },
+                    );
+                  }).toList(),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Annuler'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      if (bottomSheetContext != null) {
+                        Navigator.of(bottomSheetContext!)
+                            .pop(); // Ferme la bottom sheet
+                      }
+                      context.read<ChallengesUsersBloc>().add(
+                          AddInvitesToChallengeEvent(
+                              challengeUser.id, selectedFriends.toList()));
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: Text('Ajouter'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
 class BottomSheetUtilUser {
@@ -614,4 +610,10 @@ Exercice? _findExercise(
     }
   }
   return null;
+}
+
+List<Profil> _getMutualFollowers(
+    List<Profil> followers, List<Profil> followings) {
+  final followingsSet = followings.map((p) => p.uid).toSet();
+  return followers.where((f) => followingsSet.contains(f.uid)).toList();
 }

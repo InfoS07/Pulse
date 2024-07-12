@@ -29,6 +29,7 @@ class ChallengesUsersBloc
     on<QuitChallengeEvent>(_onQuitChallenge);
     on<DeleteChallengeEvent>(_onDeleteChallenge);
     on<CreateChallengeEvent>(_onCreateChallenge);
+    on<AddInvitesToChallengeEvent>(_onAddInvitesToChallenge);
   }
 
   void _onGetChallengesUsers(
@@ -104,6 +105,17 @@ class ChallengesUsersBloc
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("Erreur lors de la création du défi"));
+    }
+  }
+
+  Future<void> _onAddInvitesToChallenge(AddInvitesToChallengeEvent event,
+      Emitter<ChallengesUsersState> emit) async {
+    try {
+      /* await remoteDataSource.addInvitesToChallenge(
+          event.challengeId, event.userIds); */
+      add(ChallengesUsersGetChallenges());
+    } catch (_) {
+      emit(ChallengesUsersError("Erreur lors de l'ajout des invitations"));
     }
   }
 }
