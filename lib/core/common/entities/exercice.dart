@@ -3,21 +3,23 @@ class Exercice {
   final String title;
   final String description;
   final List<String> photos;
+  final List<String> categories;
   final int duration;
-  List<int> sequence = [1, 2, 3, 4, 5];
+  List<int> sequence = [1, 2, 3, 4];
   int repetitions = 3;
   int podCount = 0;
   int playerCount = 0;
   int durationOneRepetition = 0;
   int caloriesBurned = 0;
   double score = 0.0;
-  String level = "Nul";
+  String difficulty = "Facile";
   int laps = 0;
 
   Exercice(
       {required this.id,
       required this.title,
       required this.photos,
+      required this.categories,
       required this.description,
       required this.duration,
       required this.sequence,
@@ -27,7 +29,7 @@ class Exercice {
       required this.durationOneRepetition,
       required this.caloriesBurned,
       required this.score,
-      required this.level,
+      required this.difficulty,
       required this.laps});
 
   static Exercice empty() {
@@ -35,6 +37,7 @@ class Exercice {
       id: 0,
       title: '',
       photos: [''],
+      categories: [''],
       description: '',
       duration: 0,
       sequence: [],
@@ -44,7 +47,7 @@ class Exercice {
       durationOneRepetition: 0,
       caloriesBurned: 0,
       score: 0.0,
-      level: '',
+      difficulty: 'Facile',
       laps: 0,
     );
   }

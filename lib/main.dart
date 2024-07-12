@@ -49,7 +49,9 @@ void main() async {
               BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>()),
               BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>()),
               BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ChallengesUsersBloc>())
+              BlocProvider(
+                  create: (_) => serviceLocator<ChallengesUsersBloc>()),
+              BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>())
             ],
             child: const MyApp(),
           )));

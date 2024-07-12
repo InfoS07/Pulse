@@ -47,6 +47,12 @@ class _ProfilFollowPageState extends State<ProfilFollowPage> {
             },
           ),
           bottom: const TabBar(
+            indicatorColor: AppPallete.primaryColor,
+            indicatorWeight: 3.0,
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerColor: Colors.transparent,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey,
             tabs: [
               Tab(text: 'Abonnés'),
               Tab(text: 'Abonnement'),
@@ -175,7 +181,7 @@ class _FollowItemState extends State<FollowItem> {
                 ),
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) => const Icon(Icons.person),
               ),
             ),
             const SizedBox(width: 16),

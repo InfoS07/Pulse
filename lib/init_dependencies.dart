@@ -38,6 +38,7 @@ import 'package:pulse/features/comments/data/repositories/comments_repository_im
 import 'package:pulse/features/comments/domain/repository/comments_repository.dart';
 import 'package:pulse/features/comments/domain/usecases/add_comment_uc.dart';
 import 'package:pulse/features/comments/domain/usecases/get_comments_uc.dart';
+import 'package:pulse/features/comments/domain/usecases/report_comment_uc.dart';
 import 'package:pulse/features/comments/presentation/bloc/comment_bloc.dart';
 import 'package:pulse/features/exercices/data/datasources/exercices_remote_data_source.dart';
 import 'package:pulse/features/exercices/data/repositories/exercices_repository_impl.dart';

@@ -19,10 +19,7 @@ class SearchUsersPage extends StatelessWidget {
           },
         ),
       ),
-      body: BlocProvider(
-        create: (_) => serviceLocator<SearchUsersBloc>(),
-        child: SearchUsersView(),
-      ),
+      body: SearchUsersView(),
     );
   }
 }
@@ -53,7 +50,7 @@ class _SearchUsersViewState extends State<SearchUsersView> {
               onCancel: () {
                 context
                     .read<SearchUsersBloc>()
-                    .add(SearchUsersQueryChanged(query: ''));
+                    .add(const SearchUsersQueryChanged(query: ''));
               },
             ),
           ),
@@ -62,11 +59,29 @@ class _SearchUsersViewState extends State<SearchUsersView> {
               //color: Colors.grey[900],
               child: BlocBuilder<SearchUsersBloc, SearchUsersState>(
                 builder: (context, state) {
-                  if (state is SearchUsersLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (state is SearchUsersLoaded) {
+                  /*  if (state is SearchUsersLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else */
+                  if (state is SearchUsersLoaded) {
                     if (state.profils.isEmpty) {
-                      return Center(child: Text('Aucun utilisateur trouvé'));
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image(
+                              image: AssetImage('assets/images/search.png'),
+                              width: 150,
+                              opacity: AlwaysStoppedAnimation(.8),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              'Aucun utilisateur trouvé',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      );
                     } else {
                       return ListView.builder(
                         itemCount: state.profils.length,
@@ -80,8 +95,48 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                     }
                   } else if (state is SearchUsersError) {
                     return Center(child: Text(state.message));
-                  } else {
-                    return Center(child: Text('Vous êtes seul :('));
+                  } /* else if (state is SearchUsersEmpty) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/avocado.png'),
+                            width: 150,
+                            opacity: AlwaysStoppedAnimation(.8),
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'Rechercher des gens qui pulse, suivez les et partagez vos moments forts avec eux.',
+                            style: TextStyle(color: Colors.grey, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    );
+                  }  */
+                  else {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/avocado.png'),
+                            width: 150,
+                            opacity: AlwaysStoppedAnimation(.8),
+                          ),
+                          SizedBox(height: 16),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 30.0),
+                            child: Text(
+                              'Rechercher des gens qui pulse, suivez les et partagez vos séances.',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
                   }
                 },
               ),

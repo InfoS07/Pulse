@@ -24,7 +24,6 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
     try {
       final response = await supabaseClient.from('challenges').select();
       final List<dynamic> data = response;
-      print(data);
       return ChallengesModel.fromJsonList(data);
     } on PostgrestException catch (e) {
       throw ServerException();

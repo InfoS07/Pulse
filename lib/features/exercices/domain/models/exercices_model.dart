@@ -5,6 +5,7 @@ class ExercicesModel extends Exercice {
     required super.id,
     required super.title,
     required super.photos,
+    required super.categories,
     required super.description,
     required super.duration,
     required super.sequence,
@@ -14,7 +15,7 @@ class ExercicesModel extends Exercice {
     required super.durationOneRepetition,
     required super.caloriesBurned,
     required super.score,
-    required super.level,
+    required super.difficulty,
     required super.laps,
   });
 
@@ -25,6 +26,10 @@ class ExercicesModel extends Exercice {
           : int.tryParse(map['id'].toString()) ?? 0,
       title: map['title'] ?? '',
       photos: (map['photos'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
+      categories: (map['categories'] as List<dynamic>?)
               ?.map((item) => item as String)
               .toList() ??
           [],
@@ -40,7 +45,7 @@ class ExercicesModel extends Exercice {
       durationOneRepetition: map['duration_one_repetition'] ?? 0,
       caloriesBurned: map['calories_burned'] ?? 0,
       score: map['score'] ?? 0.0,
-      level: map['level'] ?? '',
+      difficulty: map['difficulty'] ?? '',
       laps: map['laps'] ?? 0,
     );
   }
@@ -49,6 +54,7 @@ class ExercicesModel extends Exercice {
     int? id,
     String? title,
     List<String>? photos,
+    List<String>? categories,
     String? description,
     int? duration,
   }) {
@@ -56,6 +62,7 @@ class ExercicesModel extends Exercice {
       id: id ?? this.id,
       title: title ?? this.title,
       photos: photos ?? this.photos,
+      categories: categories ?? this.categories,
       description: description ?? this.description,
       duration: duration ?? this.duration,
       sequence: sequence,
@@ -65,7 +72,7 @@ class ExercicesModel extends Exercice {
       durationOneRepetition: durationOneRepetition,
       caloriesBurned: caloriesBurned,
       score: score,
-      level: level,
+      difficulty: difficulty,
       laps: laps,
     );
   }

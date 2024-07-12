@@ -9,7 +9,7 @@ abstract class CommentsRemoteDataSource {
   Future<List<Comment?>> getComments();
   Future<Comment> addComment(int trainingId, AddComment addComment);
   //Future<void> addComment(String username, String picUrl, String message, String date);
-  //Future<void> reportComment(int commentIndex);
+  Future<void> reportComment(int commentIndex, String reportReason);
 }
 
 class CommentsRemoteDataSourceImpl extends CommentsRemoteDataSource {
@@ -42,8 +42,6 @@ class CommentsRemoteDataSourceImpl extends CommentsRemoteDataSource {
         'content': addComment.text
       }).select('*, user:users(*)');
 
-      print(response);
-
       /* if (response.error != null) {
         throw ServerException(response.error!.message);
       } */
@@ -51,6 +49,21 @@ class CommentsRemoteDataSourceImpl extends CommentsRemoteDataSource {
       final unit = CommentModel.fromJson(response.first);
 
       return unit;
+    } on PostgrestException catch (e) {
+      throw ServerException(e.message);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> reportComment(int commentIndex, String reportReason) async {
+    try {
+      final response = await supabaseClient.from('comment_reports').insert({
+        'comment_id': commentIndex,
+        'reason': reportReason,
+        "user_id": supabaseClient.auth.currentSession?.user.id
+      });
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {

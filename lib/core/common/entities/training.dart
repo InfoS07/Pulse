@@ -6,7 +6,6 @@ class Training extends Equatable {
   final int id;
   final String title;
   final String description;
-  final List comments;
   final Activity activity;
   final List<XFile> photos;
 
@@ -14,20 +13,18 @@ class Training extends Equatable {
     required this.id,
     required this.title,
     required this.description,
-    required this.comments,
     required this.activity,
     required this.photos,
   });
 
   @override
-  List<Object?> get props => [id, title, description, comments, activity];
+  List<Object?> get props => [id, title, description, activity];
 
   static Training empty(activity) {
     return Training(
       id: 0,
       title: '',
       description: '',
-      comments: const [],
       activity: activity,
       photos: const [],
     );
@@ -38,7 +35,6 @@ class Training extends Equatable {
       'id': id,
       "title": description,
       'description': description,
-      'comments': comments,
     };
   }
 }

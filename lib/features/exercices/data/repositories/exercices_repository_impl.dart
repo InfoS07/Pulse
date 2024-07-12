@@ -31,10 +31,9 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
 
   @override
   Future<Either<Failure, Map<String, List<Exercice?>>>> searchExercices(
-      String searchTerm, String? category) async {
+      String searchTerm) async {
     return _getExercices(
-      () async =>
-          await exercicesDataSource.searchExercices(searchTerm, category),
+      () async => await exercicesDataSource.searchExercices(searchTerm),
     );
   }
 }

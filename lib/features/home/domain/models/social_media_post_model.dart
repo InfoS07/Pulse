@@ -1,6 +1,8 @@
+import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/features/comments/domain/models/comment_model.dart';
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
+import 'package:pulse/features/home/domain/models/activity_stats_model.dart';
 
 class SocialMediaPostModel extends SocialMediaPost {
   SocialMediaPostModel({
@@ -18,6 +20,8 @@ class SocialMediaPostModel extends SocialMediaPost {
     required super.comments,
     required super.isLiked,
     required super.exercice,
+    required super.repetitions,
+    required super.stats,
   });
 
   factory SocialMediaPostModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +48,11 @@ class SocialMediaPostModel extends SocialMediaPost {
       exercice: ExercicesModel.fromJson(json['exercise']),
       startAt: DateTime.parse(json['start_at']),
       endAt: DateTime.parse(json['end_at']),
+      repetitions: json['repetitions'] ?? 0,
+      stats: (json['stats'] as List<dynamic>?)
+              ?.map((item) => ActivityStatsModel.fromJson(item))
+              .toList() ??
+          [],
     );
   }
 

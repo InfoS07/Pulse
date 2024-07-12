@@ -1,13 +1,5 @@
 part of 'activity_bloc.dart';
 
-/* 
-@immutable
-sealed class ActivityEvent {}
-
-final class ActivityLoad extends ActivityEvent {}
-
-import 'package:equatable/equatable.dart';
-import 'package:pulse/core/common/entities/activity.dart'; */
 abstract class ActivityEvent extends Equatable {
   const ActivityEvent();
 
@@ -25,20 +17,25 @@ class StartActivity extends ActivityEvent {
 }
 
 class UpdateActivity extends ActivityEvent {
-  final int caloriesBurned;
-  final int touches;
-  final int misses;
-  final Duration timeElapsed;
+  final int? caloriesBurned;
+  final int? touches;
+  final int? misses;
+  final Duration? timeElapsed;
+  final int? reactionTime;
+  final String? buzzerExpected;
+  final String? buzzerPressed;
+  final DateTime? pressedAt;
 
   const UpdateActivity({
-    required this.caloriesBurned,
-    required this.touches,
-    required this.misses,
-    required this.timeElapsed,
+    this.caloriesBurned,
+    this.touches,
+    this.misses,
+    this.timeElapsed,
+    this.reactionTime,
+    this.buzzerExpected,
+    this.buzzerPressed,
+    this.pressedAt,
   });
-
-  @override
-  List<Object> get props => [caloriesBurned, touches, misses, timeElapsed];
 }
 
 class StopActivity extends ActivityEvent {

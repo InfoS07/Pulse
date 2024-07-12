@@ -54,11 +54,10 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
           if (state is HomeLoading) {
             return const Loader();
           } else if (state is HomeLoaded) {
-            // Filtrer les posts par l'ID de l'auteur
-            print(userId.toString());
-            //print(state.posts);
+            if (state.posts.isEmpty) return const SizedBox();
+
             final userPosts =
-                state.posts.where((post) => post.userUid == userId).toList();
+                state.posts.where((post) => post!.userUid == userId).toList();
 
             return RefreshIndicator(
               onRefresh: _refreshPosts,
@@ -68,10 +67,9 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
                 itemBuilder: (context, index) {
                   final post = userPosts[index];
                   return PostListItem(
-                    post: post,
+                    post: post!,
                     onTap: () {
-                      context.go('/profil/entrainements/details/$index',
-                          extra: post);
+                      context.go('/home/details/$index', extra: post);
                     },
                   );
                 },

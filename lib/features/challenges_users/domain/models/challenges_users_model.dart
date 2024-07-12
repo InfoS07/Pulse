@@ -32,9 +32,10 @@ class ChallengeUserModel {
   factory ChallengeUserModel.fromJson(Map<String, dynamic> json) {
     final participantsJson = json['participants'] as Map<String, dynamic>;
     final participants = participantsJson.map(
-      (key, value) => MapEntry(key, Participant.fromJson(value as Map<String, dynamic>)),
+      (key, value) =>
+          MapEntry(key, Participant.fromJson(value as Map<String, dynamic>)),
     );
-    
+
     // Initialize participantsDetails from participants data
     final participantsDetails = participants.values.map((participant) {
       final user = User(
@@ -43,8 +44,10 @@ class ChallengeUserModel {
         lastName: '', // Add these fields if available in your database
         firstName: '', // Add these fields if available in your database
         username: '', // Add these fields if available in your database
-        birthDate: DateTime.now(), // Add these fields if available in your database
+        birthDate:
+            DateTime.now(), // Add these fields if available in your database
         urlProfilePhoto: '', // Add these fields if available in your database
+        points: 0, // Add these fields if available in your database
       );
       return user;
     }).toList();
@@ -66,8 +69,9 @@ class ChallengeUserModel {
   }
 
   Map<String, dynamic> toJson() {
-    final participantsJson = participants.map((key, value) => MapEntry(key, value.toJson()));
-    
+    final participantsJson =
+        participants.map((key, value) => MapEntry(key, value.toJson()));
+
     return {
       'id': id,
       'name': name,

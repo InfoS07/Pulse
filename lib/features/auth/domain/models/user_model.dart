@@ -1,15 +1,15 @@
 import 'package:pulse/core/common/entities/user.dart';
 
 class UserModel extends User {
-  UserModel({
-    required super.uid,
-    required super.email,
-    required super.lastName,
-    required super.firstName,
-    required super.username,
-    required super.birthDate,
-    required super.urlProfilePhoto,
-  });
+  UserModel(
+      {required super.uid,
+      required super.email,
+      required super.lastName,
+      required super.firstName,
+      required super.username,
+      required super.birthDate,
+      required super.urlProfilePhoto,
+      required super.points});
 
   factory UserModel.fromJson(Map<String, dynamic> map) {
     return UserModel(
@@ -20,6 +20,7 @@ class UserModel extends User {
       username: map['username'] ?? '',
       birthDate: DateTime.parse(map['birth_date']),
       urlProfilePhoto: map['profile_photo'] ?? '',
+      points: map['points'] ?? 0,
     );
   }
 
@@ -31,6 +32,7 @@ class UserModel extends User {
     String? username,
     DateTime? birthDate,
     String? urlProfilePhoto,
+    int? points,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -40,6 +42,7 @@ class UserModel extends User {
       username: username ?? this.username,
       birthDate: birthDate ?? this.birthDate,
       urlProfilePhoto: urlProfilePhoto ?? this.urlProfilePhoto,
+      points: points ?? this.points,
     );
   }
 }

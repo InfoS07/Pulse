@@ -28,3 +28,12 @@ class SearchUsersError extends SearchUsersState {
   @override
   List<Object> get props => [message];
 }
+
+class SearchUsersEmpty extends SearchUsersState {
+  final String message;
+
+  const SearchUsersEmpty(this.message);
+
+  @override
+  List<Object> get props => [message];
+}

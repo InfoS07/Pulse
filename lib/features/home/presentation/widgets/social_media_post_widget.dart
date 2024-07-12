@@ -7,7 +7,6 @@ import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/action_buttons_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/image_list_view.dart';
-import 'package:pulse/features/home/presentation/widgets/like_comment_count_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/title_description_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/user_profile_post_header.dart';
 
@@ -64,15 +63,17 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
             const SizedBox(height: 18),
             if (widget.post.photos.isNotEmpty) ...[
               ImageListWidget(imageUrls: widget.post.photos),
+              const SizedBox(height: 18),
             ],
-            const SizedBox(height: 18),
-            LikeCommentCountWidget(
+            //const SizedBox(height: 18),
+            /* LikeCommentCountWidget(
               likeCount: widget.post.likes,
               commentCount: widget.post.comments.length,
-            ),
-            const SizedBox(height: 18),
+            ), */
             ActionButtonsPostWidget(
               isLiked: widget.post.isLiked,
+              likeCount: widget.post.likes,
+              commentCount: widget.post.comments.length,
               onLikeTap: toggleLike,
               onCommentTap: () {
                 context.push('/home/details/${widget.post.id}/comments',
@@ -81,6 +82,54 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class EmptySocialMediaPostWidget extends StatelessWidget {
+  const EmptySocialMediaPostWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(bottom: 28.0, top: 20.0),
+      color: AppPallete.backgroundColorDarker,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          UserProfilePostHeader(
+            profileImageUrl: '',
+            username: 'Loading...',
+            timestamp: DateTime.now().toString(),
+            onTap: () {},
+          ),
+          const SizedBox(height: 18),
+          TitleDescriptionWidget(
+            title: 'Loading...',
+            description: 'Loading...',
+          ),
+          const SizedBox(height: 18),
+          ExerciseCardWidget(
+            exerciseTitle: 'Loading...',
+            exerciseUrlPhoto: '',
+            onTap: () {},
+          ),
+          const SizedBox(height: 18),
+          ImageListWidget(
+            imageUrls: [
+              'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg'
+            ],
+          ),
+          const SizedBox(height: 18),
+          ActionButtonsPostWidget(
+            commentCount: 0,
+            isLiked: false,
+            onLikeTap: () {},
+            onCommentTap: () {},
+            likeCount: 0,
+          ),
+        ],
       ),
     );
   }

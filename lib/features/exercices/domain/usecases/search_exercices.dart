@@ -13,13 +13,12 @@ class SearchExercices
   @override
   Future<Either<Failure, Map<String, List<Exercice?>>>> call(
       SearchExercicesParams params) async {
-    return await repository.searchExercices(params.searchTerm, params.category);
+    return await repository.searchExercices(params.searchTerm);
   }
 }
 
 class SearchExercicesParams {
   final String searchTerm;
-  final String? category;
 
-  SearchExercicesParams(this.searchTerm, this.category);
+  SearchExercicesParams(this.searchTerm);
 }

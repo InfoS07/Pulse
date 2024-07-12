@@ -2,15 +2,19 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/daily_stats.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/home/domain/models/social_media_post_model.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
+import 'package:pulse/features/home/presentation/widgets/exercice_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/recommend_exercise_card_widget.dart';
-import 'package:pulse/features/home/presentation/widgets/session_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
+import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
+import 'package:redacted/redacted.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -26,58 +30,37 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<HomeBloc>(context).add(LoadPosts());
+    context.read<HomeBloc>().add(LoadPosts());
+    context.read<ExercicesBloc>().add(ExercicesLoad());
 
     final authState = context.read<AppUserCubit>().state;
-    print("authState: $authState");
     if (authState is AppUserLoggedIn) {
+      print("authState.user : ${authState.user.uid}");
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;
     }
   }
 
   Future<void> _refreshPosts() async {
-    OneSignal.InAppMessages.addTrigger("defis", "2");
-    OneSignal.Notifications.addClickListener((event) {
-      print('Key: ${event.notification.title}');
-      print('NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
-    });
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
   }
 
-  final List<DailyStats> dailyStats = [
-    DailyStats(label: 'Entrainements', value: '0', trend: '0'),
-    DailyStats(label: 'Temps', value: '0h 0min', trend: '0h 0min'),
-    // Ajoutez d'autres statistiques si nécessaire
-  ];
-
-  final List<RecommendExerciseCardWidget> recommendedExercises = [
-    RecommendExerciseCardWidget(
-      imageUrl:
-          'https://cdn.dribbble.com/userupload/13994781/file/original-aa936ab9619914b7debecd452b772624.jpg?resize=1600x1200',
-      title: 'Body wellness and performance program',
-      subtitle: '',
-      duration: '10 minutes',
-      pods: '2 pods',
-    ),
-    RecommendExerciseCardWidget(
-      imageUrl:
-          'https://cdn.dribbble.com/userupload/13994781/file/original-aa936ab9619914b7debecd452b772624.jpg?resize=1600x1200',
-      title: 'Body and performance program',
-      subtitle: '',
-      duration: '10 minutes',
-      pods: '2 pods',
-    ),
-    // Ajoutez d'autres exercices recommandés si nécessaire
-  ];
+  String getTotalTimeForMyPosts(List<SocialMediaPost> posts) {
+    final totalTime = posts.fold(
+        0,
+        (previousValue, post) =>
+            previousValue + post.endAt.difference(post.startAt).inMinutes);
+    final hours = totalTime ~/ 60;
+    final minutes = totalTime % 60;
+    return '$hours h $minutes min';
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 8.0), // Ajoutez du padding ici
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             children: [
               CircleAvatar(
@@ -109,18 +92,14 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.search),
             onPressed: () {
               context.push('/home/searchUser');
-              // Action pour rechercher
             },
           ),
-          Stack(
+          const Stack(
             children: [
-              IconButton(
+              /* IconButton(
                 icon: const Icon(Icons.notifications),
-                onPressed: () {
-                  // Action pour notifications
-                },
+                onPressed: () {},
               ),
-              // Ajout du point rouge si nécessaire
               Positioned(
                 right: 11,
                 top: 11,
@@ -143,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-              ),
+              ),*/
             ],
           ),
         ],
@@ -151,7 +130,17 @@ class _HomePageState extends State<HomePage> {
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 32),
+                  AchievementBadgeWidget(
+                    message: 'Vous avez 10,000 points',
+                  ),
+                ],
+              ),
+            );
           } else if (state is HomeLoaded) {
             return RefreshIndicator(
               onRefresh: _refreshPosts,
@@ -162,77 +151,78 @@ class _HomePageState extends State<HomePage> {
                   ),
                   SliverToBoxAdapter(
                     child: AchievementBadgeWidget(
-                      message:
-                          'Félicitation, vous avez 10,000 shatta coins. Foncez dasn la boutique',
+                      message: 'Vous avez 10,000 points',
                     ),
                   ),
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 32),
                   ),
-                  /* SliverToBoxAdapter(
-                    child: Container(
-                      //color: AppPallete.backgroundColorDarker,
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Challenges',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height:
-                                200, // Ajustez cette valeur selon vos besoins
-                            child: Swiper(
-                              itemBuilder: (BuildContext context, int index) {
-                                return SessionCardWidget(
-                                  title: 'Ma séance $index',
-                                  duration: '15 minutes',
-                                  points: '64',
-                                  onStart: () {
-                                    // Action lorsque le bouton "C'est parti !" est appuyé
-                                  },
-                                );
-                              },
-                              itemCount: 10,
-                              itemWidth: 300.0,
-                              itemHeight: 400.0,
-                              layout: SwiperLayout.TINDER,
-                            ),
-                          ),
-                        ],
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12.0, horizontal: 12),
+                      child: Text(
+                        "Recommendations",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                  ), */
+                  ),
                   SliverToBoxAdapter(
                     child: SizedBox(
                       height: 200, // Ajustez cette valeur selon vos besoins
-                      child: Swiper(
-                        itemBuilder: (BuildContext context, int index) {
-                          return SessionCardWidget(
-                            title: 'Ma séance $index',
-                            duration: '15 minutes',
-                            points: '64',
-                            onStart: () {
-                              // Action lorsque le bouton "C'est parti !" est appuyé
-                            },
-                          );
+                      child: BlocBuilder<ExercicesBloc, ExercicesState>(
+                        builder: (context, exercisesState) {
+                          if (exercisesState is ExercicesLoaded) {
+                            return Swiper(
+                              itemBuilder: (BuildContext context, int index) {
+                                final exercise = exercisesState
+                                    .exercisesByCategory.values
+                                    .expand((ex) => ex)
+                                    .toList()[index];
+                                return ExerciseHomeCardWidget(
+                                  imageUrl: exercise!.photos.first,
+                                  title: exercise.title,
+                                  onStart: () {
+                                    context.push(
+                                        '/exercices/details/${exercise.id}',
+                                        extra: exercise);
+                                  },
+                                );
+                              },
+                              itemCount: exercisesState
+                                  .exercisesByCategory.values
+                                  .expand((ex) => ex)
+                                  .length,
+                              itemWidth: 350.0,
+                              layout: SwiperLayout.STACK,
+                            );
+                          } else if (exercisesState is ExercicesLoading) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else {
+                            return const Center(
+                                child: Text('Aucun exercice trouvé'));
+                          }
                         },
-                        itemCount: 10,
-                        itemWidth: 350.0,
-                        layout: SwiperLayout.STACK,
                       ),
                     ),
                   ),
                   const SliverToBoxAdapter(
                     child: SizedBox(height: 32),
                   ),
-                  SliverToBoxAdapter(
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 12.0, horizontal: 12),
+                      child: Text(
+                        "Entrainements",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  /* SliverToBoxAdapter(
                     child: Container(
                       color: AppPallete.backgroundColorDarker,
                       padding: const EdgeInsets.all(16.0),
@@ -250,46 +240,63 @@ class _HomePageState extends State<HomePage> {
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: dailyStats
-                                .map((stat) => _buildSummaryCard(stat))
-                                .toList(),
+                            children: [
+                              Column(
+                                children: [
+                                  Text(
+                                    "Entrainements",
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    state.posts.length.toString(),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                              Column(
+                                children: [
+                                  Text(
+                                    "Temps",
+                                    style: const TextStyle(
+                                        color: Colors.grey, fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    getTotalTimeForMyPosts(
+                                        state.posts as List<SocialMediaPost>),
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  /* SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: SessionCardWidget(
-                        imageUrl: 'https://your-image-url.com',
-                        title: 'Ma séance',
-                        duration: '15 minutes',
-                        kcal: '293 kcal',
-                        exercises: '3 exercices',
-                        points: '64',
-                        onStart: () {
-                          // Action lorsque le bouton "C'est parti !" est appuyé
-                        },
-                      ),
-                    ),
-                  ), */
-                  /* const SliverToBoxAdapter(
-                    child: SizedBox(height: 32),
                   ), */
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        return Container(
-                          margin: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: SocialMediaPostWidget(
-                            post: state.posts[index],
-                            onTap: () {
-                              context.push('/home/details/$index',
-                                  extra: state.posts[index]);
-                            },
-                          ),
-                        );
+                        if (!state.posts.isEmpty) {
+                          return Container(
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                            child: SocialMediaPostWidget(
+                              post: state.posts[index]!,
+                              onTap: () {
+                                context.push('/home/details/$index',
+                                    extra: state.posts[index]);
+                              },
+                            ),
+                          );
+                        }
                       },
                       childCount: state.posts.length,
                     ),
@@ -299,32 +306,95 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (state is HomeError) {
             return _buildErrorScreen(context, state.message);
+          } else if (state is HomeEmpty) {
+            return RefreshIndicator(
+              onRefresh: _refreshPosts,
+              child: CustomScrollView(
+                slivers: [
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 32),
+                  ),
+                  SliverToBoxAdapter(
+                    child: AchievementBadgeWidget(
+                      message: 'Vous avez 10,000 points',
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 32),
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 200, // Ajustez cette valeur selon vos besoins
+                      child: BlocBuilder<ExercicesBloc, ExercicesState>(
+                        builder: (context, exercisesState) {
+                          if (exercisesState is ExercicesLoaded) {
+                            return Swiper(
+                              itemBuilder: (BuildContext context, int index) {
+                                final exercise = exercisesState
+                                    .exercisesByCategory.values
+                                    .expand((ex) => ex)
+                                    .toList()[index];
+                                return ExerciseHomeCardWidget(
+                                  imageUrl: exercise!.photos.first,
+                                  title: exercise.title,
+                                  onStart: () {
+                                    context.push(
+                                        '/exercices/details/${exercise.id}',
+                                        extra: exercise);
+                                  },
+                                );
+                              },
+                              itemCount: exercisesState
+                                  .exercisesByCategory.values
+                                  .expand((ex) => ex)
+                                  .length,
+                              itemWidth: 350.0,
+                              layout: SwiperLayout.STACK,
+                            );
+                          } else if (exercisesState is ExercicesLoading) {
+                            return const Center(
+                                child: CircularProgressIndicator());
+                          } else {
+                            return const Center(
+                                child: Text('Aucun exercice trouvé'));
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(height: 80),
+                  ),
+                  const SliverToBoxAdapter(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image(
+                            image: AssetImage('assets/images/cloud.png'),
+                            width: 150,
+                          ),
+                          SizedBox(height: 16),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 60.0),
+                            child: Text(
+                              'Vous n\'avez aucune aucun entraînement pour le moment.',
+                              style:
+                                  TextStyle(color: Colors.grey, fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
           return const Center(child: Text('Unknown state'));
         },
       ),
-    );
-  }
-
-  Widget _buildSummaryCard(DailyStats stats) {
-    return Column(
-      children: [
-        Text(
-          stats.label,
-          style: const TextStyle(color: Colors.grey, fontSize: 14),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          stats.value,
-          style: const TextStyle(
-              color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          stats.trend,
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-      ],
     );
   }
 
@@ -349,7 +419,7 @@ class _HomePageState extends State<HomePage> {
               BlocProvider.of<HomeBloc>(context).add(LoadPosts());
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppPallete.primaryColor, // Couleur du bouton
+              backgroundColor: AppPallete.primaryColor,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),

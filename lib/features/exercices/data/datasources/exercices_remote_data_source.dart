@@ -7,7 +7,6 @@ abstract class ExercicesRemoteDataSource {
   Future<Map<String, List<ExercicesModel?>>> getExercices();
   Future<Map<String, List<ExercicesModel?>>> searchExercices(
     String searchTerm,
-    String? category,
   );
 }
 
@@ -30,6 +29,9 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
               photos
               categories
               photos
+              difficulty
+              player_count
+              type
             }
           }
       ''';
@@ -54,23 +56,20 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
   }
 
   Map<String, List<ExercicesModel?>> transformData(List data) {
-    final categories = [];
+    final types = [];
     for (var element in data) {
-      final categoriesData = element['categories'] as List;
-      //if categoriesData already exists in categories, skip
-      for (var category in categoriesData) {
-        if (!categories.contains(category)) {
-          categories.add(category);
-        }
+      final type = element['type'];
+      if (!types.contains(type)) {
+        types.add(type);
       }
     }
 
-    return categories.fold<Map<String, List<ExercicesModel?>>>(
+    return types.fold<Map<String, List<ExercicesModel?>>>(
       {},
       (previousValue, element) {
         final filteredData = data.where((el) {
-          final categories = el['categories'] as List;
-          return categories.contains(element);
+          final type = el['type'];
+          return type == element;
         }).toList();
 
         final exercices = filteredData.map((e) {
@@ -86,9 +85,7 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
 
   @override
   Future<Map<String, List<ExercicesModel?>>> searchExercices(
-    String searchTerm,
-    String? category,
-  ) async {
+      String searchTerm) async {
     try {
       String query = '''
         {
@@ -101,6 +98,9 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
               photos
               categories
               photos
+              difficulty
+              player_count
+              type
             }
           }
       ''';

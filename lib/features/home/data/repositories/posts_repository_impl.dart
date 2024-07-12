@@ -11,14 +11,14 @@ class PostsRepositoryImpl implements PostsRepository {
   PostsRepositoryImpl(this.postsDataSource);
 
   @override
-  Future<Either<Failure, List<SocialMediaPost>>> getPosts() async {
+  Future<Either<Failure, List<SocialMediaPost?>>> getPosts() async {
     return _getPosts(
       () async => await postsDataSource.getPosts(),
     );
   }
 
-  Future<Either<Failure, List<SocialMediaPost>>> _getPosts(
-    Future<List<SocialMediaPost>> Function() fn,
+  Future<Either<Failure, List<SocialMediaPost?>>> _getPosts(
+    Future<List<SocialMediaPost?>> Function() fn,
   ) async {
     try {
       final posts = await fn();

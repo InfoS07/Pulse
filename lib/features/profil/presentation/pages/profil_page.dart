@@ -2,12 +2,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart'; // Import for date formatting
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/profil.dart';
+import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/core/utils/bottom_sheet_util.dart';
+import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -30,11 +36,15 @@ class _ProfilPageState extends State<ProfilPage> {
       userId = authState.user.uid;
       context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
     }
+    // Lancer l'événement pour obtenir les posts
+    BlocProvider.of<HomeBloc>(context).add(LoadPosts());
   }
 
   Future<void> _refreshProfile() async {
     // Lancer l'événement pour rafraîchir le profil
     context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+    // Lancer l'événement pour rafraîchir les posts
+    BlocProvider.of<HomeBloc>(context).add(LoadPosts());
   }
 
   void _signOut() {
@@ -42,15 +52,45 @@ class _ProfilPageState extends State<ProfilPage> {
     context.read<AuthBloc>().add(AuthSignOut());
   }
 
+  void _showSettingsDialog() {
+    BottomSheetUtil.showCustomBottomSheet(
+      context,
+      onConfirm: () {
+        /* BlocProvider.of<HomeBloc>(context).add(DeletePost(post!.id));
+        context.go('/home');
+
+        ToastService.showSuccessToast(
+          context,
+          length: ToastLength.long,
+          expandedHeight: 100,
+          message: "Entrainement supprimé",
+        ); */
+      },
+      buttonText: 'Se déconnecter',
+      buttonColor: Colors.red,
+      confirmTextColor: Colors.white,
+      cancelText: 'Annuler',
+      cancelTextColor: Colors.grey,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Compte'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              _showSettingsDialog();
+              //context.push('/home/searchUser');
+            },
+          ),
+        ],
       ),
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
-          // Écouter les états pour afficher des messages, rediriger, etc.
           if (state is ProfilFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
@@ -66,24 +106,28 @@ class _ProfilPageState extends State<ProfilPage> {
             return RefreshIndicator(
               onRefresh: _refreshProfile,
               child: ListView(
-                padding: const EdgeInsets.all(16.0),
                 children: <Widget>[
                   _buildProfileHeader(state),
                   const SizedBox(height: 16.0),
-                  _buildSectionHeader('Cette semaine'),
-                  const SizedBox(height: 16.0),
-                  _buildWeeklyStats(),
-                  const SizedBox(height: 16.0),
-                  _buildListTile('Entrainements', Icons.arrow_forward_ios),
-                  _buildListTile('Statistiques', Icons.arrow_forward_ios),
-                  _buildListTile('Pods', Icons.arrow_forward_ios),
+                  _buildTrainingsList(),
                   const SizedBox(height: 16.0),
                   Center(
-                    child: TextButton(
+                    child: ElevatedButton(
                       onPressed: _signOut,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppPallete.errorColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 80, vertical: 14),
+                      ),
                       child: const Text(
                         'Se déconnecter',
-                        style: TextStyle(color: Colors.red),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -101,80 +145,85 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Widget _buildProfileHeader(ProfilSuccess state) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              radius: 35,
-              child: CachedNetworkImage(
-                imageUrl: state.profil.profilePhoto,
-                imageBuilder: (context, imageProvider) => Container(
-                  width: 80.0,
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
+    return Container(
+      color: AppPallete.backgroundColorDarker,
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 35,
+                child: CachedNetworkImage(
+                  imageUrl: state.profil.profilePhoto,
+                  imageBuilder: (context, imageProvider) => Container(
+                    width: 80.0,
+                    height: 80.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                ),
-                placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${state.profil.firstName} ${state.profil.lastName}',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Text(
-                  state.profil.username,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(height: 16.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildInfoColumn(followers!.length.toString() ?? "", 'Abonnés'),
-            _buildInfoColumn(
-                followings!.length.toString() ?? "", 'Abonnements'),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Action de modification
-              },
-              icon: const Icon(Icons.edit, color: Colors.orange),
-              label: const Text('Modifier',
-                  style: TextStyle(color: Colors.orange)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.transparent,
-                side: BorderSide(color: Colors.orange),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  placeholder: (context, url) =>
+                      const CircularProgressIndicator(),
+                  errorWidget: (context, url, error) =>
+                      const Icon(Icons.person),
                 ),
               ),
-            ),
-          ],
-        ),
-        const Divider(color: Colors.grey, height: 32),
-      ],
+              const SizedBox(width: 16.0),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${state.profil.firstName} ${state.profil.lastName}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text(
+                    state.profil.username,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildInfoColumn(followers!.length.toString(), 'Abonnés'),
+              const SizedBox(width: 25.0),
+              _buildInfoColumn(followings!.length.toString(), 'Abonnements'),
+              const SizedBox(width: 25.0),
+              ElevatedButton.icon(
+                onPressed: () {
+                  // Action de modification
+                },
+                icon: const Icon(Icons.edit, color: Colors.orange),
+                label: const Text('Modifier',
+                    style: TextStyle(color: Colors.orange)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  side: BorderSide(color: Colors.orange),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -207,6 +256,108 @@ class _ProfilPageState extends State<ProfilPage> {
     );
   }
 
+  Widget _buildTrainingsList() {
+    return BlocConsumer<HomeBloc, HomeState>(
+      listener: (context, state) {
+        if (state is HomeError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        if (state is HomeLoading) {
+          return const Loader();
+        } else if (state is HomeLoaded) {
+          final userPosts =
+              state.posts.where((post) => post!.userUid == userId).toList();
+
+          if (userPosts.isEmpty) {
+            return const Center(
+              child: Text('Aucun entraînement trouvé.',
+                  style: TextStyle(color: Colors.white)),
+            );
+          }
+
+          final groupedPosts =
+              _groupPostsByWeek(userPosts as List<SocialMediaPost>);
+
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: groupedPosts.length,
+            itemBuilder: (context, index) {
+              final weekPosts = groupedPosts.entries.elementAt(index);
+              final weekRange = _getWeekDateRange(weekPosts.key);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8.0, horizontal: 16.0),
+                    child: Text(
+                      weekRange,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  ...weekPosts.value.map((post) {
+                    return PostListItem(
+                      post: post,
+                      onTap: () {
+                        context.push('/home/details/$index', extra: post);
+                      },
+                    );
+                  }),
+                ],
+              );
+            },
+          );
+        } else if (state is HomeEmpty) {
+          return const SizedBox();
+        } else {
+          return const Center(
+            child: Text('Erreur de chargement des entraînements.',
+                style: TextStyle(color: Colors.white)),
+          );
+        }
+      },
+    );
+  }
+
+  Map<int, List<SocialMediaPost>> _groupPostsByWeek(
+      List<SocialMediaPost> posts) {
+    final Map<int, List<SocialMediaPost>> groupedPosts = {};
+    for (var post in posts) {
+      final stringToTimestamp = DateFormat('yyyy-MM-dd').parse(post.timestamp);
+      final weekOfYear = weekNumber(stringToTimestamp);
+      if (groupedPosts.containsKey(weekOfYear)) {
+        groupedPosts[weekOfYear]!.add(post);
+      } else {
+        groupedPosts[weekOfYear] = [post];
+      }
+    }
+    return groupedPosts;
+  }
+
+  int weekNumber(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final dayOfYear = date.difference(firstDayOfYear).inDays + 1;
+    return ((dayOfYear - date.weekday + 10) / 7).floor();
+  }
+
+  String _getWeekDateRange(int weekNumber) {
+    final now = DateTime.now();
+    final firstDayOfYear = DateTime(now.year, 1, 1);
+    final startOfWeek =
+        firstDayOfYear.add(Duration(days: (weekNumber - 1) * 7));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    final dateFormat = DateFormat('d MMMM', 'fr_FR');
+    return '${dateFormat.format(startOfWeek)} au ${dateFormat.format(endOfWeek)}';
+  }
+
   Widget _buildListTile(String title, IconData icon) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -229,62 +380,67 @@ class _ProfilPageState extends State<ProfilPage> {
       },
     );
   }
+}
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Colors.white,
-      ),
-    );
-  }
+class PostListItem extends StatelessWidget {
+  final SocialMediaPost post;
+  final VoidCallback onTap;
 
-  Widget _buildWeeklyStats() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        color: AppPallete.backgroundColor,
-        borderRadius: BorderRadius.circular(8.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Distance',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[400],
+  const PostListItem({Key? key, required this.post, required this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    String descriptionPreview = post.description;
+    if (post.description.length > 20) {
+      descriptionPreview = '${post.description.substring(0, 20)}...';
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0), // Rounded corners
+            child: CachedNetworkImage(
+              imageUrl: post.exercice.photos.first,
+              height: 50,
+              width: 50,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey.shade300,
+                highlightColor: Colors.grey.shade100,
+                enabled: true,
+                child: Container(
+                  color: Colors.grey[200],
+                  height: 50,
+                  width: 50,
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                color: Colors.grey,
+                height: 50,
+                width: 50,
+                child:
+                    const Center(child: Icon(Icons.error, color: Colors.white)),
+              ),
             ),
           ),
-          const SizedBox(height: 4.0),
-          Text(
-            '0,00 km',
+          title: Text(
+            post.title,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          subtitle: Text(
+            formatTimestamp(post.timestamp),
             style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.grey,
+              fontSize: 10,
             ),
           ),
-          const SizedBox(height: 8.0),
-          Text(
-            'Temps',
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[400],
-            ),
-          ),
-          const SizedBox(height: 4.0),
-          Text(
-            '0 h',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

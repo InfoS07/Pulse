@@ -6,26 +6,24 @@ import 'package:pulse/features/challenges_users/domain/models/challenges_users_m
 import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
 
 class ChallengeUserRepositoryImpl implements ChallengeUserRepository {
-  final ChallengeUserRemoteDataSourceImpl remoteDataSource;
+  final ChallengesUsersRemoteDataSource remoteDataSource;
 
   ChallengeUserRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, List<ChallengeUserModel>>> getChallengeUsers() async {
-        return _getUsersChallenges(
+  Future<Either<Failure, List<ChallengeUserModel?>>> getChallengeUsers() async {
+    return _getUsersChallenges(
       () async => await remoteDataSource.getChallengeUsers(),
     );
   }
 
-
-  Future<Either<Failure, List<ChallengeUserModel>>>  _getUsersChallenges(
-   Future<List<ChallengeUserModel?>> Function() fn,
+  Future<Either<Failure, List<ChallengeUserModel?>>> _getUsersChallenges(
+    Future<List<ChallengeUserModel?>> Function() fn,
   ) async {
     try {
-      final profil = await fn();
-      final nonNullProfils = profil.whereType<ChallengeUserModel>().toList();
+      final challenges = await fn();
 
-      return Right(nonNullProfils);
+      return Right(challenges);
     } on ServerException catch (e) {
       var message = "Erreur récupération challenges Users";
       return Left(Failure(message));

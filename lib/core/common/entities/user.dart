@@ -6,6 +6,7 @@ class User {
   final String username;
   final DateTime birthDate;
   final String urlProfilePhoto;
+  final int points;
 
   User({
     required this.uid,
@@ -15,6 +16,7 @@ class User {
     required this.username,
     required this.birthDate,
     required this.urlProfilePhoto,
+    required this.points,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -26,6 +28,7 @@ class User {
       username: json['username'],
       birthDate: DateTime.parse(json['birth_date']),
       urlProfilePhoto: json['profile_photo'],
+      points: json['points'] ?? 0,
     );
   }
 
@@ -38,6 +41,7 @@ class User {
       username: 'Joujou',
       birthDate: DateTime.now(),
       urlProfilePhoto: '',
+      points: 0,
     );
   }
 }

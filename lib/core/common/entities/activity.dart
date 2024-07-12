@@ -1,60 +1,68 @@
 import 'package:equatable/equatable.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
+
+Duration calculateReactionTime(DateTime start, DateTime end) {
+  return end.difference(start);
+}
+
+class ActivityStats {
+  final String buzzerExpected;
+  final String buzzerPressed;
+  final int reactionTime;
+  final DateTime pressedAt;
+
+  const ActivityStats({
+    required this.buzzerExpected,
+    required this.buzzerPressed,
+    required this.reactionTime,
+    required this.pressedAt,
+  });
+
+  @override
+  String toString() {
+    return 'ActivityStats{buzzerExpected: $buzzerExpected, buzzerPressed: $buzzerPressed, timeElapsed: $reactionTime, pressedAt: $pressedAt}';
+  }
+}
 
 class Activity extends Equatable {
   final int id;
   final Exercice exercise;
-  final int laps;
   final int caloriesBurned;
   final String status;
-  final int steps;
   final DateTime startAt;
   final DateTime endAt;
   final DateTime createdAt;
-  final int avgBpm;
-  final int maxBpm;
-  final double avgSpeed;
-  final double maxSpeed;
-  final List<int> durationLaps;
-  final List<int> pauseBetweenLaps;
   final Duration timer;
+  final int touches;
+  final int misses;
+  final List<ActivityStats> stats;
 
   const Activity({
     required this.id,
     required this.exercise,
-    required this.laps,
     required this.caloriesBurned,
     required this.status,
-    required this.steps,
     required this.startAt,
     required this.endAt,
     required this.createdAt,
-    required this.avgBpm,
-    required this.maxBpm,
-    required this.avgSpeed,
-    required this.maxSpeed,
-    required this.durationLaps,
-    required this.pauseBetweenLaps,
     required this.timer,
+    this.touches = 0,
+    this.misses = 0,
+    this.stats = const [],
   });
 
-  static Activity empty(exercice) {
+  static Activity empty(Exercice exercice) {
     return Activity(
       id: 0,
       exercise: exercice,
-      laps: 0,
       caloriesBurned: 0,
       status: 'Not Started',
-      steps: 0,
       startAt: DateTime.now(),
       endAt: DateTime.now(),
       createdAt: DateTime.now(),
-      avgBpm: 0,
-      maxBpm: 0,
-      avgSpeed: 0.0,
-      maxSpeed: 0.0,
-      durationLaps: const [],
-      pauseBetweenLaps: const [],
       timer: Duration.zero,
     );
   }
@@ -62,38 +70,29 @@ class Activity extends Equatable {
   Activity copyWith({
     int? id,
     Exercice? exercise,
-    int? laps,
     int? caloriesBurned,
     String? status,
     int? steps,
     DateTime? startAt,
     DateTime? endAt,
     DateTime? createdAt,
-    int? avgBpm,
-    int? maxBpm,
-    double? avgSpeed,
-    double? maxSpeed,
-    List<int>? durationLaps,
-    List<int>? pauseBetweenLaps,
     Duration? timer,
+    int? touches,
+    int? misses,
+    List<ActivityStats>? stats,
   }) {
     return Activity(
       id: id ?? this.id,
       exercise: exercise ?? this.exercise,
-      laps: laps ?? this.laps,
       caloriesBurned: caloriesBurned ?? this.caloriesBurned,
       status: status ?? this.status,
-      steps: steps ?? this.steps,
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
       createdAt: createdAt ?? this.createdAt,
-      avgBpm: avgBpm ?? this.avgBpm,
-      maxBpm: maxBpm ?? this.maxBpm,
-      avgSpeed: avgSpeed ?? this.avgSpeed,
-      maxSpeed: maxSpeed ?? this.maxSpeed,
-      durationLaps: durationLaps ?? this.durationLaps,
-      pauseBetweenLaps: pauseBetweenLaps ?? this.pauseBetweenLaps,
       timer: timer ?? this.timer,
+      touches: touches ?? this.touches,
+      misses: misses ?? this.misses,
+      stats: stats ?? this.stats,
     );
   }
 
@@ -101,19 +100,13 @@ class Activity extends Equatable {
   List<Object?> get props => [
         id,
         exercise,
-        laps,
         caloriesBurned,
         status,
-        steps,
         startAt,
         endAt,
         createdAt,
-        avgBpm,
-        maxBpm,
-        avgSpeed,
-        maxSpeed,
-        durationLaps,
-        pauseBetweenLaps,
         timer,
+        touches,
+        misses,
       ];
 }

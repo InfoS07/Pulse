@@ -41,7 +41,7 @@ class RecommendExerciseCardWidget extends StatelessWidget {
           child: Stack(
             children: [
               Image.network(
-                imageUrl,
+                'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,

@@ -29,7 +29,7 @@ class ExerciseCardWidget extends StatelessWidget {
         GestureDetector(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Card(
               color: const Color.fromARGB(255, 38, 38, 38),
               child: ListTile(

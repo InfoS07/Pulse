@@ -16,72 +16,90 @@ import 'package:pulse/features/list_trainings/domain/models/create_challenge_use
 part 'challenges_users_event.dart';
 part 'challenges_users_state.dart';
 
-class ChallengesUsersBloc extends Bloc<ChallengesUsersEvent, ChallengesUsersState> {
-  final ChallengesUsersRemoteDataSource remoteDataSource;
+class ChallengesUsersBloc
+    extends Bloc<ChallengesUsersEvent, ChallengesUsersState> {
+  //final ChallengesUsersRemoteDataSource remoteDataSource;
+  final GetChallengeUsersUc _getChallengeUsersUc;
 
-  ChallengesUsersBloc({required this.remoteDataSource}) : super(ChallengesUsersInitial()) {
+  ChallengesUsersBloc({required GetChallengeUsersUc getChallengeUsersUc})
+      : _getChallengeUsersUc = getChallengeUsersUc,
+        super(ChallengesUsersInitial()) {
     on<ChallengesUsersGetChallenges>(_onGetChallengesUsers);
     on<JoinChallengeEvent>(_onJoinChallenge);
     on<QuitChallengeEvent>(_onQuitChallenge);
     on<DeleteChallengeEvent>(_onDeleteChallenge);
-    on<CreateChallengeEvent>(_onCreateChallenge); 
+    on<CreateChallengeEvent>(_onCreateChallenge);
     on<AddInvitesToChallengeEvent>(_onAddInvitesToChallenge);
   }
 
-  Future<void> _onGetChallengesUsers(ChallengesUsersGetChallenges event, Emitter<ChallengesUsersState> emit) async {
+  void _onGetChallengesUsers(
+    ChallengesUsersGetChallenges event,
+    Emitter<ChallengesUsersState> emit,
+  ) async {
     emit(ChallengesUsersLoading());
-    try {
-      final challenges = await remoteDataSource.getChallengeUsers();
-      emit(ChallengesUsersSuccess(challenges));
-    } catch (_) {
-      emit(ChallengesUsersError("error"));
-    }
+    final challenges = await _getChallengeUsersUc(NoParams());
+
+    challenges.fold(
+      (l) => emit(ChallengesUsersError(l.toString())),
+      (r) {
+        //make sure r is not empty
+        //
+
+        print("ChallengesUsersError: $r");
+        if (r.isEmpty) {
+          emit(ChallengesUsersEmpty());
+        } else {
+          emit(ChallengesUsersSuccess(r));
+        }
+      },
+    );
   }
 
-  Future<void> _onJoinChallenge(JoinChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
+  Future<void> _onJoinChallenge(
+      JoinChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.joinChallenge(event.challengeId, event.userId);
+      //await remoteDataSource.joinChallenge(event.challengeId, event.userId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
     }
   }
 
-  Future<void> _onQuitChallenge(QuitChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
+  Future<void> _onQuitChallenge(
+      QuitChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.quitChallenge(event.challengeId, event.userId);
+      //await remoteDataSource.quitChallenge(event.challengeId, event.userId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
     }
   }
 
-
-  Future<void> _onDeleteChallenge(DeleteChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
+  Future<void> _onDeleteChallenge(
+      DeleteChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.deleteChallenge(event.challengeId);
+      //await remoteDataSource.deleteChallenge(event.challengeId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
     }
   }
 
-
-  Future<void> _onCreateChallenge(CreateChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
+  Future<void> _onCreateChallenge(
+      CreateChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
       final createChallengeUser = CreateChallengeUser(
-        challengeName: event.challengeName,
-        description: event.description,
-        endDate: event.endDate,
-        trainingId: event.trainingId,
-        authorId: event.authorId,
-        type: event.type,
-        invites: event.invites,
-        createdAt: event.createdAt,
-        participant: event.participant
-      );
+          challengeName: event.challengeName,
+          description: event.description,
+          endDate: event.endDate,
+          trainingId: event.trainingId,
+          authorId: event.authorId,
+          type: event.type,
+          invites: event.invites,
+          createdAt: event.createdAt,
+          participant: event.participant);
 
-    await remoteDataSource.createChallenge(createChallengeUser);
+      //await remoteDataSource.createChallenge(createChallengeUser);
 
       // Après la création réussie, récupérer la liste mise à jour des défis
       add(ChallengesUsersGetChallenges());
@@ -90,9 +108,11 @@ class ChallengesUsersBloc extends Bloc<ChallengesUsersEvent, ChallengesUsersStat
     }
   }
 
-    Future<void> _onAddInvitesToChallenge(AddInvitesToChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
+  Future<void> _onAddInvitesToChallenge(AddInvitesToChallengeEvent event,
+      Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.addInvitesToChallenge(event.challengeId, event.userIds);
+      /* await remoteDataSource.addInvitesToChallenge(
+          event.challengeId, event.userIds); */
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("Erreur lors de l'ajout des invitations"));

@@ -121,12 +121,24 @@ void _initHome() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => AddCommentUc(
+        serviceLocator(),
+      ),
+    )
+    ..registerFactory(
+      () => ReportCommentUc(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => HomeBloc(
         getPosts: serviceLocator(),
         likePost: serviceLocator(),
         deletePost: serviceLocator(),
+        addCommentUc: serviceLocator(),
+        reportComment: serviceLocator(),
         //getPosts: serviceLocator(),
       ),
     );
@@ -274,14 +286,14 @@ void _initChallengesUsers() {
     )
     // Usecases
     ..registerFactory(
-      () => GetChallengeUsers(
+      () => GetChallengeUsersUc(
         serviceLocator(),
       ),
     )
     // Bloc
     ..registerLazySingleton(
       () => ChallengesUsersBloc(
-        remoteDataSource: serviceLocator()
+        getChallengeUsersUc: serviceLocator(),
       ),
     );
 }
@@ -447,21 +459,8 @@ void _initComments() {
         serviceLocator(),
       ),
     )
-    /* ..registerFactory(
-      () => ReportCommentUC(
-        serviceLocator(),
-      ),
-    ) */
-    ..registerFactory(
-      () => AddCommentUc(
-        serviceLocator(),
-      ),
-    )
     // Bloc
     ..registerLazySingleton(
-      () => CommentBloc(
-        getCommentsUc: serviceLocator(),
-        addCommentUc: serviceLocator(),
-      ),
+      () => CommentBloc(),
     );
 }

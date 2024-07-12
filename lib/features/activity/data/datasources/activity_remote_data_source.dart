@@ -38,6 +38,15 @@ class ActivityRemoteDataSourceImpl implements ActivityRemoteDataSource {
           'status': 'Terminé',
           'author_id': supabaseClient.auth.currentSession?.user.id,
           'photos': photosFileName,
+          'repetitions': training.activity.touches,
+          'stats': training.activity.stats
+              .map((e) => {
+                    'buzzer_expected': e.buzzerExpected,
+                    'buzzer_pressed': e.buzzerPressed,
+                    'reaction_time': e.reactionTime,
+                    'pressed_at': e.pressedAt.toIso8601String(),
+                  })
+              .toList(),
         }
       ]);
 
