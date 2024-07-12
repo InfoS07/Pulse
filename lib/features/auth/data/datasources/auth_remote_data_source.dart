@@ -87,11 +87,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       };
       final response = await supabaseClient.auth
           .signUp(email: email, password: password, data: data);
+
       if (response.user == null || response.session == null) {
         throw const ServerException('Signup failed: User or session is null.');
       }
+
+      final uid = response.user?.id;
+
+      if (uid == null) {
+        throw const ServerException('Login failed: User id is null.');
+      }
+
+      final userData = await supabaseClient
+          .from('users')
+          .select()
+          .eq(
+            'uid',
+            uid,
+          )
+          .single();
+
       await _saveToken(response.session!.accessToken);
-      return UserModel.fromJson(response.user!.toJson()["user_metadata"]);
+      await graphQLService.setToken(response.session!.accessToken);
+
+      return UserModel.fromJson(userData);
     } on AuthException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
