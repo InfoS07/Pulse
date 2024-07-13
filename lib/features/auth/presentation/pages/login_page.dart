@@ -50,11 +50,26 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Sign In.',
-                    style: TextStyle(
-                      fontSize: 50,
-                      fontWeight: FontWeight.bold,
+                  Image.asset(
+                    'assets/ic_logobg.png',
+                    height: 100, 
+                  ),
+                  const SizedBox(height: 20),
+                  ShaderMask(
+                    shaderCallback: (Rect bounds) {
+                      return const LinearGradient(
+                        colors: <Color>[AppPallete.primaryColor, Colors.lightGreen, Colors.greenAccent],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ).createShader(bounds);
+                    },
+                    child: const Text(
+                      'PULSE',
+                      style: TextStyle(
+                        fontSize: 50,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white, // Cette couleur sera masquée par le shader
+                      ),
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -64,13 +79,13 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 15),
                   AuthField(
-                    hintText: 'Password',
+                    hintText: 'Mot de passe',
                     controller: passwordController,
                     isObscureText: true,
                   ),
                   const SizedBox(height: 20),
                   AuthGradientButton(
-                    buttonText: 'Sign in',
+                    buttonText: 'Se connecter',
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         context.read<AuthBloc>().add(
@@ -87,22 +102,25 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: () {
                       context.go('/signup');
                     },
-                    child: RichText(
-                      text: TextSpan(
-                        text: 'Don\'t have an account? ',
-                        style: Theme.of(context).textTheme.titleMedium,
-                        children: [
-                          TextSpan(
-                            text: 'Sign Up',
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleMedium
-                                ?.copyWith(
-                                  color: AppPallete.gradient2,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                          ),
-                        ],
+                    child: Center(
+                      child: RichText(
+                        textAlign: TextAlign.center, // Centrer le texte
+                        text: TextSpan(
+                          text: 'Tu n\'es pas encore un pulseur?\n ',
+                          style: Theme.of(context).textTheme.titleMedium,
+                          children: [
+                            TextSpan(
+                              text: 'Cree ton compte',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(
+                                    color: AppPallete.primaryColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
