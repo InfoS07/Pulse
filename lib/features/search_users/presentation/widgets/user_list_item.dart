@@ -14,6 +14,7 @@ class UserListItem extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         radius: 20,
+        backgroundColor: Colors.grey,
         child: CachedNetworkImage(
           imageUrl: profil.profilePhoto,
           imageBuilder: (context, imageProvider) => Container(
@@ -28,7 +29,8 @@ class UserListItem extends StatelessWidget {
             ),
           ),
           placeholder: (context, url) => const CircularProgressIndicator(),
-          errorWidget: (context, url, error) => const Icon(Icons.person),
+          errorWidget: (context, url, error) =>
+              const Icon(Icons.person, size: 20),
         ),
       ),
       title: Text(profil.firstName + ' ' + profil.lastName),

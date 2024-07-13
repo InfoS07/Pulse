@@ -136,7 +136,6 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
                           widget.post.startAt, widget.post.endAt),
                       'Durée',
                     ),
-                    _buildInfoCard('230', 'calories kcal'),
                   ],
                 ),
                 const SizedBox(height: 18),
@@ -300,8 +299,7 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
                         challengeName: challengeName,
                         description: description,
                         endDate: endDate,
-                        trainingId: widget
-                            .post.exercice.id, // Modify based on your data
+                        trainingId: widget.post.id, // Modify based on your data
                         authorId: userId!,
                         type: type,
                         invites: invites,

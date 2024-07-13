@@ -1,4 +1,7 @@
+import 'package:pulse/core/common/entities/training.dart';
+import 'package:pulse/core/common/entities/training_challenges.dart';
 import 'package:pulse/core/common/entities/user.dart';
+import 'package:pulse/features/activity/domain/models/training_model.dart';
 
 class ChallengeUserModel {
   final int id;
@@ -6,7 +9,7 @@ class ChallengeUserModel {
   final DateTime createdAt;
   final String? photo;
   final DateTime? endAt;
-  final int trainingId;
+  final TrainingChallenge training;
   final String description;
   final List<String> invites;
   final String type;
@@ -20,7 +23,7 @@ class ChallengeUserModel {
     required this.createdAt,
     this.photo,
     this.endAt,
-    required this.trainingId,
+    required this.training,
     required this.description,
     required this.type,
     required this.participants,
@@ -58,7 +61,7 @@ class ChallengeUserModel {
       createdAt: DateTime.parse(json['created_at']),
       photo: json['photo'],
       endAt: json['end_at'] != null ? DateTime.parse(json['end_at']) : null,
-      trainingId: json['training_id'],
+      training: TrainingChallenge.fromJson(json['training']),
       description: json['description'],
       type: json['type'],
       participants: participants,
@@ -78,7 +81,7 @@ class ChallengeUserModel {
       'created_at': createdAt.toIso8601String(),
       'photo': photo,
       'end_at': endAt?.toIso8601String(),
-      'training_id': trainingId,
+      'training': training,
       'description': description,
       'type': type,
       'participants': participantsJson,

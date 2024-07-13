@@ -181,7 +181,8 @@ class _FollowItemState extends State<FollowItem> {
                 ),
                 placeholder: (context, url) =>
                     const CircularProgressIndicator(),
-                errorWidget: (context, url, error) => const Icon(Icons.person),
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.person, size: 20),
               ),
             ),
             const SizedBox(width: 16),

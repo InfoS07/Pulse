@@ -105,14 +105,15 @@ class _GroupPageState extends State<GroupPage> {
                         children: [
                           RefreshIndicator(
                             onRefresh: _refreshChallenges,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildHeaderSection(),
-                                  _buildChallengesList(allChallenges),
-                                ],
-                              ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildHeaderSection(),
+                                const SizedBox(height: 16),
+                                Expanded(
+                                  child: _buildChallengesList(allChallenges),
+                                ),
+                              ],
                             ),
                           ),
                           ChallengeUserPage(),
@@ -174,21 +175,27 @@ class _GroupPageState extends State<GroupPage> {
             ],
           ),
         ),
-        SizedBox(height: 16),
-        Text(
-          'Challenges disponibles',
-          style: TextStyle(
-              fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
       ],
     );
   }
 
   Widget _buildChallengesList(List<ChallengesModel?> challenges) {
-    return Column(
-      children: challenges
-          .map((challenge) => _buildChallengeCard(challenge!))
-          .toList(),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GridView.builder(
+          padding: const EdgeInsets.all(8.0),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: constraints.maxWidth > 600 ? 2 : 1,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            childAspectRatio: 3 / 2,
+          ),
+          itemCount: challenges.length,
+          itemBuilder: (context, index) {
+            return _buildChallengeCard(challenges[index]!);
+          },
+        );
+      },
     );
   }
 
@@ -211,117 +218,121 @@ class _GroupPageState extends State<GroupPage> {
       statusColor = AppPallete.primaryColor;
     }
 
-    return GestureDetector(
-      onTap: () {
-        _showChallengeDetailsBottomSheet(context, challenge);
-      },
-      child: Card(
-        color: Colors.black,
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.white, width: 0.5),
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                challenge.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                challenge.description,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GestureDetector(
+          onTap: () {
+            _showChallengeDetailsBottomSheet(context, challenge);
+          },
+          child: Card(
+            color: AppPallete.backgroundColorDarker,
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!isParticipant && !isAchiever) ...[
-                    ElevatedButton(
-                      onPressed: () {
-                        context
-                            .read<ChallengesBloc>()
-                            .add(JoinChallenge(challenge.id, userId!));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: statusColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                  Text(
+                    challenge.name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    challenge.description,
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (!isParticipant && !isAchiever) ...[
+                        ElevatedButton(
+                          onPressed: () {
+                            context
+                                .read<ChallengesBloc>()
+                                .add(JoinChallenge(challenge.id, userId!));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: statusColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 4.0),
+                          ),
+                          child: Text(
+                            status,
+                            style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                      ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                  if (isParticipant && !isAchiever) ...[
-                    IconButton(
-                      onPressed: () {
-                        context
-                            .read<ChallengesBloc>()
-                            .add(QuitChallenge(challenge.id, userId!));
-                      },
-                      icon: const Icon(Icons.exit_to_app,
-                          color: AppPallete.primaryColor),
-                      color: buttonColor,
-                      padding: const EdgeInsets.all(16.0),
-                    ),
-                    BlocBuilder<ExercicesBloc, ExercicesState>(
-                      builder: (context, state) {
-                        if (state is ExercicesLoaded) {
-                          final exercise = _findExercise(
-                              state.exercisesByCategory, challenge.exerciceId!);
-                          if (exercise != null) {
-                            return IconButton(
-                              onPressed: () {
-                                context.push('/activity', extra: exercise);
-                              },
-                              icon: const Icon(Icons.play_arrow,
-                                  color: AppPallete.primaryColor),
-                              color: buttonColor,
-                              padding: const EdgeInsets.all(16.0),
-                            );
-                          }
-                        }
-                        return Container(); // Return an empty container if the exercise is not found
-                      },
-                    ),
-                  ],
-                  if (isAchiever) ...[
-                    ElevatedButton(
-                      onPressed: null, // bouton désactivé
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: statusColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                      ],
+                      if (isParticipant && !isAchiever) ...[
+                        IconButton(
+                          onPressed: () {
+                            context
+                                .read<ChallengesBloc>()
+                                .add(QuitChallenge(challenge.id, userId!));
+                          },
+                          icon: const Icon(Icons.exit_to_app,
+                              color: AppPallete.primaryColor),
+                          color: buttonColor,
+                          padding: const EdgeInsets.all(16.0),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                      ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
+                        BlocBuilder<ExercicesBloc, ExercicesState>(
+                          builder: (context, state) {
+                            if (state is ExercicesLoaded) {
+                              final exercise = _findExercise(
+                                  state.exercisesByCategory,
+                                  challenge.exerciceId!);
+                              if (exercise != null) {
+                                return IconButton(
+                                  onPressed: () {
+                                    context.push('/activity', extra: exercise);
+                                  },
+                                  icon: const Icon(Icons.play_arrow,
+                                      color: AppPallete.primaryColor),
+                                  color: buttonColor,
+                                  padding: const EdgeInsets.all(16.0),
+                                );
+                              }
+                            }
+                            return Container();
+                          },
+                        ),
+                      ],
+                      if (isAchiever) ...[
+                        ElevatedButton(
+                          onPressed: null, // bouton désactivé
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: statusColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30.0, vertical: 8.0),
+                          ),
+                          child: Text(
+                            status,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

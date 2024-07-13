@@ -4,7 +4,7 @@ class Challenges {
   final String urlPhoto;
   final String description;
   final int duration;
-  List<int> sequence = [1, 2, 3, 4, 5];
+  List<int> sequence = [1, 2, 3];
   int repetitions = 3;
   int podCount = 0;
   int playerCount = 0;

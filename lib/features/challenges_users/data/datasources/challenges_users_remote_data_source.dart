@@ -1,3 +1,4 @@
+import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/list_trainings/domain/models/create_challenge_user.dart';
@@ -26,7 +27,9 @@ class ChallengeUserRemoteDataSourceImpl
   @override
   Future<List<ChallengeUserModel>> getChallengeUsers() async {
     try {
-      final response = await supabaseClient.from('challenges_users').select();
+      final response = await supabaseClient
+          .from('challenges_users')
+          .select('*, training(*)');
 
       final challenges = (response as List)
           .map((json) => ChallengeUserModel.fromJson(json))
@@ -58,9 +61,11 @@ class ChallengeUserRemoteDataSourceImpl
         }
       }
 
+      print("challenges nicolas: $challenges");
+
       return challenges;
     } on PostgrestException catch (e) {
-      throw ServerException("Error Zer");
+      throw ServerException("Error");
     } catch (e) {
       throw ServerException("Error fetching challenges");
     }
@@ -147,19 +152,15 @@ class ChallengeUserRemoteDataSourceImpl
       // Convert challengeUser model to JSON
       final json = challengeUser.toJson();
 
-      // Send POST request to create challenge user
-      print(json);
-      var response =
+      final response =
           await supabaseClient.from('challenges_users').insert([json]);
-      print(response);
-    } on PostgrestException catch (e) {
-      throw ServerException("Error creating challenge");
     } catch (e) {
       throw ServerException("Error creating challenge");
     }
   }
 
-  Future<void> addInvitesToChallenge(int challengeId, List<String> userIds) async {
+  Future<void> addInvitesToChallenge(
+      int challengeId, List<String> userIds) async {
     try {
       final response = await supabaseClient
           .from('challenges_users')
@@ -168,15 +169,16 @@ class ChallengeUserRemoteDataSourceImpl
           .single();
 
       if (response != null) {
-        final List<String> currentInvites = List<String>.from(response['invites'] ?? []);
-        
+        final List<String> currentInvites =
+            List<String>.from(response['invites'] ?? []);
+
         // Ajouter les nouveaux userIds à la liste des invites existants
-        currentInvites.addAll(userIds.where((userId) => !currentInvites.contains(userId)));
+        currentInvites.addAll(
+            userIds.where((userId) => !currentInvites.contains(userId)));
 
         await supabaseClient
             .from('challenges_users')
-            .update({'invites': currentInvites})
-            .eq('id', challengeId);
+            .update({'invites': currentInvites}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
       throw ServerException("Error adding invites to challenge");

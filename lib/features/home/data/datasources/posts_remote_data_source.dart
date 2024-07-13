@@ -93,7 +93,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         ),
       );
 
-      print(result);
       if (result.hasException) {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
@@ -105,8 +104,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
       if (result.data!.isEmpty) {
         return [];
       }
-
-      print(result);
 
       final postsData = result.data!["trainings"] as List<dynamic>;
 
@@ -173,7 +170,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
   @override
   Future<Unit> deletePost(int postId) async {
     try {
-      print("postId: ${postId}");
       String mutation = '''
         mutation {
           deleteTraining(input: {trainingId: "${postId.toString()}"}) {
@@ -189,7 +185,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         ),
       );
 
-      print("result: ${result}");
       if (result.hasException) {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }

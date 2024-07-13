@@ -71,7 +71,6 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                             Image(
                               image: AssetImage('assets/images/search.png'),
                               width: 150,
-                              opacity: AlwaysStoppedAnimation(.8),
                             ),
                             SizedBox(height: 16),
                             Text(
@@ -122,7 +121,6 @@ class _SearchUsersViewState extends State<SearchUsersView> {
                           Image(
                             image: AssetImage('assets/images/avocado.png'),
                             width: 150,
-                            opacity: AlwaysStoppedAnimation(.8),
                           ),
                           SizedBox(height: 16),
                           Padding(

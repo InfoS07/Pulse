@@ -235,10 +235,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                             _buildInfoCard(
                                 _formatDuration(activity.timer), 'Durée'),
                             _buildInfoCard(
-                                '${activity.caloriesBurned}', 'Calories kcal'),
+                                '${activity.touches}', 'Répétitions'),
+                            _buildInfoCard('${activity.misses}', 'Ratés'),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        /* const SizedBox(height: 16),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -246,17 +247,7 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                                 '${activity.touches}', 'Répétitions'),
                             _buildInfoCard('${activity.misses}', 'Ratés'),
                           ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            /* _buildInfoCard(
-                                '${activity.stats[0].buzzerExpected}',
-                                'Buzzer 1 attendu'),
-                            _buildInfoCard('${activity.stats[0].buzzerPressed}',
-                                'Buzzer 1 touche'), */
-                          ],
-                        ),
+                        ), */
                         ActivityStatsChart(
                           stats: activity.stats,
                         ),
@@ -378,30 +369,41 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 36, vertical: 14),
+                                  horizontal: 80, vertical: 14),
                             ),
                             child: const Text(
                               'Enregistrer',
                               style: TextStyle(
-                                fontSize: 18,
+                                fontSize: 14,
                                 color: Colors.black,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 20),
                         Center(
-                          child: TextButton(
+                          child: ElevatedButton(
                             onPressed: () {
                               context.go('/home');
                             },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppPallete.errorColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 80, vertical: 14),
+                            ),
                             child: const Text(
                               'Rejeter',
-                              style: TextStyle(color: Colors.red),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),

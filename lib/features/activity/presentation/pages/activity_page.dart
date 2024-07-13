@@ -60,12 +60,21 @@ class _ActivityPageState extends State<ActivityPage>
   DateTime? lastNotificationTime;
   final ValueNotifier<String> connectionStatusNotifier =
       ValueNotifier('Recherche d\'appareils');
-  final ValueNotifier<bool> redBuzzerActivatedNotifier = ValueNotifier(false);
-  final ValueNotifier<bool> blueBuzzerActivatedNotifier = ValueNotifier(false);
-  final ValueNotifier<bool> greenBuzzerActivatedNotifier = ValueNotifier(false);
-  final ValueNotifier<bool> redBuzzerSyncedNotifier = ValueNotifier(false);
-  final ValueNotifier<bool> blueBuzzerSyncedNotifier = ValueNotifier(false);
-  final ValueNotifier<bool> greenBuzzerSyncedNotifier = ValueNotifier(false);
+
+  // Dynamically created notifiers
+  final Map<String, ValueNotifier<bool>> buzzerActivatedNotifiers = {
+    "red": ValueNotifier(false),
+    "blue": ValueNotifier(false),
+    "green": ValueNotifier(false),
+  };
+
+  final Map<String, ValueNotifier<bool>> buzzerSyncedNotifiers = {
+    "red": ValueNotifier(false),
+    "blue": ValueNotifier(false),
+    "green": ValueNotifier(false),
+  };
+
+  List<String> activeBuzzers = [];
 
   @override
   void initState() {
@@ -74,8 +83,15 @@ class _ActivityPageState extends State<ActivityPage>
     _initializeNotifications();
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
     _activityBloc.add(StartActivity(widget.exercise));
-    checkBluetoothPermissionsAndState();
-    isActive = false; // Initialisation de isActive
+    _checkBluetoothState();
+  }
+
+  Future<void> _checkBluetoothState() async {
+    if (await FlutterBluePlus.isOn) {
+      checkBluetoothPermissionsAndState();
+    } else {
+      _showBluetoothActivationDialog();
+    }
   }
 
   Future<void> checkBluetoothPermissionsAndState() async {
@@ -91,12 +107,8 @@ class _ActivityPageState extends State<ActivityPage>
           statuses[Permission.bluetoothConnect]!.isGranted &&
           statuses[Permission.bluetooth]!.isGranted &&
           statuses[Permission.location]!.isGranted) {
-        bool isOn = await FlutterBluePlus.isOn;
-        if (isOn) {
-          reconnectIfNecessary();
-        } else {
-          print('Bluetooth is off. Requesting to turn it on...');
-        }
+        _startBluetoothStateListener();
+        reconnectIfNecessary();
       } else {
         print('Bluetooth permissions not granted.');
       }
@@ -105,9 +117,19 @@ class _ActivityPageState extends State<ActivityPage>
     }
   }
 
+  void _startBluetoothStateListener() {
+    FlutterBluePlus.adapterState.listen((state) {
+      if (state == BluetoothAdapterState.off) {
+        _showBluetoothActivationDialog();
+      } else if (state == BluetoothAdapterState.on) {
+        reconnectIfNecessary();
+      }
+    });
+  }
+
   Future<void> reconnectIfNecessary() async {
     try {
-      for (var device in FlutterBluePlus.connectedDevices) {
+      for (var device in await FlutterBluePlus.connectedDevices) {
         if (device.name == 'Pulse') {
           connectToDevice(device);
           return;
@@ -137,17 +159,24 @@ class _ActivityPageState extends State<ActivityPage>
         setState(() {
           isScanning = false;
         });
+        if (connectedDevice == null) {
+          _showConnectionErrorDialog();
+        }
       });
     }
   }
 
   void connectToDevice(BluetoothDevice device) async {
-    await device.connect();
-    connectionStatusNotifier.value = 'Connexion à l\'appareil...';
-    setState(() {
-      connectedDevice = device;
-    });
-    discoverServices();
+    try {
+      await device.connect();
+      connectionStatusNotifier.value = 'Connexion à l\'appareil...';
+      setState(() {
+        connectedDevice = device;
+      });
+      discoverServices();
+    } catch (e) {
+      print('Error connecting to device: $e');
+    }
   }
 
   void discoverServices() async {
@@ -199,43 +228,71 @@ class _ActivityPageState extends State<ActivityPage>
     setState(() {
       isActive = true;
     });
-    sendDeviceNotification(buzzerClass[currentBuzzerIndex]['start']!);
+
+    if (activeBuzzers.isNotEmpty) {
+      print('nextBuzzerColor: $activeBuzzers');
+      String nextBuzzerColor = activeBuzzers[currentBuzzerIndex];
+      String nextBuzzerStartCommand = buzzerClass.firstWhere((buzzer) =>
+          buzzer['color']!.split('.').last == nextBuzzerColor)['start']!;
+      print('currentBuzzerIndex: $currentBuzzerIndex');
+      print('nextBuzzerColor: $nextBuzzerColor');
+      print('nextBuzzerStartCommand: $nextBuzzerStartCommand');
+      /* currentBuzzerIndex = buzzerClass.indexOf(buzzerClass.firstWhere(
+          (buzzer) => buzzer['color']!.split('.').last == nextBuzzerColor)); */
+      sendDeviceNotification(nextBuzzerStartCommand);
+    }
   }
 
   void handleNotification(List<int> value) {
     String decodedValue = utf8.decode(value);
     DateTime currentTime = DateTime.now();
 
-    if (!redBuzzerSyncedNotifier.value ||
-        !blueBuzzerSyncedNotifier.value ||
-        !greenBuzzerSyncedNotifier.value) {
-      if (decodedValue == buzzerClass[0]['trigger']) {
-        player.play(AssetSource('sounds/notif.mp3'));
-        redBuzzerSyncedNotifier.value = true;
-      } else if (decodedValue == buzzerClass[1]['trigger']) {
-        player.play(AssetSource('sounds/notif.mp3'));
-        blueBuzzerSyncedNotifier.value = true;
-      } else if (decodedValue == buzzerClass[2]['trigger']) {
-        player.play(AssetSource('sounds/notif.mp3'));
-        greenBuzzerSyncedNotifier.value = true;
+    // Synchronize buzzers
+    buzzerClass.forEach((buzzer) {
+      if (!buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value &&
+          decodedValue == buzzer["trigger"]) {
+        //player.play(AssetSource('sounds/notif.mp3'));
+        buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value = true;
+        if (!activeBuzzers.contains(buzzer["color"]!.split('.').last)) {
+          setState(() {
+            activeBuzzers.add(buzzer["color"]!.split('.').last);
+          });
+
+          if (activeBuzzers.length <= widget.exercise.podCount) {
+            Navigator.pop(context);
+            _showSyncDialog();
+          }
+        }
       }
-    }
+    });
 
-    if (!_isRunning || !isActive) return;
+    bool allSynced = activeBuzzers.length == widget.exercise.podCount;
 
-    if (decodedValue == "z" || decodedValue == "y" || decodedValue == "x") {
+    if (!_isRunning || !isActive || !allSynced) return;
+
+    if (["z", "y", "x"].contains(decodedValue)) {
+      final color = activeBuzzers[currentBuzzerIndex];
+      final buzzer = buzzerClass
+          .firstWhere((buzzer) => buzzer['color']!.split('.').last == color);
+      final trigger = buzzer['trigger']!;
+
       final int reactionTime = lastNotificationTime != null
           ? currentTime.difference(lastNotificationTime!).inMilliseconds
           : 0;
       _activityBloc.add(UpdateActivity(
         reactionTime: reactionTime,
-        buzzerExpected: buzzerClass[currentBuzzerIndex]['trigger']!,
+        buzzerExpected: trigger,
         buzzerPressed: decodedValue,
         pressedAt: DateTime.now(),
       ));
 
-      if (decodedValue == buzzerClass[currentBuzzerIndex]['trigger']) {
-        player.play(AssetSource('sounds/notif.mp3'));
+      print('decodedValue: $decodedValue');
+      print('currentBuzzerIndex aaa: $currentBuzzerIndex');
+      print('trigger aaa: $trigger');
+      print(
+          'buzzerClass[currentBuzzerIndex]: ${buzzerClass[currentBuzzerIndex]}');
+      if (decodedValue == trigger) {
+        //player.play(AssetSource('sounds/notif.mp3'));
 
         setState(() {
           messageCount++;
@@ -245,8 +302,9 @@ class _ActivityPageState extends State<ActivityPage>
           lastNotificationTime = currentTime;
         });
 
-        sendDeviceNotification(buzzerClass[currentBuzzerIndex]['stop']!);
-        currentBuzzerIndex = (currentBuzzerIndex + 1) % buzzerClass.length;
+        sendDeviceNotification(buzzer['stop']!);
+
+        currentBuzzerIndex = (currentBuzzerIndex + 1) % activeBuzzers.length;
 
         if (currentBuzzerIndex == 0) {
           currentRepetition++;
@@ -268,12 +326,8 @@ class _ActivityPageState extends State<ActivityPage>
     _timeElapsed.dispose();
     _reactionTime.dispose();
     connectionStatusNotifier.dispose();
-    redBuzzerActivatedNotifier.dispose();
-    blueBuzzerActivatedNotifier.dispose();
-    greenBuzzerActivatedNotifier.dispose();
-    redBuzzerSyncedNotifier.dispose();
-    blueBuzzerSyncedNotifier.dispose();
-    greenBuzzerSyncedNotifier.dispose();
+    buzzerActivatedNotifiers.forEach((key, notifier) => notifier.dispose());
+    buzzerSyncedNotifiers.forEach((key, notifier) => notifier.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -436,147 +490,134 @@ class _ActivityPageState extends State<ActivityPage>
     return '${milliseconds}ms';
   }
 
-  void _showSyncDialog() {
+  void _showBluetoothActivationDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Synchronisation des buzzers'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                  'Veuillez appuyer sur le buzzer correspondant pour synchroniser.'),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          title: const Text('Activer le Bluetooth'),
+          content: const Text(
+              'Veuillez activer le Bluetooth pour pouvoir continuer.'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await FlutterBluePlus.turnOn();
+                checkBluetoothPermissionsAndState();
+              },
+              child: const Text('Activer'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Quitter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSyncDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text(
+                'Synchronisation des buzzers',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  ValueListenableBuilder<bool>(
-                    valueListenable: redBuzzerActivatedNotifier,
-                    builder: (context, isActivated, child) {
-                      return GestureDetector(
-                        onTap: () {
-                          // L'utilisateur allume le buzzer
-                          sendDeviceNotification(buzzerClass[0]['start']!);
-                          redBuzzerActivatedNotifier.value = true;
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor:
-                              isActivated ? Colors.red : Colors.grey,
-                          child: ValueListenableBuilder<bool>(
-                            valueListenable: redBuzzerSyncedNotifier,
-                            builder: (context, isSynced, child) {
-                              return isSynced
-                                  ? const Icon(Icons.check, color: Colors.white)
-                                  : const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      );
-                    },
+                  Text(
+                    'Veuillez allumer ${widget.exercise.podCount} buzzers nécessaires pour cet exercice.',
+                    style: TextStyle(color: Colors.white),
                   ),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: blueBuzzerActivatedNotifier,
-                    builder: (context, isActivated, child) {
-                      return GestureDetector(
-                        onTap: () {
-                          // L'utilisateur allume le buzzer
-                          sendDeviceNotification(buzzerClass[1]['start']!);
-                          blueBuzzerActivatedNotifier.value = true;
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor:
-                              isActivated ? Colors.blue : Colors.grey,
-                          child: ValueListenableBuilder<bool>(
-                            valueListenable: blueBuzzerSyncedNotifier,
-                            builder: (context, isSynced, child) {
-                              return isSynced
-                                  ? const Icon(Icons.check, color: Colors.white)
-                                  : const SizedBox.shrink();
-                            },
-                          ),
-                        ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(widget.exercise.podCount, (index) {
+                      return CircleAvatar(
+                        radius: 30,
+                        backgroundColor: activeBuzzers.length > index
+                            ? _getColor(activeBuzzers[index])
+                            : Colors.grey,
+                        child: activeBuzzers.length > index
+                            ? Icon(Icons.check, color: Colors.white)
+                            : const SizedBox.shrink(),
                       );
-                    },
+                    }),
                   ),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: greenBuzzerActivatedNotifier,
-                    builder: (context, isActivated, child) {
-                      return GestureDetector(
-                        onTap: () {
-                          // L'utilisateur allume le buzzer
-                          sendDeviceNotification(buzzerClass[2]['start']!);
-                          greenBuzzerActivatedNotifier.value = true;
-                        },
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor:
-                              isActivated ? Colors.green : Colors.grey,
-                          child: ValueListenableBuilder<bool>(
-                            valueListenable: greenBuzzerSyncedNotifier,
-                            builder: (context, isSynced, child) {
-                              return isSynced
-                                  ? const Icon(Icons.check, color: Colors.white)
-                                  : const SizedBox.shrink();
-                            },
-                          ),
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 20),
+                  Text(
+                    activeBuzzers.length == widget.exercise.podCount
+                        ? 'Tous les buzzers sont synchronisés.'
+                        : 'Synchronisation des buzzers en cours...',
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              ValueListenableBuilder<bool>(
-                valueListenable: redBuzzerSyncedNotifier,
-                builder: (context, redSynced, child) {
-                  return ValueListenableBuilder<bool>(
-                    valueListenable: blueBuzzerSyncedNotifier,
-                    builder: (context, blueSynced, child) {
-                      return ValueListenableBuilder<bool>(
-                        valueListenable: greenBuzzerSyncedNotifier,
-                        builder: (context, greenSynced, child) {
-                          return Text(
-                            redSynced && blueSynced && greenSynced
-                                ? 'Les trois buzzers sont synchronisés.'
-                                : 'Synchronisation des buzzers en cours...',
-                            style: const TextStyle(color: Colors.white),
-                          );
+              actions: [
+                activeBuzzers.length == widget.exercise.podCount
+                    ? TextButton(
+                        onPressed: () {
+                          turnOffAllBuzzer();
+                          Navigator.pop(context);
+                          Navigator.pop(context);
                         },
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
+                        child: const Text('Lancer l\'exercice'),
+                      )
+                    : Container(),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Color _getColor(String color) {
+    switch (color) {
+      case "red":
+        return Colors.red;
+      case "blue":
+        return Colors.blue;
+      case "green":
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _showConnectionErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Erreur de connexion'),
+          content: const Text(
+              'Impossible de connecter aux buzzers. Veuillez réessayer.'),
           actions: [
-            ValueListenableBuilder<bool>(
-              valueListenable: redBuzzerSyncedNotifier,
-              builder: (context, redSynced, child) {
-                return ValueListenableBuilder<bool>(
-                  valueListenable: blueBuzzerSyncedNotifier,
-                  builder: (context, blueSynced, child) {
-                    return ValueListenableBuilder<bool>(
-                      valueListenable: greenBuzzerSyncedNotifier,
-                      builder: (context, greenSynced, child) {
-                        return redSynced && blueSynced && greenSynced
-                            ? TextButton(
-                                onPressed: () {
-                                  turnOffAllBuzzer();
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Lancer l\'exercice'),
-                              )
-                            : Container();
-                      },
-                    );
-                  },
-                );
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                startScan();
               },
+              child: const Text('Réessayer'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Quitter'),
             ),
           ],
         );
@@ -606,175 +647,128 @@ class _ActivityPageState extends State<ActivityPage>
           return Stack(
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                        const SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: activeBuzzers
+                              .map((buzzerColor) => BuzzerIndicator(
+                                    isActive: true,
+                                    color: _getColor(buzzerColor),
+                                  ))
+                              .toList(),
+                        ),
+                        const SizedBox(height: 64),
+                        GestureDetector(
+                          onTap: () => _startStopTimer(),
+                          child: Container(
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: AppPallete.primaryColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 16),
+                            margin: const EdgeInsets.only(top: 32),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                BuzzerIndicator(
-                                  isActive: currentBuzzerIndex == 0,
-                                  color: Colors.red,
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(minWidth: 100),
+                                  child: ValueListenableBuilder<Duration>(
+                                    valueListenable: _timeElapsed,
+                                    builder: (context, value, child) {
+                                      return Text(
+                                        _formatTime(value),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      );
+                                    },
+                                  ),
                                 ),
                                 const SizedBox(width: 16),
-                                BuzzerIndicator(
-                                  isActive: currentBuzzerIndex == 1,
-                                  color: Colors.blue,
-                                ),
-                                const SizedBox(width: 16),
-                                BuzzerIndicator(
-                                  isActive: currentBuzzerIndex == 2,
-                                  color: Colors.green,
+                                Icon(
+                                  _isRunning ? Icons.pause : Icons.play_arrow,
+                                  color: Colors.black,
+                                  size: 32,
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 64),
-                            GestureDetector(
-                              onTap: () => _startStopTimer(),
-                              child: Container(
-                                width: 300,
-                                decoration: BoxDecoration(
-                                  color: AppPallete.primaryColor,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 16),
-                                margin: const EdgeInsets.only(top: 32),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    ConstrainedBox(
-                                      constraints:
-                                          BoxConstraints(minWidth: 100),
-                                      child: ValueListenableBuilder<Duration>(
-                                        valueListenable: _timeElapsed,
-                                        builder: (context, value, child) {
-                                          return Text(
-                                            _formatTime(value),
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontSize: 28,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Icon(
-                                      _isRunning
-                                          ? Icons.pause
-                                          : Icons.play_arrow,
-                                      color: Colors.black,
-                                      size: 32,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    color: Colors.red,
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    child: DraggableScrollableSheet(
-                      initialChildSize: 1.0,
-                      minChildSize: 0.2,
-                      maxChildSize: 1.0,
-                      builder: (BuildContext context,
-                          ScrollController scrollController) {
-                        return Container(
-                          color: Colors.blueAccent,
-                          padding: const EdgeInsets.all(16.0),
-                          child: ListView(
-                            controller: scrollController,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.notifications_active,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      sendDeviceNotification("1");
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.bluetooth,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      _showConnectionDialog(
-                                          context, connectionStatusNotifier);
-                                      if (connectedDevice == null) {
-                                        reconnectIfNecessary();
-                                      } else {
-                                        discoverServices();
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              ValueListenableBuilder<String>(
-                                valueListenable: connectionStatusNotifier,
-                                builder: (context, value, child) {
-                                  return Text(
-                                    'État de la connexion : $value',
-                                    style: const TextStyle(color: Colors.white),
-                                  );
-                                },
-                              ),
-                              const SizedBox(height: 16),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      _buildInfoCard(errorCount.toString(),
-                                          'Erreurs'), // Affichage des erreurs
-                                      _buildInfoCard(
-                                          messageCount.toString(), 'Touches',
-                                          highlight: true),
-                                      ValueListenableBuilder<Duration>(
-                                        valueListenable: _reactionTime,
-                                        builder: (context, value, child) {
-                                          return _buildInfoCard(
-                                              _formatReactionTime(value),
-                                              'Réaction');
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                  ValueListenableBuilder<Duration>(
-                                    valueListenable: _reactionTime,
-                                    builder: (context, value, child) {
-                                      return _buildInfoCard(
-                                          _formatReactionTime(value),
-                                          'Temps de réaction');
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 32.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.bluetooth,
+                                  color: Colors.white),
+                              onPressed: () {
+                                _showConnectionDialog(
+                                    context, connectionStatusNotifier);
+                                if (connectedDevice == null) {
+                                  reconnectIfNecessary();
+                                } else {
+                                  discoverServices();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        ValueListenableBuilder<String>(
+                          valueListenable: connectionStatusNotifier,
+                          builder: (context, value, child) {
+                            return Text(
+                              'État de la connexion : $value',
+                              style: const TextStyle(color: Colors.white),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildInfoCard(errorCount.toString(),
+                                    'Erreurs'), // Affichage des erreurs
+                                _buildInfoCard(
+                                    messageCount.toString(), 'Touches',
+                                    highlight: true),
+                                ValueListenableBuilder<Duration>(
+                                  valueListenable: _reactionTime,
+                                  builder: (context, value, child) {
+                                    return _buildInfoCard(
+                                        _formatReactionTime(value), 'Réaction');
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
                   ),
                 ],
@@ -870,11 +864,11 @@ void _showConnectionDialog(
           },
         ),
         content: const Text(
-            'Veuillez patienter nous tentons de connecter votre appareil aux buzzers.'),
+            'Veuillez patienter, nous tentons de connecter votre appareil aux buzzers.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 'CANCEL'),
-            child: const Text('CANCEL'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, 'OK'),

@@ -29,7 +29,7 @@ class SocialMediaPostModel extends SocialMediaPost {
       id: json['id'] is int
           ? json['id']
           : int.tryParse(json['id'].toString()) ?? 0,
-      profileImageUrl: json['author']?['profile_photo'],
+      profileImageUrl: json['author']?['profile_photo'] ?? '',
       username: json['author']?['username'] ?? '',
       userUid: json['author']?['uid'] ?? '',
       timestamp: json['created_at'] ?? '',

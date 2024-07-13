@@ -142,11 +142,9 @@ class _CommentsPageState extends State<CommentsPage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Image(
-                                  image:
-                                      AssetImage('assets/images/friends.png'),
-                                  width: 150,
-                                  opacity: AlwaysStoppedAnimation(.8),
-                                ),
+                                    image:
+                                        AssetImage('assets/images/friends.png'),
+                                    width: 150),
                                 SizedBox(height: 16),
                                 Text(
                                   'Aucun commentaire pour le moment',

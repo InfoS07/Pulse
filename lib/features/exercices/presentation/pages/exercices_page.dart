@@ -95,7 +95,6 @@ class _ExercicesPageState extends State<ExercicesPage> {
                           Image(
                             image: AssetImage('assets/images/search.png'),
                             width: 150,
-                            opacity: AlwaysStoppedAnimation(.8),
                           ),
                           SizedBox(height: 16),
                           Text(

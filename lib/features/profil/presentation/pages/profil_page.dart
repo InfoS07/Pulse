@@ -13,6 +13,7 @@ import 'package:pulse/core/utils/formatters.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
+import 'package:pulse/features/profil_follow/presentation/widgets/follow_button_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ProfilPage extends StatefulWidget {
@@ -83,8 +84,8 @@ class _ProfilPageState extends State<ProfilPage> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              _showSettingsDialog();
-              //context.push('/home/searchUser');
+              //_showSettingsDialog();
+              context.push('/profil/settings');
             },
           ),
         ],
@@ -110,7 +111,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   _buildProfileHeader(state),
                   const SizedBox(height: 16.0),
                   _buildTrainingsList(),
-                  const SizedBox(height: 16.0),
+                  /* const SizedBox(height: 16.0),
                   Center(
                     child: ElevatedButton(
                       onPressed: _signOut,
@@ -130,7 +131,7 @@ class _ProfilPageState extends State<ProfilPage> {
                         ),
                       ),
                     ),
-                  ),
+                  ), */
                 ],
               ),
             );
@@ -154,6 +155,7 @@ class _ProfilPageState extends State<ProfilPage> {
             children: [
               CircleAvatar(
                 radius: 35,
+                backgroundColor: Colors.grey,
                 child: CachedNetworkImage(
                   imageUrl: state.profil.profilePhoto,
                   imageBuilder: (context, imageProvider) => Container(
@@ -170,7 +172,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   placeholder: (context, url) =>
                       const CircularProgressIndicator(),
                   errorWidget: (context, url, error) =>
-                      const Icon(Icons.person),
+                      const Icon(Icons.person, size: 40),
                 ),
               ),
               const SizedBox(width: 16.0),
@@ -199,26 +201,15 @@ class _ProfilPageState extends State<ProfilPage> {
           ),
           const SizedBox(height: 16.0),
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildInfoColumn(followers!.length.toString(), 'Abonnés'),
-              const SizedBox(width: 25.0),
-              _buildInfoColumn(followings!.length.toString(), 'Abonnements'),
-              const SizedBox(width: 25.0),
-              ElevatedButton.icon(
-                onPressed: () {
-                  // Action de modification
-                },
-                icon: const Icon(Icons.edit, color: Colors.orange),
-                label: const Text('Modifier',
-                    style: TextStyle(color: Colors.orange)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  side: BorderSide(color: Colors.orange),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                ),
+              Row(
+                children: [
+                  _buildInfoColumn(followers!.length.toString(), 'Abonnés'),
+                  const SizedBox(width: 25.0),
+                  _buildInfoColumn(
+                      followings!.length.toString(), 'Abonnements'),
+                ],
               ),
             ],
           ),
