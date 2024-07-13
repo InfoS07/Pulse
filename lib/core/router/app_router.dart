@@ -29,6 +29,7 @@ import 'package:pulse/features/profil_other/presentation/pages/list_trainings_ot
 import 'package:pulse/features/profil_other/presentation/pages/profil_follow_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_other_page.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenges_page.dart';
+import 'package:pulse/features/screens/introduction_slider.dart';
 import 'package:pulse/features/screens/splash_screen.dart';
 import 'package:pulse/features/search_users/presentation/pages/search_users_page.dart';
 import 'package:pulse/init_dependencies.dart';
@@ -49,6 +50,7 @@ enum RoutePath {
   searchUser(path: 'searchUser'),
   profil(path: 'profil'),
   settings(path: 'settings');
+  introSlider(path: 'intro-slider');
 
   const RoutePath({required this.path});
   final String path;
@@ -86,6 +88,10 @@ final GoRouter goRouterProvider = GoRouter(
                   challengeUserModel: challengeUser),
             );
           },
+        GoRoute(
+          path: RoutePath.introSlider.path,
+          name: RoutePath.introSlider.name,
+          builder: (context, state) => IntroductionSliderPage(),
         ),
         GoRoute(
           path: RoutePath.otherProfil.path,

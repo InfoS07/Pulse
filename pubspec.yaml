@@ -67,6 +67,7 @@ dependencies:
   like_button: ^2.0.5
   shimmer: ^3.0.0
   flutter_settings_ui: ^3.0.1
+  introduction_slider: ^2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -104,6 +105,9 @@ flutter:
     - assets/gif/refresh.gif
     - assets/gif/dual.gif
     - assets/images/
+    - assets/ic_logobg.png
+    - assets/bdf.png
+
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
