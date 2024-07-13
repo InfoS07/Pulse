@@ -19,7 +19,6 @@ FutureOr<String?> appRouterRedirect(
   if (isLoggedIn && isLoggingIn) {
     return '/home';
   }
-  //si l'utilisateur est connecté et qu'il fait un retour en arrière sur la page splashscreen alors on l'empeche
 
   return null;
 }

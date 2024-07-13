@@ -83,8 +83,8 @@ class _ProfilPageState extends State<ProfilPage> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              _showSettingsDialog();
-              //context.push('/home/searchUser');
+              //_showSettingsDialog();
+              context.push('/profil/settings');
             },
           ),
         ],
@@ -154,6 +154,7 @@ class _ProfilPageState extends State<ProfilPage> {
             children: [
               CircleAvatar(
                 radius: 35,
+                backgroundColor: Colors.grey,
                 child: CachedNetworkImage(
                   imageUrl: state.profil.profilePhoto,
                   imageBuilder: (context, imageProvider) => Container(
@@ -170,7 +171,7 @@ class _ProfilPageState extends State<ProfilPage> {
                   placeholder: (context, url) =>
                       const CircularProgressIndicator(),
                   errorWidget: (context, url, error) =>
-                      const Icon(Icons.person),
+                      const Icon(Icons.person, size: 40),
                 ),
               ),
               const SizedBox(width: 16.0),

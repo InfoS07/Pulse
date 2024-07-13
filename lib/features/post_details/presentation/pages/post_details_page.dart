@@ -292,29 +292,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    _buildInfoCard(
-                                        formatDurationTraining(
-                                          post!.startAt,
-                                          post!.endAt,
-                                        ),
-                                        'Durée'),
-                                    _buildInfoCard(
-                                        '${post!.repetitions}', 'Répétitions'),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    _buildInfoCard("0ms", 'Réaction moyen'),
-                                    _buildInfoCard('230', 'calories kcal'),
-                                  ],
-                                ),
+                                _buildInfoCard(
+                                    formatDurationTraining(
+                                      post!.startAt,
+                                      post!.endAt,
+                                    ),
+                                    'Durée'),
+                                _buildInfoCard(
+                                    '${post!.repetitions}', 'Répétitions'),
                               ],
                             ),
                             const SizedBox(height: 20),

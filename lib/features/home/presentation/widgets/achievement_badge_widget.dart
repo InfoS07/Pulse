@@ -40,7 +40,6 @@ class AchievementBadgeWidget extends StatelessWidget {
               child: Image(
                 image: AssetImage('assets/images/coin.png'),
                 width: 50,
-                opacity: AlwaysStoppedAnimation(.8),
               ),
             ),
           ),

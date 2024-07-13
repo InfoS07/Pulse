@@ -60,7 +60,7 @@ class ChallengeUserRemoteDataSourceImpl
 
       return challenges;
     } on PostgrestException catch (e) {
-      throw ServerException("Error Zer");
+      throw ServerException("Error");
     } catch (e) {
       throw ServerException("Error fetching challenges");
     }
@@ -159,7 +159,8 @@ class ChallengeUserRemoteDataSourceImpl
     }
   }
 
-  Future<void> addInvitesToChallenge(int challengeId, List<String> userIds) async {
+  Future<void> addInvitesToChallenge(
+      int challengeId, List<String> userIds) async {
     try {
       final response = await supabaseClient
           .from('challenges_users')
@@ -168,15 +169,16 @@ class ChallengeUserRemoteDataSourceImpl
           .single();
 
       if (response != null) {
-        final List<String> currentInvites = List<String>.from(response['invites'] ?? []);
-        
+        final List<String> currentInvites =
+            List<String>.from(response['invites'] ?? []);
+
         // Ajouter les nouveaux userIds à la liste des invites existants
-        currentInvites.addAll(userIds.where((userId) => !currentInvites.contains(userId)));
+        currentInvites.addAll(
+            userIds.where((userId) => !currentInvites.contains(userId)));
 
         await supabaseClient
             .from('challenges_users')
-            .update({'invites': currentInvites})
-            .eq('id', challengeId);
+            .update({'invites': currentInvites}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
       throw ServerException("Error adding invites to challenge");

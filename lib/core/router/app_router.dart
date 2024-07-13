@@ -20,6 +20,7 @@ import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_
 import 'package:pulse/features/list_trainings/presentation/pages/my_post_details_page.dart';
 import 'package:pulse/features/post_details/presentation/pages/post_details_page.dart';
 import 'package:pulse/features/profil/presentation/pages/profil_page.dart';
+import 'package:pulse/features/profil/presentation/pages/settings_page.dart';
 import 'package:pulse/features/profil_follow/presentation/pages/profil_follow_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/list_trainings_other_page.dart';
 import 'package:pulse/features/profil_other/presentation/pages/profil_follow_other_page.dart';
@@ -43,7 +44,8 @@ enum RoutePath {
   follow(path: 'follow'),
   followOther(path: 'followOther'),
   searchUser(path: 'searchUser'),
-  profil(path: 'profil');
+  profil(path: 'profil'),
+  settings(path: 'settings');
 
   const RoutePath({required this.path});
   final String path;
@@ -125,7 +127,7 @@ final GoRouter goRouterProvider = GoRouter(
                 GoRoute(
                   path: RoutePath.home.path,
                   name: RoutePath.home.name,
-                  builder: (context, state) => const HomePage(),
+                  builder: (context, state) => HomePage(),
                   routes: [
                     GoRoute(
                       path: 'details/:postIndex',
@@ -201,20 +203,26 @@ final GoRouter goRouterProvider = GoRouter(
                       builder: (context, state) => const ProfilFollowPage(),
                     ),
                     GoRoute(
-                        path: 'entrainements',
-                        builder: (context, state) => TrainingListScreen(),
-                        routes: [
-                          GoRoute(
-                            path: 'details/:postIndex',
-                            pageBuilder:
-                                (BuildContext context, GoRouterState state) {
-                              final post = state.extra as SocialMediaPost;
-                              return DialogPage(
-                                builder: (_) => PostMyDetailsPage(post: post),
-                              );
-                            },
-                          )
-                        ]),
+                      path: RoutePath.settings.path,
+                      name: RoutePath.settings.name,
+                      builder: (context, state) => SettingsPage(),
+                    ),
+                    GoRoute(
+                      path: 'entrainements',
+                      builder: (context, state) => TrainingListScreen(),
+                      routes: [
+                        GoRoute(
+                          path: 'details/:postIndex',
+                          pageBuilder:
+                              (BuildContext context, GoRouterState state) {
+                            final post = state.extra as SocialMediaPost;
+                            return DialogPage(
+                              builder: (_) => PostMyDetailsPage(post: post),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                   ],
                 ),
               ],

@@ -136,7 +136,6 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
                           widget.post.startAt, widget.post.endAt),
                       'Durée',
                     ),
-                    _buildInfoCard('230', 'calories kcal'),
                   ],
                 ),
                 const SizedBox(height: 18),
