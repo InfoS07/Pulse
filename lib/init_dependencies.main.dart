@@ -173,12 +173,18 @@ void _initProfil() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => UpdateProfil(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => ProfilBloc(
         getProfil: serviceLocator(),
         getFollowers: serviceLocator(),
         getFollowings: serviceLocator(),
+        updateProfil: serviceLocator(),
       ),
     );
 }
@@ -293,7 +299,7 @@ void _initChallengesUsers() {
     // Bloc
     ..registerLazySingleton(
       () => ChallengesUsersBloc(
-        getChallengeUsersUc: serviceLocator(),
+        remoteDataSource: serviceLocator(),
       ),
     );
 }

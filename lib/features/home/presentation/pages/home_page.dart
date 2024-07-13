@@ -3,18 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/entities/daily_stats.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
-import 'package:pulse/features/home/domain/models/social_media_post_model.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercice_card_widget.dart';
-import 'package:pulse/features/home/presentation/widgets/recommend_exercise_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
-import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
-import 'package:redacted/redacted.dart';
+import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -128,102 +124,113 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        body: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            if (state is HomeLoading) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 32),
-                    AchievementBadgeWidget(
-                      message: 'Vous avez 10,000 points',
-                    ),
-                  ],
-                ),
-              );
-            } else if (state is HomeLoaded) {
-              return RefreshIndicator(
-                onRefresh: _refreshPosts,
-                child: CustomScrollView(
-                  slivers: [
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 32),
-                    ),
-                    SliverToBoxAdapter(
-                      child: AchievementBadgeWidget(
+        body: BlocListener<ProfilBloc, ProfilState>(
+          listener: (context, state) {
+            if (state is ProfilSuccess) {
+              setState(() {
+                userName = state.profil.firstName + " " + state.profil.lastName;
+                urlProfilePhoto = state.profil.profilePhoto;
+              });
+              _refreshPosts();
+            }
+          },
+          child: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 32),
+                      AchievementBadgeWidget(
                         message: 'Vous avez 10,000 points',
                       ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 32),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 12),
-                        child: Text(
-                          "Recommendations",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                    ],
+                  ),
+                );
+              } else if (state is HomeLoaded) {
+                return RefreshIndicator(
+                  onRefresh: _refreshPosts,
+                  child: CustomScrollView(
+                    slivers: [
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 32),
+                      ),
+                      SliverToBoxAdapter(
+                        child: AchievementBadgeWidget(
+                          message: 'Vous avez 10,000 points',
                         ),
                       ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 200, // Ajustez cette valeur selon vos besoins
-                        child: BlocBuilder<ExercicesBloc, ExercicesState>(
-                          builder: (context, exercisesState) {
-                            if (exercisesState is ExercicesLoaded) {
-                              return Swiper(
-                                itemBuilder: (BuildContext context, int index) {
-                                  final exercise = exercisesState
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 32),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 12),
+                          child: Text(
+                            "Recommendations",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 200, // Ajustez cette valeur selon vos besoins
+                          child: BlocBuilder<ExercicesBloc, ExercicesState>(
+                            builder: (context, exercisesState) {
+                              if (exercisesState is ExercicesLoaded) {
+                                return Swiper(
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final exercise = exercisesState
+                                        .exercisesByCategory.values
+                                        .expand((ex) => ex)
+                                        .toList()[index];
+                                    return ExerciseHomeCardWidget(
+                                      imageUrl: exercise!.photos.first,
+                                      title: exercise.title,
+                                      onStart: () {
+                                        context.push(
+                                            '/exercices/details/${exercise.id}',
+                                            extra: exercise);
+                                      },
+                                    );
+                                  },
+                                  itemCount: exercisesState
                                       .exercisesByCategory.values
                                       .expand((ex) => ex)
-                                      .toList()[index];
-                                  return ExerciseHomeCardWidget(
-                                    imageUrl: exercise!.photos.first,
-                                    title: exercise.title,
-                                    onStart: () {
-                                      context.push(
-                                          '/exercices/details/${exercise.id}',
-                                          extra: exercise);
-                                    },
-                                  );
-                                },
-                                itemCount: exercisesState
-                                    .exercisesByCategory.values
-                                    .expand((ex) => ex)
-                                    .length,
-                                itemWidth: 350.0,
-                                layout: SwiperLayout.STACK,
-                              );
-                            } else if (exercisesState is ExercicesLoading) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else {
-                              return const Center(
-                                  child: Text('Aucun exercice trouvé'));
-                            }
-                          },
+                                      .length,
+                                  itemWidth: 350.0,
+                                  layout: SwiperLayout.STACK,
+                                );
+                              } else if (exercisesState is ExercicesLoading) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else {
+                                return const Center(
+                                    child: Text('Aucun exercice trouvé'));
+                              }
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 32),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 12.0, horizontal: 12),
-                        child: Text(
-                          "Entrainements",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 32),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 12),
+                          child: Text(
+                            "Entrainements",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
                         ),
                       ),
-                    ),
-                    /* SliverToBoxAdapter(
+                      /* SliverToBoxAdapter(
                     child: Container(
                       color: AppPallete.backgroundColorDarker,
                       padding: const EdgeInsets.all(16.0),
@@ -283,118 +290,121 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ), */
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          if (!state.posts.isEmpty) {
-                            return Container(
-                              margin: const EdgeInsets.symmetric(vertical: 4.0),
-                              child: SocialMediaPostWidget(
-                                post: state.posts[index]!,
-                                onTap: () {
-                                  context.push('/home/details/$index',
-                                      extra: state.posts[index]);
-                                },
-                              ),
-                            );
-                          }
-                        },
-                        childCount: state.posts.length,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            } else if (state is HomeError) {
-              return _buildErrorScreen(context, state.message);
-            } else if (state is HomeEmpty) {
-              return RefreshIndicator(
-                onRefresh: _refreshPosts,
-                child: CustomScrollView(
-                  slivers: [
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 32),
-                    ),
-                    SliverToBoxAdapter(
-                      child: AchievementBadgeWidget(
-                        message: 'Vous avez 10,000 points',
-                      ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 32),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 200, // Ajustez cette valeur selon vos besoins
-                        child: BlocBuilder<ExercicesBloc, ExercicesState>(
-                          builder: (context, exercisesState) {
-                            if (exercisesState is ExercicesLoaded) {
-                              return Swiper(
-                                itemBuilder: (BuildContext context, int index) {
-                                  final exercise = exercisesState
-                                      .exercisesByCategory.values
-                                      .expand((ex) => ex)
-                                      .toList()[index];
-                                  return ExerciseHomeCardWidget(
-                                    imageUrl: exercise!.photos.first,
-                                    title: exercise.title,
-                                    onStart: () {
-                                      context.push(
-                                          '/exercices/details/${exercise.id}',
-                                          extra: exercise);
-                                    },
-                                  );
-                                },
-                                itemCount: exercisesState
-                                    .exercisesByCategory.values
-                                    .expand((ex) => ex)
-                                    .length,
-                                itemWidth: 350.0,
-                                layout: SwiperLayout.STACK,
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            if (!state.posts.isEmpty) {
+                              return Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 4.0),
+                                child: SocialMediaPostWidget(
+                                  post: state.posts[index]!,
+                                  onTap: () {
+                                    context.push('/home/details/$index',
+                                        extra: state.posts[index]);
+                                  },
+                                ),
                               );
-                            } else if (exercisesState is ExercicesLoading) {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            } else {
-                              return const Center(
-                                  child: Text('Aucun exercice trouvé'));
                             }
                           },
+                          childCount: state.posts.length,
                         ),
                       ),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: SizedBox(height: 80),
-                    ),
-                    const SliverToBoxAdapter(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image(
-                              image: AssetImage('assets/images/cloud.png'),
-                              width: 150,
-                            ),
-                            SizedBox(height: 16),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 60.0),
-                              child: Text(
-                                'Vous n\'avez aucune aucun entraînement pour le moment.',
-                                style:
-                                    TextStyle(color: Colors.grey, fontSize: 14),
-                                textAlign: TextAlign.center,
+                    ],
+                  ),
+                );
+              } else if (state is HomeError) {
+                return _buildErrorScreen(context, state.message);
+              } else if (state is HomeEmpty) {
+                return RefreshIndicator(
+                  onRefresh: _refreshPosts,
+                  child: CustomScrollView(
+                    slivers: [
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 32),
+                      ),
+                      SliverToBoxAdapter(
+                        child: AchievementBadgeWidget(
+                          message: 'Vous avez 10,000 points',
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 32),
+                      ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 200, // Ajustez cette valeur selon vos besoins
+                          child: BlocBuilder<ExercicesBloc, ExercicesState>(
+                            builder: (context, exercisesState) {
+                              if (exercisesState is ExercicesLoaded) {
+                                return Swiper(
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    final exercise = exercisesState
+                                        .exercisesByCategory.values
+                                        .expand((ex) => ex)
+                                        .toList()[index];
+                                    return ExerciseHomeCardWidget(
+                                      imageUrl: exercise!.photos.first,
+                                      title: exercise.title,
+                                      onStart: () {
+                                        context.push(
+                                            '/exercices/details/${exercise.id}',
+                                            extra: exercise);
+                                      },
+                                    );
+                                  },
+                                  itemCount: exercisesState
+                                      .exercisesByCategory.values
+                                      .expand((ex) => ex)
+                                      .length,
+                                  itemWidth: 350.0,
+                                  layout: SwiperLayout.STACK,
+                                );
+                              } else if (exercisesState is ExercicesLoading) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else {
+                                return const Center(
+                                    child: Text('Aucun exercice trouvé'));
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: SizedBox(height: 80),
+                      ),
+                      const SliverToBoxAdapter(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image(
+                                image: AssetImage('assets/images/cloud.png'),
+                                width: 150,
                               ),
-                            ),
-                          ],
+                              SizedBox(height: 16),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 60.0),
+                                child: Text(
+                                  'Vous n\'avez aucune aucun entraînement pour le moment.',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const Center(child: Text('Unknown state'));
-          },
+                    ],
+                  ),
+                );
+              }
+              return const Center(child: Text('Unknown state'));
+            },
+          ),
         ),
       ),
     );

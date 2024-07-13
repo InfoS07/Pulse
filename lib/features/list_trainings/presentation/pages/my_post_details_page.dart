@@ -299,8 +299,7 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
                         challengeName: challengeName,
                         description: description,
                         endDate: endDate,
-                        trainingId: widget
-                            .post.exercice.id, // Modify based on your data
+                        trainingId: widget.post.id, // Modify based on your data
                         authorId: userId!,
                         type: type,
                         invites: invites,

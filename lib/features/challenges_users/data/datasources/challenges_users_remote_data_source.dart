@@ -1,3 +1,4 @@
+import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/list_trainings/domain/models/create_challenge_user.dart';
@@ -26,7 +27,9 @@ class ChallengeUserRemoteDataSourceImpl
   @override
   Future<List<ChallengeUserModel>> getChallengeUsers() async {
     try {
-      final response = await supabaseClient.from('challenges_users').select();
+      final response = await supabaseClient
+          .from('challenges_users')
+          .select('*, training(*)');
 
       final challenges = (response as List)
           .map((json) => ChallengeUserModel.fromJson(json))
@@ -57,6 +60,8 @@ class ChallengeUserRemoteDataSourceImpl
           });
         }
       }
+
+      print("challenges nicolas: $challenges");
 
       return challenges;
     } on PostgrestException catch (e) {
@@ -147,13 +152,8 @@ class ChallengeUserRemoteDataSourceImpl
       // Convert challengeUser model to JSON
       final json = challengeUser.toJson();
 
-      // Send POST request to create challenge user
-      print(json);
-      var response =
+      final response =
           await supabaseClient.from('challenges_users').insert([json]);
-      print(response);
-    } on PostgrestException catch (e) {
-      throw ServerException("Error creating challenge");
     } catch (e) {
       throw ServerException("Error creating challenge");
     }

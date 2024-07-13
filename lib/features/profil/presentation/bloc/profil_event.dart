@@ -19,3 +19,9 @@ class ProfilGetFollowings extends ProfilEvent {
 
   ProfilGetFollowings(this.userId);
 }
+
+class ProfilUpdateProfil extends ProfilEvent {
+  final UpdateUserParams params;
+
+  ProfilUpdateProfil(this.params);
+}

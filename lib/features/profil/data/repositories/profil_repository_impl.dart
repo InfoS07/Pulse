@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/core/error/failures.dart';
@@ -53,7 +54,7 @@ class ProfilRepositoryImpl implements ProfilRepository {
     }
   }
 
-    @override
+  @override
   Future<Either<Failure, List<Profil>>> getFollowings(String userId) async {
     return _getFollowings(
       () async => await remoteDataSource.getFollowings(userId),
@@ -68,6 +69,37 @@ class ProfilRepositoryImpl implements ProfilRepository {
       final nonNullProfils = profil.whereType<Profil>().toList();
 
       return Right(nonNullProfils);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> updateUser({
+    required String userId,
+    required String firstName,
+    required String lastName,
+    required String username,
+    XFile? photo,
+  }) async {
+    return _updateUser(
+      () async => await remoteDataSource.updateUser(
+        userId: userId,
+        firstName: firstName,
+        lastName: lastName,
+        username: username,
+        photo: photo,
+      ),
+    );
+  }
+
+  Future<Either<Failure, Unit>> _updateUser(
+    Future<void> Function() fn,
+  ) async {
+    try {
+      await fn();
+
+      return Right(unit);
     } on ServerException catch (e) {
       return Left(Failure(e.message));
     }

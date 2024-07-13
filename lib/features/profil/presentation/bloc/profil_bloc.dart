@@ -3,6 +3,7 @@ import 'package:pulse/core/common/entities/profil.dart';
 import 'package:pulse/features/profil/domain/usecases/get_followers.dart';
 import 'package:pulse/features/profil/domain/usecases/get_followings.dart';
 import 'package:pulse/features/profil/domain/usecases/get_profil.dart';
+import 'package:pulse/features/profil/domain/usecases/update_profil.dart';
 
 part 'profil_event.dart';
 part 'profil_state.dart';
@@ -11,16 +12,20 @@ class ProfilBloc extends Bloc<ProfilEvent, ProfilState> {
   final GetProfil _getProfil;
   final GetFollowers _getFollowers;
   final GetFollowings _getFollowings;
+  final UpdateProfil _updateProfil;
 
   ProfilBloc({
     required GetProfil getProfil,
     required GetFollowers getFollowers,
     required GetFollowings getFollowings,
+    required UpdateProfil updateProfil,
   })  : _getProfil = getProfil,
         _getFollowers = getFollowers,
         _getFollowings = getFollowings,
+        _updateProfil = updateProfil,
         super(ProfilInitial()) {
     on<ProfilGetProfil>(_onGetProfil);
+    on<ProfilUpdateProfil>(_onUpdateProfil);
   }
 
   void _onGetProfil(
@@ -43,6 +48,18 @@ class ProfilBloc extends Bloc<ProfilEvent, ProfilState> {
           );
         });
       },
+    );
+  }
+
+  void _onUpdateProfil(
+    ProfilUpdateProfil event,
+    Emitter<ProfilState> emit,
+  ) async {
+    emit(ProfilLoading());
+    final res = await _updateProfil(event.params);
+    res.fold(
+      (l) => emit(ProfilFailure(l.message)),
+      (r) => add(ProfilGetProfil(event.params.userId)),
     );
   }
 }

@@ -91,29 +91,67 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
                   return RefreshIndicator(
                     onRefresh: _refreshChallengesUsers,
-                    child: filteredChallenges.isEmpty
-                        ? Center(child: Text('No challenge users'))
-                        : GridView.builder(
-                            padding: const EdgeInsets.all(16.0),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.7,
-                            ),
-                            itemCount: filteredChallenges.length,
-                            itemBuilder: (context, index) {
-                              final challengeUser = filteredChallenges[index];
-                              return _buildChallengeUserCard(context,
-                                  challengeUser!, followers, followings);
-                            },
+                    child: ListView(
+                      children: [
+                        // Section explicative
+                        Container(
+                          padding: const EdgeInsets.all(20.0),
+                          decoration: BoxDecoration(
+                            color: AppPallete.backgroundColorDarker,
                           ),
+                          child: const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Défis utilisateur',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 38,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 22),
+                              Text(
+                                'Mesurez-vous à vos amis grâce aux défis. Participez aux défis créés par vos amis ou créez les vôtres pour comparer vos performances.',
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16.0),
+
+                        // Liste des challenges
+                        filteredChallenges.isEmpty
+                            ? Center(child: Text('Aucun défis'))
+                            : GridView.builder(
+                                padding: const EdgeInsets.all(16.0),
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.7,
+                                ),
+                                itemCount: filteredChallenges.length,
+                                itemBuilder: (context, index) {
+                                  final challengeUser =
+                                      filteredChallenges[index];
+                                  return _buildChallengeUserCard(context,
+                                      challengeUser!, followers, followings);
+                                },
+                              ),
+                      ],
+                    ),
                   );
                 } else if (state is ChallengesUsersError) {
                   return Center(child: Text('Failed to fetch challenge users'));
                 }
-                return Center(child: Text('No challenge users'));
+                return Center(child: Text('Aucun défis'));
               },
             ),
           );
@@ -153,9 +191,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
         _showChallengeDetailsBottomSheet(context, challengeUser);
       },
       child: Card(
-        color: Colors.black,
+        color: AppPallete.backgroundColor,
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.white, width: 0.5),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Padding(
@@ -178,6 +215,13 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                 ),
               ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: Text(
+                  _formatEndTime(challengeUser.endAt),
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
+              ),
               SizedBox(height: 16),
               if (isAuthor) ...[
                 ElevatedButton(
@@ -189,7 +233,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 30.0, vertical: 8.0),
+                        horizontal: 20.0, vertical: 8.0),
                   ),
                   child: const Text(
                     'Supprimer',
@@ -233,14 +277,19 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       ),
                       BlocBuilder<ExercicesBloc, ExercicesState>(
                         builder: (context, state) {
+                          print('isParticipant: $isParticipant');
+                          print('state: $state');
                           if (state is ExercicesLoaded) {
                             final exercise = _findExercise(
                                 state.exercisesByCategory,
-                                challengeUser.trainingId);
+                                challengeUser.training.exerciseId);
                             if (exercise != null) {
                               return IconButton(
                                 onPressed: () {
-                                  context.push('/activity', extra: exercise);
+                                  context.push('/activitychallenge', extra: {
+                                    "exercise": exercise,
+                                    "challengeUser": challengeUser
+                                  });
                                 },
                                 icon: const Icon(Icons.play_arrow,
                                     color: AppPallete.primaryColor),
@@ -257,7 +306,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                           if (state is ExercicesLoaded) {
                             final exercise = _findExercise(
                                 state.exercisesByCategory,
-                                challengeUser.trainingId);
+                                challengeUser.training.id);
                             if (exercise != null) {
                               return IconButton(
                                 onPressed: () {
@@ -300,6 +349,26 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
     );
   }
 
+  String _formatEndTime(DateTime? endAt) {
+    if (endAt == null) {
+      return 'Fin : Non définie';
+    }
+    final now = DateTime.now();
+    final duration = endAt.difference(now);
+
+    if (duration.isNegative) {
+      return 'Terminé';
+    } else if (duration.inDays > 0) {
+      return '${duration.inDays} jour${duration.inDays > 1 ? 's' : ''} restants';
+    } else if (duration.inHours > 0) {
+      return '${duration.inHours}h restantes';
+    } else if (duration.inMinutes > 0) {
+      return 'Termine dans ${duration.inMinutes}min';
+    } else {
+      return 'Termine dans moins d\'une minute';
+    }
+  }
+
   void _showChallengeDetailsBottomSheet(
       BuildContext context, ChallengeUserModel challengeUser) {
     final isParticipant = challengeUser.participants.values
@@ -315,6 +384,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
     // Trier les participants par score décroissant
     final sortedParticipants = challengeUser.participants.values.toList()
       ..sort((a, b) => b.score.compareTo(a.score));
+    print("sortedParticipants: $sortedParticipants");
 
     BottomSheetUtilUser.showCustomBottomSheet(
       context,
@@ -367,7 +437,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                         ),
                         trailing: Text('Score: ${participant.score}'),
                         tileColor:
-                            isCurrentUser ? AppPallete.primaryColor : null,
+                            isCurrentUser ? AppPallete.primaryColorFade : null,
                       ),
                     );
                   },
@@ -415,7 +485,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   builder: (context, state) {
                     if (state is ExercicesLoaded) {
                       final exercise = _findExercise(
-                          state.exercisesByCategory, challengeUser.trainingId);
+                          state.exercisesByCategory, challengeUser.training.id);
                       if (exercise != null) {
                         return ElevatedButton(
                           onPressed: () {
@@ -478,7 +548,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmer la suppression'),
-          content: const Text('Voulez-vous vraiment supprimer ce challenge ?'),
+          content: const Text('Voulez-vous vraiment supprimer ce défis ?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -524,37 +594,41 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Ajouter des amis au challenge'),
-              content: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: mutualFollowers.map((friend) {
-                    final isAlreadyInvited =
-                        invitedFriends.contains(friend.uid);
-                    return CheckboxListTile(
-                      title: Text(
-                        '${friend.firstName} ${friend.lastName}',
-                        style: TextStyle(
-                            color:
-                                isAlreadyInvited ? Colors.grey : Colors.white),
+              title: Text('Ajouter des amis au défis'),
+              content: mutualFollowers.isEmpty
+                  ? Text(
+                      'Vous devez suivre mutuellement des amis pour les inviter à des défis.')
+                  : Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: mutualFollowers.map((friend) {
+                          final isAlreadyInvited =
+                              invitedFriends.contains(friend.uid);
+                          return CheckboxListTile(
+                            title: Text(
+                              '${friend.firstName} ${friend.lastName}',
+                              style: TextStyle(
+                                  color: isAlreadyInvited
+                                      ? Colors.grey
+                                      : Colors.white),
+                            ),
+                            value: selectedFriends.contains(friend.uid),
+                            onChanged: isAlreadyInvited
+                                ? null
+                                : (bool? value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        selectedFriends.add(friend.uid);
+                                      } else {
+                                        selectedFriends.remove(friend.uid);
+                                      }
+                                    });
+                                  },
+                          );
+                        }).toList(),
                       ),
-                      value: selectedFriends.contains(friend.uid),
-                      onChanged: isAlreadyInvited
-                          ? null
-                          : (bool? value) {
-                              setState(() {
-                                if (value == true) {
-                                  selectedFriends.add(friend.uid);
-                                } else {
-                                  selectedFriends.remove(friend.uid);
-                                }
-                              });
-                            },
-                    );
-                  }).toList(),
-                ),
-              ),
+                    ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -562,21 +636,22 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   },
                   child: Text('Annuler'),
                 ),
-                TextButton(
-                  onPressed: () {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      if (bottomSheetContext != null) {
-                        Navigator.of(bottomSheetContext!)
-                            .pop(); // Ferme la bottom sheet
+                if (mutualFollowers.isNotEmpty)
+                  TextButton(
+                    onPressed: () {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        if (bottomSheetContext != null) {
+                          Navigator.of(bottomSheetContext!)
+                              .pop(); // Ferme la bottom sheet
+                        }
+                        context.read<ChallengesUsersBloc>().add(
+                            AddInvitesToChallengeEvent(
+                                challengeUser.id, selectedFriends.toList()));
+                        Navigator.of(context).pop();
                       }
-                      context.read<ChallengesUsersBloc>().add(
-                          AddInvitesToChallengeEvent(
-                              challengeUser.id, selectedFriends.toList()));
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: Text('Ajouter'),
-                ),
+                    },
+                    child: Text('Ajouter'),
+                  ),
               ],
             );
           },

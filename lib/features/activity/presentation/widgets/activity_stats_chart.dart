@@ -41,18 +41,20 @@ class ActivityStatsChart extends StatelessWidget {
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     axisNameWidget: Text(
-                      'Temps en ms',
+                      'Temps en secondes',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, titleMeta) {
                         return Text(
-                          value.toInt().toString(),
+                          (value).toStringAsFixed(1),
                           style:
                               const TextStyle(color: Colors.white, fontSize: 8),
                         );
                       },
+                      interval: _getMaxY(stats) /
+                          4, // Adjust interval for better readability
                     ),
                   ),
                   bottomTitles: AxisTitles(
@@ -69,7 +71,7 @@ class ActivityStatsChart extends StatelessWidget {
                                 color: Colors.white, fontSize: 10),
                           );
                         },
-                        interval: 10),
+                        interval: 1),
                   ),
                   topTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -99,7 +101,7 @@ class ActivityStatsChart extends StatelessWidget {
                 lineTouchData: LineTouchData(enabled: true),
                 minX: 1,
                 maxX: stats.length.toDouble(),
-                minY: 0,
+                minY: 0.0,
                 maxY: _getMaxY(stats),
               ),
             ),
@@ -115,7 +117,8 @@ class ActivityStatsChart extends StatelessWidget {
     for (int i = 0; i < stats.length; i++) {
       final xValue = (i + 1).toDouble(); // Repetition number
       final yValue = stats[i].reactionTime.toDouble(); // Time in milliseconds
-      spots.add(FlSpot(xValue, yValue));
+      final yValueInSeconds = yValue / 1000;
+      spots.add(FlSpot(xValue, yValueInSeconds));
     }
 
     return spots;
@@ -123,13 +126,11 @@ class ActivityStatsChart extends StatelessWidget {
 
   double _getMaxY(List<ActivityStats> stats) {
     double maxY = 0;
-    double maxYarrondi = 0;
     for (var stat in stats) {
-      if (stat.reactionTime.toDouble() > maxY) {
-        maxY = stat.reactionTime.toDouble();
-        //maxYarrondi = maxY.ceil().toDouble();
+      if (stat.reactionTime.toDouble() / 1000 > maxY) {
+        maxY = stat.reactionTime.toDouble() / 1000;
       }
     }
-    return maxY;
+    return maxY.ceil().toDouble();
   }
 }

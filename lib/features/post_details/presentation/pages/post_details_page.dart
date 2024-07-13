@@ -172,18 +172,20 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
                   // Dispatch an event to create the challenge user
+                  final score = type == 'Répétitions'
+                      ? post!.repetitions
+                      : formatDurationTraining(post!.startAt, post!.endAt);
                   context.read<ChallengesUsersBloc>().add(CreateChallengeEvent(
                         challengeName: challengeName,
                         description: description,
                         endDate: endDate,
-                        trainingId:
-                            post!.exercice.id, // Modify based on your data
+                        trainingId: post!.id, // Modify based on your data
                         authorId: userId!,
                         type: type,
                         invites: invites,
                         createdAt: DateTime.now(),
                         participant: {
-                          '1': {'score': 0, 'idUser': userId}
+                          '1': {'score': score, 'idUser': userId}
                         },
                       ));
                   Navigator.of(context).pop();

@@ -26,8 +26,6 @@ class AuthRepositoryImpl implements AuthRepository {
           return left(Failure('User not logged in!'));
         }
 
-        print("session.user.id: ${session.user.id}");
-
         return right(UserModel(
           uid: session.user.id,
           email: "",

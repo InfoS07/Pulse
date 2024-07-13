@@ -65,6 +65,7 @@ import 'package:pulse/features/profil/domain/usecases/get_followers.dart';
 import 'package:pulse/features/profil/domain/usecases/get_followings.dart';
 import 'package:pulse/features/profil/domain/usecases/get_profil.dart';
 import 'package:pulse/features/profil/domain/usecases/signout.dart';
+import 'package:pulse/features/profil/domain/usecases/update_profil.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/features/profil_follow/data/datasources/profil_follow_remote_data_source.dart';
 import 'package:pulse/features/profil_follow/data/repositories/profil_follow_repository_impl.dart';

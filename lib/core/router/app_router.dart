@@ -11,6 +11,9 @@ import 'package:pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:pulse/features/activity/presentation/pages/save_activity_page.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
+import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
+import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
+import 'package:pulse/features/challenges_users/presentation/pages/challenge_user_activity_page.dart';
 import 'package:pulse/features/comments/presentation/pages/comments_page.dart';
 import 'package:pulse/features/exercice_details/presentation/pages/exercice_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
@@ -69,6 +72,20 @@ final GoRouter goRouterProvider = GoRouter(
           path: RoutePath.signUp.path,
           name: RoutePath.signUp.name,
           builder: (context, state) => const SignUpPage(),
+        ),
+        GoRoute(
+          path: "activitychallenge",
+          pageBuilder: (BuildContext context, GoRouterState state) {
+            final Map<String, dynamic> extra =
+                state.extra as Map<String, dynamic>;
+            final Exercice exercise = extra['exercise'] as Exercice;
+            final ChallengeUserModel challengeUser =
+                extra['challengeUser'] as ChallengeUserModel;
+            return DialogPage(
+              builder: (_) => ActivityChallengeUserPage(exercise,
+                  challengeUserModel: challengeUser),
+            );
+          },
         ),
         GoRoute(
           path: RoutePath.otherProfil.path,
