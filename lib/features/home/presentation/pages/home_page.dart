@@ -331,6 +331,17 @@ class _HomePageState extends State<HomePage> {
                       const SliverToBoxAdapter(
                         child: SizedBox(height: 32),
                       ),
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12.0, horizontal: 12),
+                          child: Text(
+                            "Recommendations",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
                       SliverToBoxAdapter(
                         child: SizedBox(
                           height: 200, // Ajustez cette valeur selon vos besoins

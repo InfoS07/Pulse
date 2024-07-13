@@ -125,7 +125,30 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
                         // Liste des challenges
                         filteredChallenges.isEmpty
-                            ? Center(child: Text('Aucun défis'))
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 60.0),
+                                    Image(
+                                      image:
+                                          AssetImage('assets/images/heart.png'),
+                                      width: 150,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 30.0),
+                                      child: Text(
+                                        'Aucun défis pour le moment.',
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 14),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             : GridView.builder(
                                 padding: const EdgeInsets.all(16.0),
                                 shrinkWrap: true,

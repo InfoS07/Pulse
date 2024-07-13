@@ -60,7 +60,7 @@ class LikesPage extends StatelessWidget {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      like.username,
+                      like.createdAt,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,

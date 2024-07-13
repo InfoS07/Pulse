@@ -168,14 +168,6 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    state.profil.username,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
                 ],
               ),
             ],

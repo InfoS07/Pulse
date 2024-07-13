@@ -13,7 +13,6 @@ abstract interface class ProfilRemoteDataSource {
     required String userId,
     required String firstName,
     required String lastName,
-    required String username,
     XFile? photo,
   });
 }
@@ -97,7 +96,6 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
     required String userId,
     required String firstName,
     required String lastName,
-    required String username,
     XFile? photo,
   }) async {
     try {
@@ -113,14 +111,12 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
         response = await supabaseClient.from('users').update({
           'first_name': firstName,
           'last_name': lastName,
-          'username': username,
           'photo_url': fileName,
         }).eq('uid', userId);
       } else {
         response = await supabaseClient.from('users').update({
           'first_name': firstName,
           'last_name': lastName,
-          'username': username,
         }).eq('uid', userId);
       }
 

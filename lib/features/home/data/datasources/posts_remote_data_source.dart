@@ -58,7 +58,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
                 uid
                 last_name
                 first_name
-                username
                 profile_photo
             }
             likes {
@@ -74,7 +73,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
                   uid
                   last_name
                   first_name
-                  username
                   profile_photo
                   birth_date
                 }

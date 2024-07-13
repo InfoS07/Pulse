@@ -22,9 +22,7 @@ class _ExercicePageState extends State<ExercicePage> {
   Widget build(BuildContext context) {
     final sequence =
         widget.exercice.sequence.length > 1 ? "Suite" : "Aléatoire";
-    final nbColor = widget.exercice.sequence.length > 0
-        ? widget.exercice.sequence.length
-        : 3;
+    final nbColor = widget.exercice.podCount > 0 ? widget.exercice.podCount : 3;
 
     return Scaffold(
       body: CustomScrollView(
@@ -179,7 +177,7 @@ class _ExercicePageState extends State<ExercicePage> {
                             _buildInfoCard(
                                 '${widget.exercice.playerCount}', 'Joueur'),
                             const SizedBox(width: 16),
-                            _buildInfoCard('${nbColor}', 'Couleur'),
+                            _buildInfoCard('${nbColor}', 'Pods'),
                             const SizedBox(width: 16),
                             _buildInfoCard('$sequence', 'Sequence'),
                           ],

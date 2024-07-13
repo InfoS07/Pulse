@@ -6,7 +6,6 @@ class ProfilModel extends Profil {
     required super.email,
     required super.lastName,
     required super.firstName,
-    required super.username,
     required super.birthDate,
     required super.profilePhoto,
   });
@@ -17,7 +16,6 @@ class ProfilModel extends Profil {
       email: map['email'] ?? '',
       lastName: map['last_name'] ?? '',
       firstName: map['first_name'] ?? '',
-      username: map['username'] ?? '',
       birthDate: DateTime.parse(map['birth_date']),
       profilePhoto: map['profile_photo'] ?? '',
     );
@@ -32,7 +30,6 @@ class ProfilModel extends Profil {
     String? email,
     String? lastName,
     String? firstName,
-    String? username,
     DateTime? birthDate,
     String? profilePhoto,
   }) {
@@ -41,7 +38,6 @@ class ProfilModel extends Profil {
       email: email ?? this.email,
       lastName: lastName ?? this.lastName,
       firstName: firstName ?? this.firstName,
-      username: username ?? this.username,
       birthDate: birthDate ?? this.birthDate,
       profilePhoto: profilePhoto ?? this.profilePhoto,
     );

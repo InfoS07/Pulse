@@ -10,7 +10,6 @@ class SocialMediaPostModel extends SocialMediaPost {
     required super.title,
     required super.description,
     required super.profileImageUrl,
-    required super.username,
     required super.userUid,
     required super.timestamp,
     required super.startAt,
@@ -30,7 +29,6 @@ class SocialMediaPostModel extends SocialMediaPost {
           ? json['id']
           : int.tryParse(json['id'].toString()) ?? 0,
       profileImageUrl: json['author']?['profile_photo'] ?? '',
-      username: json['author']?['username'] ?? '',
       userUid: json['author']?['uid'] ?? '',
       timestamp: json['created_at'] ?? '',
       title: json['title'] ?? '',
@@ -61,7 +59,6 @@ class SocialMediaPostModel extends SocialMediaPost {
       'id': id,
       'author_id': id,
       'profileImageUrl': profileImageUrl,
-      'username': username,
       'timestamp': timestamp,
       'title': title,
       'description': description,

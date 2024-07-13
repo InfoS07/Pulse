@@ -32,10 +32,15 @@ class IntroductionSliderPage extends StatelessWidget {
           backgroundColor: AppPallete.backgroundColor,
         ),
         IntroductionSliderItem(
+          backgroundImageDecoration: BackgroundImageDecoration(
+            image: const AssetImage('assets/images/background.png'),
+          ),
           logo: Column(
             children: [
-              Image.asset('assets/images/avocado.png',height: 200,),
-
+              Image.asset(
+                'assets/images/avocado.png',
+                height: 200,
+              ),
               const SizedBox(height: 35), // Adds space between image and text
             ],
           ),
@@ -48,12 +53,14 @@ class IntroductionSliderPage extends StatelessWidget {
               ),
             ),
           ),
-          backgroundColor: const Color.fromARGB(255, 26, 25, 25),
         ),
         IntroductionSliderItem(
           logo: Column(
             children: [
-              Image.asset('assets/images/friends.png',height: 200,),
+              Image.asset(
+                'assets/images/friends.png',
+                height: 200,
+              ),
               SizedBox(height: 50), // Adds space between image and text
             ],
           ),
@@ -66,6 +73,9 @@ class IntroductionSliderPage extends StatelessWidget {
                 fontSize: 20,
               ),
             ),
+          ),
+          backgroundImageDecoration: BackgroundImageDecoration(
+            image: const AssetImage('assets/images/background.png'),
           ),
           backgroundColor: AppPallete.backgroundColor,
         ),

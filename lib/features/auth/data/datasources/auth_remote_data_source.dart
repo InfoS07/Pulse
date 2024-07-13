@@ -7,7 +7,6 @@ import 'package:pulse/features/auth/domain/models/user_model.dart';
 abstract class AuthRemoteDataSource {
   Session? get currentUserSession;
   Future<UserModel> signUpWithEmailPassword({
-    required String username,
     required String firstName,
     required String lastName,
     required String email,
@@ -72,7 +71,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<UserModel> signUpWithEmailPassword({
-    required String username,
     required String firstName,
     required String lastName,
     required String email,
@@ -80,7 +78,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final data = <String, dynamic>{
-        "username": username,
         "last_name": lastName,
         "first_name": firstName,
         "birth_date": "2000-01-01",

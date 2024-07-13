@@ -31,7 +31,6 @@ class AuthRepositoryImpl implements AuthRepository {
           email: "",
           lastName: "",
           firstName: "",
-          username: "",
           birthDate: DateTime.now(),
           urlProfilePhoto: "",
           points: 0,
@@ -64,7 +63,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> signUpWithEmailPassword({
-    required String username,
     required String firstName,
     required String lastName,
     required String email,
@@ -72,7 +70,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     return _getUser(
       () async => await remoteDataSource.signUpWithEmailPassword(
-          username: username,
           email: email,
           password: password,
           firstName: firstName,

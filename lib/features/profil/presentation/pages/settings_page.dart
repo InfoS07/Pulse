@@ -25,7 +25,7 @@ class _SettingsPageState extends State<SettingsPage> {
   XFile? _selectedPhoto;
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
-  late TextEditingController usernameController;
+  late TextEditingController emailController;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
-    usernameController.dispose();
+    emailController.dispose();
     super.dispose();
   }
 
@@ -114,7 +114,6 @@ class _SettingsPageState extends State<SettingsPage> {
         userId: userId!,
         firstName: firstNameController.text,
         lastName: lastNameController.text,
-        username: usernameController.text,
         photo: _selectedPhoto,
       );
       context.read<ProfilBloc>().add(ProfilUpdateProfil(params));
@@ -153,8 +152,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   TextEditingController(text: state.profil.firstName);
               lastNameController =
                   TextEditingController(text: state.profil.lastName);
-              usernameController =
-                  TextEditingController(text: state.profil.username);
+              emailController = TextEditingController(text: state.profil.email);
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -228,6 +226,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 16.0),
                     TextField(
+                      readOnly: true,
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mail',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextField(
                       controller: firstNameController,
                       decoration: const InputDecoration(
                         labelText: 'Prénom',
@@ -239,14 +246,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       controller: lastNameController,
                       decoration: const InputDecoration(
                         labelText: 'Nom',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      controller: usernameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Pseudo',
                         border: OutlineInputBorder(),
                       ),
                     ),

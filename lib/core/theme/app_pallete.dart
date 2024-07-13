@@ -4,8 +4,8 @@ class AppPallete {
   static const Color backgroundColor = Color(0xFF20211F);
   static const Color backgroundColorDarker = Color(0xFF141414);
   static const Color popUpBackgroundColor = Color.fromRGBO(8, 8, 8, 1);
-  static const Color primaryColor = Color.fromRGBO(134, 240, 175, 1); //0xFFAFEE27);
-  static const Color primaryColorFade = Color.fromRGBO(155, 253, 76, 0.2);
+  static const Color primaryColor = Color(0xFF86F0AF); //0xFFAFEE27);
+  static const Color primaryColorFade = Color(0x339BFD4C);
   static const Color secondaryColor = Color(0xFFA68FF8); //6526ED);
   static const Color secondaryColorFade =
       Color.fromARGB(255, 209, 198, 250); //6526ED);

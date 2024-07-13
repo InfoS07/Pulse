@@ -33,7 +33,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    post.username,
+                    post.userUid,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,

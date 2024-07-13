@@ -127,8 +127,8 @@ class _CommentsPageState extends State<CommentsPage> {
                 children: [
                   UserProfilePostContainer(
                     profileImageUrl: post!.profileImageUrl,
-                    username: post.username,
                     timestamp: post.timestamp,
+                    lastnName: post.title,
                     title: post.title,
                     commentCount: post.comments.length,
                     onTap: () {
@@ -167,7 +167,9 @@ class _CommentsPageState extends State<CommentsPage> {
                                         comment.user.urlProfilePhoto),
                                   ),
                                   title: Text(
-                                    comment.user.username,
+                                    comment.user.lastName +
+                                        ' ' +
+                                        comment.user.firstName,
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 14,
@@ -245,7 +247,7 @@ class _CommentsPageState extends State<CommentsPage> {
 
 class UserProfilePostContainer extends StatelessWidget {
   final String profileImageUrl;
-  final String username;
+  final String lastnName;
   final String timestamp;
   final String title;
   final int commentCount;
@@ -253,7 +255,7 @@ class UserProfilePostContainer extends StatelessWidget {
 
   UserProfilePostContainer({
     required this.profileImageUrl,
-    required this.username,
+    required this.lastnName,
     required this.timestamp,
     required this.title,
     required this.commentCount,
@@ -270,8 +272,8 @@ class UserProfilePostContainer extends StatelessWidget {
         children: [
           UserProfilePostHeader(
             profileImageUrl: profileImageUrl,
-            username: username,
             timestamp: timestamp,
+            lastnName: lastnName,
             onTap: onTap,
           ),
           Padding(
@@ -298,13 +300,13 @@ class UserProfilePostContainer extends StatelessWidget {
 
 class UserProfilePostHeader extends StatelessWidget {
   final String profileImageUrl;
-  final String username;
+  final String lastnName;
   final String timestamp;
   final VoidCallback onTap;
 
   UserProfilePostHeader({
     required this.profileImageUrl,
-    required this.username,
+    required this.lastnName,
     required this.timestamp,
     required this.onTap,
   });
@@ -316,7 +318,7 @@ class UserProfilePostHeader extends StatelessWidget {
         backgroundImage: NetworkImage(profileImageUrl),
       ),
       title: Text(
-        username,
+        lastnName,
         style:
             const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
       ),

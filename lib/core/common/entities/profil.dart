@@ -3,7 +3,6 @@ class Profil {
   final String email;
   final String lastName;
   final String firstName;
-  final String username;
   final DateTime birthDate;
   final String profilePhoto;
 
@@ -12,7 +11,6 @@ class Profil {
     required this.email,
     required this.lastName,
     required this.firstName,
-    required this.username,
     required this.birthDate,
     required this.profilePhoto,
   });

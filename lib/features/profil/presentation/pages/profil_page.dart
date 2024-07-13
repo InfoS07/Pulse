@@ -187,14 +187,6 @@ class _ProfilPageState extends State<ProfilPage> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    state.profil.username,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -307,7 +299,27 @@ class _ProfilPageState extends State<ProfilPage> {
             },
           );
         } else if (state is HomeEmpty) {
-          return const SizedBox();
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 80.0),
+                Image(
+                  image: AssetImage('assets/images/heart.png'),
+                  width: 150,
+                ),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Historique d\'entrainement vide, lancez votre premier entrainement.',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          );
         } else {
           return const Center(
             child: Text('Erreur de chargement des entraînements.',

@@ -8,7 +8,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 abstract class CommentsRemoteDataSource {
   Future<List<Comment?>> getComments();
   Future<Comment> addComment(int trainingId, AddComment addComment);
-  //Future<void> addComment(String username, String picUrl, String message, String date);
   Future<void> reportComment(int commentIndex, String reportReason);
 }
 

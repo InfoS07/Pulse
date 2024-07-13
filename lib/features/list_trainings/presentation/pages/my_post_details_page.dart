@@ -101,7 +101,7 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
               children: [
                 UserProfilePostHeader(
                   profileImageUrl: widget.post.profileImageUrl,
-                  username: widget.post.username,
+                  lastName: widget.post.userUid,
                   timestamp: widget.post.timestamp,
                   onTap: () {
                     context.push('/otherProfil', extra: userId);

@@ -5,7 +5,6 @@ import 'package:pulse/core/common/entities/exercice.dart';
 class SocialMediaPost {
   final int id;
   final String profileImageUrl;
-  final String username;
   final String userUid;
   final String timestamp;
   final DateTime startAt;
@@ -26,7 +25,6 @@ class SocialMediaPost {
     required this.description,
     required this.profileImageUrl,
     required this.userUid,
-    required this.username,
     required this.timestamp,
     required this.startAt,
     required this.endAt,
@@ -42,7 +40,6 @@ class SocialMediaPost {
   SocialMediaPost copyWith({
     int? id,
     String? profileImageUrl,
-    String? username,
     String? userUid,
     String? timestamp,
     DateTime? startAt,
@@ -60,7 +57,6 @@ class SocialMediaPost {
     return SocialMediaPost(
       id: id ?? this.id,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      username: username ?? this.username,
       userUid: userUid ?? this.userUid,
       timestamp: timestamp ?? this.timestamp,
       title: title ?? this.title,

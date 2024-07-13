@@ -79,7 +79,6 @@ class ProfilRepositoryImpl implements ProfilRepository {
     required String userId,
     required String firstName,
     required String lastName,
-    required String username,
     XFile? photo,
   }) async {
     return _updateUser(
@@ -87,7 +86,6 @@ class ProfilRepositoryImpl implements ProfilRepository {
         userId: userId,
         firstName: firstName,
         lastName: lastName,
-        username: username,
         photo: photo,
       ),
     );

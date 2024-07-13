@@ -40,7 +40,7 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
           children: [
             UserProfilePostHeader(
               profileImageUrl: widget.post.profileImageUrl,
-              username: widget.post.username,
+              lastName: widget.post.userUid,
               timestamp: widget.post.timestamp,
               onTap: () {
                 //context.push('/otherProfil');
@@ -100,7 +100,7 @@ class EmptySocialMediaPostWidget extends StatelessWidget {
         children: [
           UserProfilePostHeader(
             profileImageUrl: '',
-            username: 'Loading...',
+            lastName: 'Loading...',
             timestamp: DateTime.now().toString(),
             onTap: () {},
           ),

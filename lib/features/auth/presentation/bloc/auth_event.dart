@@ -6,7 +6,6 @@ abstract class AuthEvent {}
 final class AuthSignUp extends AuthEvent {
   final String email;
   final String password;
-  final String username;
   final String firstName;
   final String lastName;
 
@@ -15,7 +14,6 @@ final class AuthSignUp extends AuthEvent {
     required this.password,
     required this.lastName,
     required this.firstName,
-    required this.username,
   });
 }
 

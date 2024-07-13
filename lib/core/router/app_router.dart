@@ -49,7 +49,7 @@ enum RoutePath {
   followOther(path: 'followOther'),
   searchUser(path: 'searchUser'),
   profil(path: 'profil'),
-  settings(path: 'settings');
+  settings(path: 'settings'),
   introSlider(path: 'intro-slider');
 
   const RoutePath({required this.path});
@@ -88,6 +88,7 @@ final GoRouter goRouterProvider = GoRouter(
                   challengeUserModel: challengeUser),
             );
           },
+        ),
         GoRoute(
           path: RoutePath.introSlider.path,
           name: RoutePath.introSlider.name,

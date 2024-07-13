@@ -46,7 +46,6 @@ class ChallengeUserModel {
         email: '', // Add these fields if available in your database
         lastName: '', // Add these fields if available in your database
         firstName: '', // Add these fields if available in your database
-        username: '', // Add these fields if available in your database
         birthDate:
             DateTime.now(), // Add these fields if available in your database
         urlProfilePhoto: '', // Add these fields if available in your database

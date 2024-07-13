@@ -11,7 +11,6 @@ abstract interface class ProfilRepository {
     required String userId,
     required String firstName,
     required String lastName,
-    required String username,
     XFile? photo,
   });
 }
