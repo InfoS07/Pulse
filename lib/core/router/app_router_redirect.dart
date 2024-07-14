@@ -13,11 +13,16 @@ FutureOr<String?> appRouterRedirect(
       userState is AppUserLoggedOut && state.matchedLocation == '/profil';
   final isLoggedIn = userState is AppUserLoggedIn;
   final isLoggingIn = state.matchedLocation == '/login';
+  print('isLoggedIn: $isLoggedIn');
   if (isLoggingOut) {
     return '/login';
   }
   if (isLoggedIn && isLoggingIn) {
     return '/home';
+  } else if (!isLoggedIn &&
+      !isLoggingIn &&
+      state.matchedLocation != '/forgot_password') {
+    return '/signup';
   }
 
   return null;

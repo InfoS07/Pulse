@@ -10,7 +10,8 @@ import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
-import 'package:pulse/core/common/widgets/loader.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,7 +26,9 @@ class _SettingsPageState extends State<SettingsPage> {
   XFile? _selectedPhoto;
   late TextEditingController firstNameController;
   late TextEditingController lastNameController;
-  late TextEditingController usernameController;
+  late TextEditingController emailController;
+  String originalFirstName = '';
+  String originalLastName = '';
 
   @override
   void initState() {
@@ -41,7 +44,7 @@ class _SettingsPageState extends State<SettingsPage> {
   void dispose() {
     firstNameController.dispose();
     lastNameController.dispose();
-    usernameController.dispose();
+    emailController.dispose();
     super.dispose();
   }
 
@@ -109,15 +112,33 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void _updateProfile() {
+    if (firstNameController.text.isEmpty || lastNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Tous les champs sont obligatoires")),
+      );
+      return;
+    }
+
+    if (firstNameController.text == originalFirstName &&
+        lastNameController.text == originalLastName &&
+        _selectedPhoto == null) {
+      return;
+    }
+
     if (userId != null) {
       final params = UpdateUserParams(
         userId: userId!,
         firstName: firstNameController.text,
         lastName: lastNameController.text,
-        username: usernameController.text,
         photo: _selectedPhoto,
       );
       context.read<ProfilBloc>().add(ProfilUpdateProfil(params));
+      ToastService.showSuccessToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: "Profile mis à jour",
+      );
     }
   }
 
@@ -147,14 +168,15 @@ class _SettingsPageState extends State<SettingsPage> {
           },
           builder: (context, state) {
             if (state is ProfilLoading) {
-              return const Loader();
+              return _buildShimmerLoading();
             } else if (state is ProfilSuccess) {
               firstNameController =
                   TextEditingController(text: state.profil.firstName);
               lastNameController =
                   TextEditingController(text: state.profil.lastName);
-              usernameController =
-                  TextEditingController(text: state.profil.username);
+              emailController = TextEditingController(text: state.profil.email);
+              originalFirstName = state.profil.firstName;
+              originalLastName = state.profil.lastName;
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -197,7 +219,10 @@ class _SettingsPageState extends State<SettingsPage> {
                                     child: Container(
                                       width: 100,
                                       height: 100,
-                                      color: Colors.grey[200],
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[200],
+                                        shape: BoxShape.circle,
+                                      ),
                                     ),
                                   ),
                                   errorWidget: (context, url, error) =>
@@ -228,6 +253,15 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                     const SizedBox(height: 16.0),
                     TextField(
+                      readOnly: true,
+                      controller: emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Mail',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    TextField(
                       controller: firstNameController,
                       decoration: const InputDecoration(
                         labelText: 'Prénom',
@@ -243,34 +277,32 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    TextField(
-                      controller: usernameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Pseudo',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: _updateProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppPallete.primaryColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _updateProfile,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppPallete.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 80, vertical: 14),
-                      ),
-                      child: const Text(
-                        'Modifier',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
+                        child: const Text(
+                          'Modifier',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 16.0),
-                    Center(
+                    SizedBox(
+                      height: 16.0,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _signOut,
                         style: ElevatedButton.styleFrom(
@@ -278,8 +310,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 80, vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
                         child: const Text(
                           'Se déconnecter',
@@ -303,6 +334,95 @@ class _SettingsPageState extends State<SettingsPage> {
             }
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colors.grey.shade300,
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16.0),
+          Shimmer.fromColors(
+            baseColor: Colors.grey.shade300,
+            highlightColor: Colors.grey.shade100,
+            enabled: true,
+            child: Container(
+              width: double.infinity,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

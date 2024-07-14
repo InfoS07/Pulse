@@ -1,35 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/show_snackbar.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/auth/presentation/widgets/auth_field.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pulse/features/auth/presentation/widgets/auth_gradient_button.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final emailController = TextEditingController();
-  final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     emailController.dispose();
-    passwordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mot de passe oublié'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(60.0),
         child: BlocConsumer<AuthBloc, AuthState>(
@@ -37,12 +42,13 @@ class _LoginPageState extends State<LoginPage> {
             if (state is AuthFailure) {
               showSnackBar(context, state.message);
             } else if (state is AuthSuccess) {
-              context.go('/home');
+              showSnackBar(context,
+                  'Un lien de réinitialisation a été envoyé à votre email');
             }
           },
           builder: (context, state) {
             if (state is AuthLoading) {
-              return const Loader();
+              return const Center(child: CircularProgressIndicator());
             }
 
             return Form(
@@ -50,11 +56,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'assets/ic_logobg.png',
-                    height: 100,
-                  ),
-                  const SizedBox(height: 20),
                   ShaderMask(
                     shaderCallback: (Rect bounds) {
                       return const LinearGradient(
@@ -82,69 +83,36 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: 'Email',
                     controller: emailController,
                   ),
-                  const SizedBox(height: 15),
-                  AuthField(
-                    hintText: 'Mot de passe',
-                    controller: passwordController,
-                    isObscureText: true,
-                  ),
                   const SizedBox(height: 20),
                   AuthGradientButton(
-                    buttonText: 'Se connecter',
+                    buttonText: 'Réinitialiser',
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         context.read<AuthBloc>().add(
-                              AuthLogin(
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim(),
-                              ),
+                              AuthResetPassword(
+                                  email: emailController.text.trim()),
                             );
                       }
                     },
                   ),
                   const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/forgot_password');
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
                     },
-                    child: Center(
-                      child: RichText(
-                        textAlign: TextAlign.center, // Centrer le texte
-                        text: TextSpan(
-                          text: 'Mot de passe oublié ?',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppPallete.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.secondaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 80, vertical: 14),
                     ),
-                  ),
-                  const SizedBox(height: 60),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/signup');
-                    },
-                    child: Center(
-                      child: RichText(
-                        textAlign: TextAlign.center, // Centrer le texte
-                        text: TextSpan(
-                          text: 'Tu n\'es pas encore un pulseur?\n ',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          children: [
-                            TextSpan(
-                              text: 'Cree ton compte',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: AppPallete.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                            ),
-                          ],
-                        ),
+                    child: const Text(
+                      'Retour',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
                       ),
                     ),
                   ),

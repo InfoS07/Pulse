@@ -187,14 +187,6 @@ class _ProfilPageState extends State<ProfilPage> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 4.0),
-                  Text(
-                    state.profil.username,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -261,7 +253,7 @@ class _ProfilPageState extends State<ProfilPage> {
           return const Loader();
         } else if (state is HomeLoaded) {
           final userPosts =
-              state.posts.where((post) => post!.userUid == userId).toList();
+              state.posts.where((post) => post!.user.uid == userId).toList();
 
           if (userPosts.isEmpty) {
             return const Center(
@@ -295,6 +287,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                   ),
                   ...weekPosts.value.map((post) {
+                    print("index $index");
                     return PostListItem(
                       post: post,
                       onTap: () {
@@ -307,11 +300,48 @@ class _ProfilPageState extends State<ProfilPage> {
             },
           );
         } else if (state is HomeEmpty) {
-          return const SizedBox();
+          return const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 80.0),
+                Image(
+                  image: AssetImage('assets/images/heart.png'),
+                  width: 150,
+                ),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Historique d\'entrainement vide, lancez votre premier entrainement.',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          );
         } else {
           return const Center(
-            child: Text('Erreur de chargement des entraînements.',
-                style: TextStyle(color: Colors.white)),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 80.0),
+                Image(
+                  image: AssetImage('assets/images/heart.png'),
+                  width: 150,
+                ),
+                SizedBox(height: 16),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Historique d\'entrainement vide, lancez votre premier entrainement.',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
           );
         }
       },
@@ -397,7 +427,9 @@ class PostListItem extends StatelessWidget {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(8.0), // Rounded corners
             child: CachedNetworkImage(
-              imageUrl: post.exercice.photos.first,
+              imageUrl: post.exercice.photos.firstWhere(
+                  (element) => !element.endsWith('.mp4'),
+                  orElse: () => post.exercice.photos.first),
               height: 50,
               width: 50,
               fit: BoxFit.cover,

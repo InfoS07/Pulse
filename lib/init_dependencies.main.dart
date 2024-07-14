@@ -79,6 +79,11 @@ void _initAuth() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => UserResetPassword(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => AuthBloc(
@@ -86,6 +91,7 @@ void _initAuth() {
         userLogin: serviceLocator(),
         currentUser: serviceLocator(),
         signOut: serviceLocator(),
+        userResetPassword: serviceLocator(),
         appUserCubit: serviceLocator(),
       ),
     );

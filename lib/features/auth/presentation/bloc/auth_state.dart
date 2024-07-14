@@ -20,3 +20,5 @@ final class AuthFailure extends AuthState {
 }
 
 final class AuthSignedOut extends AuthState {}
+
+final class AuthResetPasswordSuccess extends AuthState {}

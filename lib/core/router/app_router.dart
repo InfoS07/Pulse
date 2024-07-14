@@ -9,11 +9,13 @@ import 'package:pulse/core/router/app_router_redirect.dart';
 import 'package:pulse/core/router/scaffold_with_nav_bar.dart';
 import 'package:pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:pulse/features/activity/presentation/pages/save_activity_page.dart';
+import 'package:pulse/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenge_user_activity_page.dart';
+import 'package:pulse/features/challenges_users/presentation/pages/challenges_users_details_page.dart';
 import 'package:pulse/features/comments/presentation/pages/comments_page.dart';
 import 'package:pulse/features/exercice_details/presentation/pages/exercice_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
@@ -38,6 +40,7 @@ enum RoutePath {
   root(path: '/'),
   signIn(path: 'login'),
   signUp(path: 'signup'),
+  forgotPasswordPage(path: 'forgot_password'),
   home(path: 'home'),
   exercices(path: 'exercices'),
   progress(path: 'progress'),
@@ -49,8 +52,9 @@ enum RoutePath {
   followOther(path: 'followOther'),
   searchUser(path: 'searchUser'),
   profil(path: 'profil'),
-  settings(path: 'settings');
-  introSlider(path: 'intro-slider');
+  settings(path: 'settings'),
+  introSlider(path: 'intro-slider'),
+  challengeUserDetails(path: 'challenges_users_details');
 
   const RoutePath({required this.path});
   final String path;
@@ -71,6 +75,11 @@ final GoRouter goRouterProvider = GoRouter(
           builder: (context, state) => const LoginPage(),
         ),
         GoRoute(
+          path: RoutePath.forgotPasswordPage.path,
+          name: RoutePath.forgotPasswordPage.name,
+          builder: (context, state) => const ForgotPasswordPage(),
+        ),
+        GoRoute(
           path: RoutePath.signUp.path,
           name: RoutePath.signUp.name,
           builder: (context, state) => const SignUpPage(),
@@ -88,6 +97,7 @@ final GoRouter goRouterProvider = GoRouter(
                   challengeUserModel: challengeUser),
             );
           },
+        ),
         GoRoute(
           path: RoutePath.introSlider.path,
           name: RoutePath.introSlider.name,
@@ -210,6 +220,14 @@ final GoRouter goRouterProvider = GoRouter(
                   path: RoutePath.progress.path,
                   name: RoutePath.progress.name,
                   builder: (context, state) => GroupPage(),
+                  routes: [
+                    GoRoute(
+                      path: RoutePath.challengeUserDetails.path,
+                      name: RoutePath.challengeUserDetails.name,
+                      builder: (context, state) => ChallengeUserDetailsPage(
+                          challengeUser: state.extra as ChallengeUserModel),
+                    ),
+                  ],
                 ),
               ],
             ),

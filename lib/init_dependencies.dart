@@ -21,6 +21,7 @@ import 'package:pulse/features/auth/data/repositories/auth_repository_impl.dart'
 import 'package:pulse/features/auth/domain/repository/auth_repository.dart';
 import 'package:pulse/features/auth/domain/usecases/current_user.dart';
 import 'package:pulse/features/auth/domain/usecases/user_login.dart';
+import 'package:pulse/features/auth/domain/usecases/user_reset_password.dart';
 import 'package:pulse/features/auth/domain/usecases/user_sign_up.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/challenges/data/datasources/challenges_remote_data_source.dart';

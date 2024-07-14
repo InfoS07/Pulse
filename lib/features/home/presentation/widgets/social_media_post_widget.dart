@@ -39,8 +39,9 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             UserProfilePostHeader(
-              profileImageUrl: widget.post.profileImageUrl,
-              username: widget.post.username,
+              profileImageUrl: widget.post.user.urlProfilePhoto,
+              lastName:
+                  widget.post.user.firstName + ' ' + widget.post.user.lastName,
               timestamp: widget.post.timestamp,
               onTap: () {
                 //context.push('/otherProfil');
@@ -54,7 +55,9 @@ class _SocialMediaPostWidgetState extends State<SocialMediaPostWidget> {
             const SizedBox(height: 18),
             ExerciseCardWidget(
               exerciseTitle: widget.post.exercice.title,
-              exerciseUrlPhoto: widget.post.exercice.photos.first,
+              exerciseUrlPhoto: widget.post.exercice.photos.firstWhere(
+                  (element) => !element.endsWith('.mp4'),
+                  orElse: () => widget.post.exercice.photos.first),
               onTap: () {
                 context.push('/exercices/details/${widget.post.exercice.id}',
                     extra: widget.post.exercice);
@@ -100,7 +103,7 @@ class EmptySocialMediaPostWidget extends StatelessWidget {
         children: [
           UserProfilePostHeader(
             profileImageUrl: '',
-            username: 'Loading...',
+            lastName: 'Loading...',
             timestamp: DateTime.now().toString(),
             onTap: () {},
           ),

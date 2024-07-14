@@ -137,6 +137,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
             Column(
               children: _buildExerciseRows(category.value),
             ),
+            const SizedBox(height: 30),
           ],
         );
       }).toList(),

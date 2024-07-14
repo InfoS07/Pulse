@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
@@ -24,7 +26,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                   context.push('/otherProfil');
                 },
                 child: CircleAvatar(
-                  backgroundImage: NetworkImage(post.profileImageUrl),
+                  backgroundImage: NetworkImage(post.user.urlProfilePhoto),
                   radius: 20,
                 ),
               ),
@@ -33,7 +35,7 @@ class SocialMediaPostWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    post.username,
+                    post.user.lastName,
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -73,7 +75,8 @@ class SocialMediaPostWidget extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8.0), // Rounded corners
             child: Image.network(
-              post.photos.first,
+              post.photos.firstWhere((element) => !element.endsWith('.mp4'),
+                  orElse: () => post.photos.first),
               fit: BoxFit.cover,
             ),
           ),

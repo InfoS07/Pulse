@@ -11,6 +11,7 @@ import 'package:pulse/features/auth/domain/repository/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final ConnectionChecker connectionChecker;
+
   const AuthRepositoryImpl(
     this.remoteDataSource,
     this.connectionChecker,
@@ -31,7 +32,6 @@ class AuthRepositoryImpl implements AuthRepository {
           email: "",
           lastName: "",
           firstName: "",
-          username: "",
           birthDate: DateTime.now(),
           urlProfilePhoto: "",
           points: 0,
@@ -64,7 +64,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, User>> signUpWithEmailPassword({
-    required String username,
     required String firstName,
     required String lastName,
     required String email,
@@ -72,7 +71,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }) async {
     return _getUser(
       () async => await remoteDataSource.signUpWithEmailPassword(
-          username: username,
           email: email,
           password: password,
           firstName: firstName,
@@ -98,5 +96,18 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<void> signOut() async {
     await remoteDataSource.signOut();
+  }
+
+  @override
+  Future<Either<Failure, Unit>> resetPassword({
+    required String email,
+  }) async {
+    try {
+      await remoteDataSource.resetPassword(email: email);
+
+      return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
   }
 }

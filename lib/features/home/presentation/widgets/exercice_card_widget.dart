@@ -33,7 +33,7 @@ class ExerciseHomeCardWidget extends StatelessWidget {
         color: Colors.black, // Couleur de fond de la carte
         borderRadius: BorderRadius.circular(16.0),
         border: Border.all(
-          color: AppPallete.primaryColor.withOpacity(0.8),
+          color: AppPallete.secondaryColor.withOpacity(0.4),
           width: 2.0,
         ),
         image: DecorationImage(

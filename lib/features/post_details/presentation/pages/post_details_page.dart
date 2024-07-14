@@ -7,6 +7,7 @@ import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:pulse/core/utils/formatters.dart';
+import 'package:pulse/features/activity/presentation/widgets/activity_stats_chart.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/action_buttons_post_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
@@ -217,7 +218,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
           },
         ),
         actions: [
-          if (userId == post?.userUid)
+          if (userId == post?.user.uid)
             PopupMenuButton<String>(
               color: AppPallete.popUpBackgroundColor,
               tooltip: 'Plus d\'options',
@@ -261,12 +262,13 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                         children: [
                           if (post != null) ...[
                             UserProfilePostHeader(
-                              profileImageUrl: post!.profileImageUrl ??
-                                  'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
-                              username: post!.username,
+                              profileImageUrl: post!.user.urlProfilePhoto,
+                              lastName: post!.user.firstName +
+                                  ' ' +
+                                  post!.user.lastName,
                               timestamp: post!.timestamp,
                               onTap: () {
-                                String userId = post!.userUid;
+                                String userId = post!.user.uid;
                                 context.push('/otherProfil', extra: userId);
                               },
                             ),
@@ -283,7 +285,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                             const SizedBox(height: 18),
                             ExerciseCardWidget(
                               exerciseTitle: post!.exercice.title,
-                              exerciseUrlPhoto: post!.exercice.photos.first,
+                              exerciseUrlPhoto: post!.exercice.photos
+                                  .firstWhere(
+                                      (element) => !element.endsWith('.mp4'),
+                                      orElse: () =>
+                                          post!.exercice.photos.first),
                               onTap: () {
                                 context.push(
                                     '/exercices/details/${post!.exercice.id}',
@@ -294,14 +300,32 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                _buildInfoCard(
-                                    formatDurationTraining(
-                                      post!.startAt,
-                                      post!.endAt,
-                                    ),
-                                    'Durée'),
-                                _buildInfoCard(
-                                    '${post!.repetitions}', 'Répétitions'),
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _buildInfoCard(
+                                        formatDurationTraining(
+                                          post!.startAt,
+                                          post!.endAt,
+                                        ),
+                                        'Durée'),
+                                    _buildInfoCard(
+                                        '${post!.repetitions}', 'Répétitions'),
+                                  ],
+                                ),
+                                const SizedBox(height: 18),
+                                Column(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    _buildInfoCard(
+                                        '${post!.moyenneReactionTime.toStringAsFixed(2)} s',
+                                        'Réaction moyenne'),
+                                    _buildInfoCard('${post!.missedRepetitions}',
+                                        'Touches ratés'),
+                                  ],
+                                ),
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -335,7 +359,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 10),
                                   ),
-                                  child: Text(
+                                  child: const Text(
                                     'Créer un défi',
                                     style: TextStyle(
                                         color: Colors.black, fontSize: 14),
@@ -344,7 +368,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                               ),
                             ),
                           ] else ...[
-                            const Center(child: Text('Post not found')),
+                            const Center(
+                                child: Text('Entraînement non trouvé')),
                           ],
                         ],
                       ),
@@ -354,15 +379,22 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 const SliverToBoxAdapter(
                   child: SizedBox(height: 22),
                 ),
-                SliverToBoxAdapter(
+                /* SliverToBoxAdapter(
                   child: _buildAnalysisSection(),
-                ),
-                const SliverToBoxAdapter(
+                ), */
+
+                if (post!.stats.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: ActivityStatsChart(
+                      stats: post!.stats,
+                    ),
+                  ),
+                /* const SliverToBoxAdapter(
                   child: SizedBox(height: 22),
                 ),
                 SliverToBoxAdapter(
                   child: _buildAnalysisTouchSection(),
-                )
+                ) */
               ],
             );
           } else if (state is HomeError) {

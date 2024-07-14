@@ -733,16 +733,6 @@ class _ActivityPageState extends State<ActivityPage>
                             ),
                           ],
                         ),
-                        const SizedBox(height: 30),
-                        ValueListenableBuilder<String>(
-                          valueListenable: connectionStatusNotifier,
-                          builder: (context, value, child) {
-                            return Text(
-                              'État de la connexion : $value',
-                              style: const TextStyle(color: Colors.white),
-                            );
-                          },
-                        ),
                         const SizedBox(height: 16),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,

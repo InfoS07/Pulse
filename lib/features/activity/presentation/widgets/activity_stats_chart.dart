@@ -11,15 +11,15 @@ class ActivityStatsChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppPallete.backgroundColor,
+      color: AppPallete.backgroundColorDarker,
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Temps de réaction',
             style: TextStyle(
-              fontSize: 18,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -29,11 +29,34 @@ class ActivityStatsChart extends StatelessWidget {
             height: 200,
             child: LineChart(
               LineChartData(
+                extraLinesData: ExtraLinesData(
+                  horizontalLines: [
+                    HorizontalLine(
+                      y: _getMoyenneY(stats),
+                      color: AppPallete.primaryColor,
+                      strokeWidth: 1,
+                      dashArray: [8, 8],
+                    ),
+                  ],
+                ),
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                      return touchedSpots.map((LineBarSpot touchedSpot) {
+                        final spot = touchedSpot;
+                        return LineTooltipItem(
+                          '${spot.y.toStringAsFixed(2)} s',
+                          TextStyle(color: AppPallete.primaryColor),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: _createSpots(stats),
                     isCurved: true,
-                    color: AppPallete.thirdColor,
+                    color: AppPallete.secondaryColor,
                     barWidth: 1,
                     belowBarData: BarAreaData(show: false),
                   ),
@@ -41,7 +64,7 @@ class ActivityStatsChart extends StatelessWidget {
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     axisNameWidget: Text(
-                      'Temps en secondes',
+                      'Secondes',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                     sideTitles: SideTitles(
@@ -98,7 +121,7 @@ class ActivityStatsChart extends StatelessWidget {
                     );
                   },
                 ),
-                lineTouchData: LineTouchData(enabled: true),
+                //lineTouchData: LineTouchData(enabled: true),
                 minX: 1,
                 maxX: stats.length.toDouble(),
                 minY: 0.0,
@@ -122,6 +145,14 @@ class ActivityStatsChart extends StatelessWidget {
     }
 
     return spots;
+  }
+
+  double _getMoyenneY(List<ActivityStats> stats) {
+    double total = 0;
+    for (var stat in stats) {
+      total += stat.reactionTime.toDouble();
+    }
+    return (total / stats.length) / 1000;
   }
 
   double _getMaxY(List<ActivityStats> stats) {

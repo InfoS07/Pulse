@@ -23,7 +23,6 @@ class SearchUserRemoteDataSourceImpl implements SearchUserRemoteDataSource {
             uid
             last_name
             first_name
-            username
             email
             birth_date
             profile_photo

@@ -750,7 +750,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                         const SizedBox(height: 8),
                         if (widget.challengeUserModel!.type == 'Répétitions')
                           Text(
-                            'Objectif de touches : ${widget.challengeUserModel!.training.repetitions}',
+                            'Nombre de touche à battre : ${widget.challengeUserModel!.training.repetitions}',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

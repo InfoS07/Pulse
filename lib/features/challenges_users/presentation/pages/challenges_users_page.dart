@@ -10,6 +10,8 @@ import 'package:pulse/features/challenges_users/domain/models/challenges_users_m
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class ChallengeUserPage extends StatefulWidget {
   @override
@@ -125,16 +127,39 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
                         // Liste des challenges
                         filteredChallenges.isEmpty
-                            ? Center(child: Text('Aucun défis'))
+                            ? const Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 60.0),
+                                    Image(
+                                      image:
+                                          AssetImage('assets/images/heart.png'),
+                                      width: 150,
+                                    ),
+                                    SizedBox(height: 16),
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 30.0),
+                                      child: Text(
+                                        'Aucun défis pour le moment.',
+                                        style: TextStyle(
+                                            color: Colors.grey, fontSize: 14),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
                             : GridView.builder(
-                                padding: const EdgeInsets.all(16.0),
+                                padding: const EdgeInsets.all(8.0),
                                 shrinkWrap: true,
                                 physics: NeverScrollableScrollPhysics(),
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
                                   childAspectRatio: 0.7,
                                 ),
                                 itemCount: filteredChallenges.length,
@@ -188,10 +213,12 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
     return GestureDetector(
       onTap: () {
-        _showChallengeDetailsBottomSheet(context, challengeUser);
+        context.push("/progress/challenges_users_details",
+            extra: challengeUser);
+        // _showChallengeDetailsBottomSheet(context, challengeUser);
       },
       child: Card(
-        color: AppPallete.backgroundColor,
+        color: AppPallete.backgroundColorDarker,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -212,34 +239,36 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               Expanded(
                 child: Text(
                   challengeUser.description,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
-              const SizedBox(height: 8),
+              Spacer(),
               Expanded(
                 child: Text(
                   _formatEndTime(challengeUser.endAt),
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
-              SizedBox(height: 16),
               if (isAuthor) ...[
-                ElevatedButton(
-                  onPressed: () =>
-                      _showDeleteConfirmationDialog(context, challengeUser),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+                /* SizedBox(
+                  width: double.infinity, // Button takes the full width
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showDeleteConfirmationDialog(context, challengeUser);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.errorColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 4),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20.0, vertical: 8.0),
+                    child: const Text(
+                      'Supprimer',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   ),
-                  child: const Text(
-                    'Supprimer',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
+                ), */
               ] else
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -566,6 +595,13 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   Navigator.of(bottomSheetContext!).pop();
                 }
                 _refreshChallengesUsers();
+
+                ToastService.showSuccessToast(
+                  context,
+                  length: ToastLength.long,
+                  expandedHeight: 100,
+                  message: "Défis supprimé",
+                );
               },
               child:
                   const Text('Supprimer', style: TextStyle(color: Colors.red)),

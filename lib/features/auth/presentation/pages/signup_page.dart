@@ -18,7 +18,6 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final usernameController = TextEditingController();
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final formKey = GlobalKey<FormState>();
@@ -27,7 +26,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    usernameController.dispose();
     firstNameController.dispose();
     lastNameController.dispose();
     super.dispose();
@@ -44,7 +42,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 minHeight: constraints.maxHeight,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(15.0),
+                padding: const EdgeInsets.all(60.0),
                 child: BlocConsumer<AuthBloc, AuthState>(
                   listener: (context, state) {
                     if (state is AuthFailure) {
@@ -72,11 +70,6 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                           const SizedBox(height: 30),
                           AuthField(
-                            hintText: 'Pseudo',
-                            controller: usernameController,
-                          ),
-                          const SizedBox(height: 15),
-                          AuthField(
                             hintText: 'Prénom',
                             controller: firstNameController,
                           ),
@@ -96,7 +89,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             controller: passwordController,
                             isObscureText: true,
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 60),
                           AuthGradientButton(
                             buttonText: 'S\'inscrire',
                             onPressed: () {
@@ -104,10 +97,12 @@ class _SignUpPageState extends State<SignUpPage> {
                                 context.read<AuthBloc>().add(
                                       AuthSignUp(
                                         email: emailController.text.trim(),
-                                        password: passwordController.text.trim(),
-                                        username: usernameController.text.trim(),
-                                        firstName: firstNameController.text.trim(),
-                                        lastName: lastNameController.text.trim(),
+                                        password:
+                                            passwordController.text.trim(),
+                                        firstName:
+                                            firstNameController.text.trim(),
+                                        lastName:
+                                            lastNameController.text.trim(),
                                       ),
                                     );
                               }

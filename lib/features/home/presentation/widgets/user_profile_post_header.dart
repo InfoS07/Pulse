@@ -4,14 +4,14 @@ import 'package:pulse/core/utils/formatters.dart';
 
 class UserProfilePostHeader extends StatelessWidget {
   final String profileImageUrl;
-  final String username;
+  final String lastName;
   final String timestamp;
   final VoidCallback? onTap;
 
   const UserProfilePostHeader({
     super.key,
     required this.profileImageUrl,
-    required this.username,
+    required this.lastName,
     required this.timestamp,
     this.onTap,
   });
@@ -27,8 +27,7 @@ class UserProfilePostHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 20,
               child: CachedNetworkImage(
-                imageUrl: profileImageUrl ??
-                    'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
+                imageUrl: profileImageUrl,
                 imageBuilder: (context, imageProvider) => Container(
                   width: 40.0,
                   height: 40.0,
@@ -51,7 +50,7 @@ class UserProfilePostHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                username,
+                lastName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,

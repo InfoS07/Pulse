@@ -135,8 +135,8 @@ class _OtherProfilFollowPageState extends State<OtherProfilFollowPage> {
       itemCount: profiles.length,
       itemBuilder: (context, index) {
         final profile = profiles[index];
-        bool isFollowing = userFollowings
-            .any((following) => following.username == profile.username);
+        bool isFollowing =
+            userFollowings.any((following) => following.uid == profile.uid);
 
         return OtherFollowItem(
           profile: profile,
@@ -202,7 +202,7 @@ class _OtherFollowItemState extends State<OtherFollowItem> {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                widget.profile.username,
+                widget.profile.lastName + ' ' + widget.profile.firstName,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
