@@ -1,4 +1,6 @@
+import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/entities/training.dart';
+import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 
 class TrainingChallenge {
   final int id;
@@ -10,6 +12,7 @@ class TrainingChallenge {
   final String authorId;
   final int repetitions;
   final List<TrainingStats> stats;
+  final Exercice exercice;
 
   TrainingChallenge({
     required this.id,
@@ -21,9 +24,10 @@ class TrainingChallenge {
     required this.authorId,
     required this.repetitions,
     required this.stats,
+    required this.exercice,
   });
 
-  factory TrainingChallenge.fromTraining(
+  /*factory TrainingChallenge.fromTraining(
       Training training, String authorId, List<String> photosFileName) {
     return TrainingChallenge(
       id: training.id,
@@ -34,6 +38,7 @@ class TrainingChallenge {
       endAt: training.activity.endAt.toIso8601String(),
       authorId: authorId,
       repetitions: training.activity.touches,
+      exercice: "",
       stats: training.activity.stats
           .map((e) => TrainingStats(
                 buzzerExpected: e.buzzerExpected,
@@ -43,7 +48,7 @@ class TrainingChallenge {
               ))
           .toList(),
     );
-  }
+  }*/
 
   factory TrainingChallenge.fromJson(Map<String, dynamic> json) {
     final stats = (json['stats'] as List)
@@ -54,7 +59,7 @@ class TrainingChallenge {
               pressedAt: e['pressed_at'],
             ))
         .toList();
-
+    print("\n\n\n\n\n LALALALALALALALALALLA ${json["exercises"]}");
     return TrainingChallenge(
       id: json['id'],
       title: json['title'],
@@ -65,6 +70,7 @@ class TrainingChallenge {
       authorId: json['author_id'],
       repetitions: json['repetitions'],
       stats: stats,
+      exercice: ExercicesModel.fromJson(json['exercises'])
     );
   }
 

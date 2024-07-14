@@ -53,7 +53,7 @@ class ChallengeUserModel {
       );
       return user;
     }).toList();
-
+    print(" laaaaaaaaaaaaaa ${json["training"]}");
     return ChallengeUserModel(
       id: json['id'],
       name: json['name'],

@@ -29,12 +29,12 @@ class ChallengeUserRemoteDataSourceImpl
     try {
       final response = await supabaseClient
           .from('challenges_users')
-          .select('*, training(*)');
+          .select('*, training(*,exercises(*))');
 
       final challenges = (response as List)
           .map((json) => ChallengeUserModel.fromJson(json))
           .toList();
-
+      print("\n\n\n\n\n ${challenges.first}");
       // Fetch users data
       final List<dynamic> userIds = challenges
           .expand((challenge) => challenge.participants.values
