@@ -9,6 +9,7 @@ import 'package:pulse/core/router/app_router_redirect.dart';
 import 'package:pulse/core/router/scaffold_with_nav_bar.dart';
 import 'package:pulse/features/activity/presentation/pages/activity_page.dart';
 import 'package:pulse/features/activity/presentation/pages/save_activity_page.dart';
+import 'package:pulse/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
@@ -39,6 +40,7 @@ enum RoutePath {
   root(path: '/'),
   signIn(path: 'login'),
   signUp(path: 'signup'),
+  forgotPasswordPage(path: 'forgot_password'),
   home(path: 'home'),
   exercices(path: 'exercices'),
   progress(path: 'progress'),
@@ -71,6 +73,11 @@ final GoRouter goRouterProvider = GoRouter(
           path: RoutePath.signIn.path,
           name: RoutePath.signIn.name,
           builder: (context, state) => const LoginPage(),
+        ),
+        GoRoute(
+          path: RoutePath.forgotPasswordPage.path,
+          name: RoutePath.forgotPasswordPage.name,
+          builder: (context, state) => const ForgotPasswordPage(),
         ),
         GoRoute(
           path: RoutePath.signUp.path,

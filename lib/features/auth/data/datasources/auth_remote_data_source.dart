@@ -18,6 +18,9 @@ abstract class AuthRemoteDataSource {
   });
   Future<UserModel?> getCurrentUserData();
   Future<void> signOut();
+  Future<void> resetPassword({
+    required String email,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -91,6 +94,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await supabaseClient.auth
           .signUp(email: email, password: password, data: data);
 
+      supabaseClient.auth.resetPasswordForEmail(email);
+      print('response singup: $response');
       if (response.user == null || response.session == null) {
         throw const ServerException('Signup failed: User or session is null.');
       }
@@ -158,6 +163,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         );
       }
       return null;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String email,
+  }) async {
+    try {
+      await supabaseClient.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }

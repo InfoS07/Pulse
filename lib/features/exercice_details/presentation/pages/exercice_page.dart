@@ -129,7 +129,7 @@ class _ExercicePageState extends State<ExercicePage> {
                         shape: BoxShape.circle,
                         color: _currentIndex == index
                             ? const Color.fromRGBO(66, 162, 31, 0.966)
-                            : const Color.fromRGBO(8, 68, 235, 0.914),
+                            : Colors.grey,
                       ),
                     );
                   }).toList(),
