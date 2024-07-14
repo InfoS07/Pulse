@@ -41,7 +41,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   void _onLoadPosts(LoadPosts event, Emitter<HomeState> emit) async {
-    //emit(HomeLoading());
+    emit(HomeLoading());
     final res = await _getPosts(NoParams());
 
     res.fold(

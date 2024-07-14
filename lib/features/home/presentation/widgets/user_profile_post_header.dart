@@ -27,8 +27,7 @@ class UserProfilePostHeader extends StatelessWidget {
             child: CircleAvatar(
               radius: 20,
               child: CachedNetworkImage(
-                imageUrl: profileImageUrl ??
-                    'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
+                imageUrl: profileImageUrl,
                 imageBuilder: (context, imageProvider) => Container(
                   width: 40.0,
                   height: 40.0,

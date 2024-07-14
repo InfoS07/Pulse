@@ -25,9 +25,9 @@ class ExerciseCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(8.0), // Rounded corners
               child: CachedNetworkImage(
-                imageUrl: exercise.photos.isNotEmpty
-                    ? exercise.photos.first
-                    : 'https://image-uniservice.linternaute.com/image/450/4/1708793598/8469657.jpg',
+                imageUrl: exercise.photos.firstWhere(
+                    (element) => !element.endsWith('.mp4'),
+                    orElse: () => exercise.photos.first),
                 height: 120,
                 width: double.infinity, // Make the image take full width
                 fit: BoxFit.cover,
@@ -37,14 +37,14 @@ class ExerciseCard extends StatelessWidget {
                   enabled: true,
                   child: Container(
                     color: Colors.grey[200], // Placeholder color
-                    height: 100,
+                    height: 120,
                     width: double.infinity,
                     /* child: const Center(child: CircularProgressIndicator()), */
                   ),
                 ),
                 errorWidget: (context, url, error) => Container(
                   color: Colors.grey, // Error color
-                  height: 100,
+                  height: 120,
                   width: double.infinity,
                   child: const Center(
                       child: Icon(Icons.error, color: Colors.white)),
@@ -62,7 +62,7 @@ class ExerciseCard extends StatelessWidget {
                     Text(
                       exercise.title,
                       style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       '${exercise.podCount} Pods',
@@ -70,7 +70,7 @@ class ExerciseCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                FaIcon(
+                /* FaIcon(
                   size: 16,
                   FontAwesomeIcons.fire,
                   color: exercise.difficulty == Difficulty.easy
@@ -78,7 +78,7 @@ class ExerciseCard extends StatelessWidget {
                       : exercise.difficulty == Difficulty.medium
                           ? Colors.orange
                           : Colors.red,
-                ),
+                ), */
               ],
             ),
           ],
@@ -129,11 +129,11 @@ class ExerciseCardShimmer extends StatelessWidget {
                     ),
                   ],
                 ),
-                FaIcon(
+                /* FaIcon(
                   size: 16,
                   FontAwesomeIcons.fire,
                   color: Colors.orange,
-                ),
+                ), */
               ],
             ),
           ],

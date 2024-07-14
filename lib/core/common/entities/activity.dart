@@ -25,6 +25,15 @@ class ActivityStats {
   String toString() {
     return 'ActivityStats{buzzerExpected: $buzzerExpected, buzzerPressed: $buzzerPressed, timeElapsed: $reactionTime, pressedAt: $pressedAt}';
   }
+
+  factory ActivityStats.fromMap(Map<String, dynamic> map) {
+    return ActivityStats(
+      buzzerExpected: map['buzzer_expected'],
+      buzzerPressed: map['buzzer_pressed'],
+      reactionTime: map['reaction_time'],
+      pressedAt: DateTime.parse(map['pressed_at']),
+    );
+  }
 }
 
 class Activity extends Equatable {

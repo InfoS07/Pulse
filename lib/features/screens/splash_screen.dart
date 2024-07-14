@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
+import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -19,28 +22,83 @@ class SplashScreen extends StatelessWidget {
           }
         },
         builder: (context, state) {
-          return const Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Loader(),
-                SizedBox(height: 20),
-                Text(
-                  'Bienvenue dans Pulse App !',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/background.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RippleAnimation(
+                    child: CircleAvatar(
+                      minRadius: 75,
+                      maxRadius: 75,
+                      backgroundImage: AssetImage('assets/ic_logobg.png'),
+                    ),
+                    color: AppPallete.primaryColor,
+                    delay: const Duration(milliseconds: 300),
+                    repeat: true,
+                    minRadius: 75,
+                    ripplesCount: 6,
+                    duration: const Duration(milliseconds: 6 * 300),
                   ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Nous préparons votre expérience...',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
+                  /* Animate(
+                    effects: [FadeEffect(), ScaleEffect()],
+                    child: Text(
+                      'PULSE',
+                      style: TextStyle(
+                        fontSize: 50,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ), */
+                  ShaderMask(
+                      shaderCallback: (Rect bounds) {
+                        return const LinearGradient(
+                          colors: [
+                            AppPallete.primaryColor,
+                            AppPallete.secondaryColor
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ).createShader(bounds);
+                      },
+                      child: Animate(
+                        effects: [FadeEffect(), ScaleEffect()],
+                        child: Text(
+                          'PULSE',
+                          style: TextStyle(
+                            fontSize: 50,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      )),
+                  SizedBox(height: 20),
+                  Text(
+                    'Bienvenue !',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors
+                          .white, // Ajout de couleur blanche pour le texte
+                    ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 10),
+                  Text(
+                    'Nous préparons votre expérience...',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors
+                          .white, // Ajout de couleur blanche pour le texte
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

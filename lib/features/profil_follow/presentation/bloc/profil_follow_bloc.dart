@@ -10,7 +10,6 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
   final Follow _follow;
   final Unfollow _unfollow;
 
-
   ProfilFollowBloc({
     required Follow follow,
     required Unfollow unfollow,
@@ -19,32 +18,30 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
         super(ProfilFollowInitial()) {
     on<ProfilFollow>(_onFollow);
     on<ProfilUnfollow>(_onUnfollow);
-    
   }
 
   void _onFollow(
-  ProfilFollow event,
-  Emitter<ProfilFollowState> emit,
-) async {
-  emit(ProfilFollowLoading());
-  final res = await _follow(event.params);
+    ProfilFollow event,
+    Emitter<ProfilFollowState> emit,
+  ) async {
+    emit(ProfilFollowLoading());
+    final res = await _follow(event.params);
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
       (r) => emit(const ProfilFollowSuccess()),
     );
-}
+  }
 
   void _onUnfollow(
-  ProfilUnfollow event,
-  Emitter<ProfilFollowState> emit,
-) async {
-  emit(ProfilFollowLoading());
-  final res = await _unfollow(event.params);
+    ProfilUnfollow event,
+    Emitter<ProfilFollowState> emit,
+  ) async {
+    emit(ProfilFollowLoading());
+    final res = await _unfollow(event.params);
 
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
       (r) => emit(const ProfilFollowSuccess()),
     );
-}
-
+  }
 }

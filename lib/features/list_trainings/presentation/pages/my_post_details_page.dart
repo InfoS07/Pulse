@@ -73,7 +73,7 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
           },
         ),
         actions: [
-          if (userId == widget.post.userUid)
+          if (userId == widget.post.user.uid)
             PopupMenuButton<String>(
               color: AppPallete.popUpBackgroundColor,
               tooltip: 'Plus d\'options',
@@ -100,8 +100,8 @@ class _PostMyDetailsPageState extends State<PostMyDetailsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 UserProfilePostHeader(
-                  profileImageUrl: widget.post.profileImageUrl,
-                  lastName: widget.post.userUid,
+                  profileImageUrl: widget.post.user.urlProfilePhoto,
+                  lastName: widget.post.user.uid,
                   timestamp: widget.post.timestamp,
                   onTap: () {
                     context.push('/otherProfil', extra: userId);

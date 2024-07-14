@@ -56,9 +56,12 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
             author {
                 id
                 uid
+                email
                 last_name
                 first_name
                 profile_photo
+                birth_date
+                points
             }
             likes {
                 user {
@@ -186,6 +189,8 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
       if (result.hasException) {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
+
+      print("result delete  $result");
 
       final success = result.data?['deleteTraining']['success'] as bool;
       if (!success) {

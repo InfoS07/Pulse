@@ -57,7 +57,7 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
             if (state.posts.isEmpty) return const SizedBox();
 
             final userPosts =
-                state.posts.where((post) => post!.userUid == userId).toList();
+                state.posts.where((post) => post!.user.uid == userId).toList();
 
             return RefreshIndicator(
               onRefresh: _refreshPosts,

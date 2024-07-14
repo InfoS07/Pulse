@@ -31,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(60.0),
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthFailure) {
@@ -52,13 +52,17 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Image.asset(
                     'assets/ic_logobg.png',
-                    height: 100, 
+                    height: 100,
                   ),
                   const SizedBox(height: 20),
                   ShaderMask(
                     shaderCallback: (Rect bounds) {
                       return const LinearGradient(
-                        colors: <Color>[AppPallete.primaryColor, Colors.lightGreen, Colors.greenAccent],
+                        colors: <Color>[
+                          AppPallete.primaryColor,
+                          Colors.lightGreen,
+                          Colors.greenAccent
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ).createShader(bounds);
@@ -68,7 +72,8 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         fontSize: 50,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // Cette couleur sera masquée par le shader
+                        color: Colors
+                            .white, // Cette couleur sera masquée par le shader
                       ),
                     ),
                   ),

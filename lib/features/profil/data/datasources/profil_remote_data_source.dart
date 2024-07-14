@@ -27,10 +27,15 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
     try {
       final response =
           await supabaseClient.from('users').select().eq("uid", userId);
-      /* if (response.error != null) {
-        throw const ServerException('Error fetching data');
-      } */
-      return ProfilModel.fromJson(response.first);
+
+      final data = response.first;
+      final profile_photo = await supabaseClient.storage
+          .from('profil')
+          .getPublicUrl(data['profile_photo']);
+
+      data['profile_photo'] = profile_photo;
+
+      return ProfilModel.fromJson(data);
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {
@@ -104,14 +109,13 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
         final file = await _xFileToFile(photo);
         final fileName = _getUniqueFileName(photo);
 
-        final uploadResponse = await supabaseClient.storage
-            .from('training')
-            .upload(fileName, file);
+        final uploadResponse =
+            await supabaseClient.storage.from('profil').upload(fileName, file);
 
         response = await supabaseClient.from('users').update({
           'first_name': firstName,
           'last_name': lastName,
-          'photo_url': fileName,
+          'profile_photo': fileName,
         }).eq('uid', userId);
       } else {
         response = await supabaseClient.from('users').update({
@@ -140,6 +144,6 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
   String _getUniqueFileName(XFile xFile) {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final fileExtension = xFile.path.split('.').last;
-    return 'training_$timestamp.$fileExtension';
+    return 'profile_$timestamp.$fileExtension';
   }
 }

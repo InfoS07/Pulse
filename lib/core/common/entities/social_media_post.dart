@@ -1,11 +1,11 @@
 import 'package:pulse/core/common/entities/activity.dart';
 import 'package:pulse/core/common/entities/comment.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/core/common/entities/user.dart';
 
 class SocialMediaPost {
   final int id;
-  final String profileImageUrl;
-  final String userUid;
+  final User user;
   final String timestamp;
   final DateTime startAt;
   final DateTime endAt;
@@ -17,14 +17,15 @@ class SocialMediaPost {
   final List<Comment> comments;
   final bool isLiked;
   final int repetitions;
+  final int missedRepetitions;
+  final double moyenneReactionTime;
   final List<ActivityStats> stats;
 
   SocialMediaPost({
     required this.id,
     required this.title,
     required this.description,
-    required this.profileImageUrl,
-    required this.userUid,
+    required this.user,
     required this.timestamp,
     required this.startAt,
     required this.endAt,
@@ -34,13 +35,14 @@ class SocialMediaPost {
     required this.isLiked,
     required this.exercice,
     required this.repetitions,
+    required this.missedRepetitions,
+    required this.moyenneReactionTime,
     required this.stats,
   });
 
   SocialMediaPost copyWith({
     int? id,
-    String? profileImageUrl,
-    String? userUid,
+    User? user,
     String? timestamp,
     DateTime? startAt,
     DateTime? endAt,
@@ -52,12 +54,13 @@ class SocialMediaPost {
     bool? isLiked,
     Exercice? exercice,
     int? repetitions,
+    int? missedRepetitions,
+    double? moyenneReactionTime,
     List<ActivityStats>? stats,
   }) {
     return SocialMediaPost(
       id: id ?? this.id,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
-      userUid: userUid ?? this.userUid,
+      user: user ?? this.user,
       timestamp: timestamp ?? this.timestamp,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -69,6 +72,8 @@ class SocialMediaPost {
       startAt: startAt ?? this.startAt,
       endAt: endAt ?? this.endAt,
       repetitions: repetitions ?? this.repetitions,
+      missedRepetitions: missedRepetitions ?? this.missedRepetitions,
+      moyenneReactionTime: moyenneReactionTime ?? this.moyenneReactionTime,
       stats: stats ?? this.stats,
     );
   }

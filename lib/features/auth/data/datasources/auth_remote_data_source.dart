@@ -61,6 +61,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await _saveToken(response.session!.accessToken);
       await graphQLService.setToken(response.session!.accessToken);
 
+      final profile_photo = await supabaseClient.storage
+          .from('profil')
+          .getPublicUrl(userData['profile_photo']);
+
+      userData['profile_photo'] = profile_photo;
+
       return UserModel.fromJson(userData);
     } on AuthException catch (e) {
       throw ServerException(e.message);
@@ -140,6 +146,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
               currentUserSession!.user.id,
             )
             .single();
+
+        final profile_photo = await supabaseClient.storage
+            .from('profil')
+            .getPublicUrl(userData['profile_photo']);
+
+        userData['profile_photo'] = profile_photo;
+
         return UserModel.fromJson(userData).copyWith(
           email: currentUserSession!.user.email,
         );

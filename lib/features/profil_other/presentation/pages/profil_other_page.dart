@@ -281,7 +281,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
           return const Loader();
         } else if (state is HomeLoaded) {
           final userPosts = state.posts
-              .where((post) => post!.userUid == widget.userId)
+              .where((post) => post!.user.uid == widget.userId)
               .toList();
 
           if (userPosts.isEmpty) {
@@ -316,6 +316,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                     ),
                   ),
                   ...weekPosts.value.map((post) {
+                    print("index $index");
                     return PostListItem(
                       post: post,
                       onTap: () {

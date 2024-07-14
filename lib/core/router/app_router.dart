@@ -14,6 +14,7 @@ import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenge_user_activity_page.dart';
+import 'package:pulse/features/challenges_users/presentation/pages/challenges_users_details_page.dart';
 import 'package:pulse/features/comments/presentation/pages/comments_page.dart';
 import 'package:pulse/features/exercice_details/presentation/pages/exercice_page.dart';
 import 'package:pulse/features/exercices/presentation/pages/exercices_page.dart';
@@ -50,7 +51,8 @@ enum RoutePath {
   searchUser(path: 'searchUser'),
   profil(path: 'profil'),
   settings(path: 'settings'),
-  introSlider(path: 'intro-slider');
+  introSlider(path: 'intro-slider'),
+  challengeUserDetails(path: 'challenges_users_details');
 
   const RoutePath({required this.path});
   final String path;
@@ -211,6 +213,14 @@ final GoRouter goRouterProvider = GoRouter(
                   path: RoutePath.progress.path,
                   name: RoutePath.progress.name,
                   builder: (context, state) => GroupPage(),
+                  routes: [
+                    GoRoute(
+                      path: RoutePath.challengeUserDetails.path,
+                      name: RoutePath.challengeUserDetails.name,
+                      builder: (context, state) => ChallengeUserDetailsPage(
+                          challengeUser: state.extra as ChallengeUserModel),
+                    ),
+                  ],
                 ),
               ],
             ),

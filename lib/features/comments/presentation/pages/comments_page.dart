@@ -126,9 +126,9 @@ class _CommentsPageState extends State<CommentsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   UserProfilePostContainer(
-                    profileImageUrl: post!.profileImageUrl,
+                    profileImageUrl: post!.user.urlProfilePhoto,
                     timestamp: post.timestamp,
-                    lastnName: post.title,
+                    lastnName: post.user.firstName + ' ' + post.user.lastName,
                     title: post.title,
                     commentCount: post.comments.length,
                     onTap: () {

@@ -10,13 +10,16 @@ class IntroductionSliderPage extends StatelessWidget {
     return IntroductionSlider(
       items: [
         IntroductionSliderItem(
+          backgroundImageDecoration: BackgroundImageDecoration(
+            image: const AssetImage('assets/images/background-1.png'),
+          ),
           logo: Column(
             children: [
               Image.asset(
                 'assets/ic_logobg.png',
                 height: 200,
               ),
-              SizedBox(height: 50), // Adds space between image and text
+              SizedBox(height: 240), // Adds space between image and text
             ],
           ),
           title: const Center(
@@ -33,7 +36,7 @@ class IntroductionSliderPage extends StatelessWidget {
         ),
         IntroductionSliderItem(
           backgroundImageDecoration: BackgroundImageDecoration(
-            image: const AssetImage('assets/images/background.png'),
+            image: const AssetImage('assets/images/background-1.png'),
           ),
           logo: Column(
             children: [
@@ -41,15 +44,15 @@ class IntroductionSliderPage extends StatelessWidget {
                 'assets/images/avocado.png',
                 height: 200,
               ),
-              const SizedBox(height: 35), // Adds space between image and text
+              SizedBox(height: 240), // Adds space between image and text
             ],
           ),
           title: const Center(
             child: Text(
-              "Maintenez vous en forme grâce aux multiples exercices proposés.\n \n Des pods sont mis à votre disposition pour vous aider à atteindre vos objectifs!",
+              "Développer votre physique et vos réflexes \n grâce à des exercices assistés \n à l'aide de pods connectés !",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 16,
               ),
             ),
           ),
@@ -61,7 +64,7 @@ class IntroductionSliderPage extends StatelessWidget {
                 'assets/images/friends.png',
                 height: 200,
               ),
-              SizedBox(height: 50), // Adds space between image and text
+              SizedBox(height: 240), // Adds space between image and text
             ],
           ),
           title: const Center(
@@ -70,12 +73,12 @@ class IntroductionSliderPage extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 16,
               ),
             ),
           ),
           backgroundImageDecoration: BackgroundImageDecoration(
-            image: const AssetImage('assets/images/background.png'),
+            image: const AssetImage('assets/images/background-1.png'),
           ),
           backgroundColor: AppPallete.backgroundColor,
         ),

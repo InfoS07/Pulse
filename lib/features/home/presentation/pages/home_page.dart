@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
+import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
@@ -33,6 +35,7 @@ class _HomePageState extends State<HomePage> {
     if (authState is AppUserLoggedIn) {
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;
+      print("urlProfilePhoto: $urlProfilePhoto");
     }
   }
 
@@ -61,8 +64,26 @@ class _HomePageState extends State<HomePage> {
             child: Row(
               children: [
                 CircleAvatar(
-                  backgroundImage: NetworkImage(urlProfilePhoto),
                   radius: 20,
+                  backgroundColor: Colors.grey,
+                  child: CachedNetworkImage(
+                    imageUrl: urlProfilePhoto,
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: 40.0,
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    placeholder: (context, url) =>
+                        const CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        const Icon(Icons.person),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Column(
@@ -145,6 +166,7 @@ class _HomePageState extends State<HomePage> {
                       AchievementBadgeWidget(
                         message: 'Vous avez 10,000 points',
                       ),
+                      Loader(),
                     ],
                   ),
                 );

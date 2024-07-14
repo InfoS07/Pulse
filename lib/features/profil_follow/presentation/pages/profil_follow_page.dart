@@ -188,7 +188,7 @@ class _FollowItemState extends State<FollowItem> {
             const SizedBox(width: 16),
             Expanded(
               child: Text(
-                widget.profile.lastName,
+                widget.profile.firstName + " " + widget.profile.lastName,
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
             ),

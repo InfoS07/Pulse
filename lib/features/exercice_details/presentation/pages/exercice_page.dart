@@ -5,6 +5,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pulse/core/common/entities/difficulty.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class ExercicePage extends StatefulWidget {
   final Exercice exercice;
@@ -17,6 +19,32 @@ class ExercicePage extends StatefulWidget {
 
 class _ExercicePageState extends State<ExercicePage> {
   int _currentIndex = 0;
+  List<ChewieController>? _chewieControllers;
+
+  @override
+  void initState() {
+    super.initState();
+    _chewieControllers =
+        widget.exercice.photos.where((url) => url.endsWith('.mp4')).map((url) {
+      final videoPlayerController =
+          VideoPlayerController.networkUrl(Uri.parse(url));
+      return ChewieController(
+        videoPlayerController: videoPlayerController,
+        aspectRatio: videoPlayerController.value.aspectRatio,
+        autoPlay: true,
+        looping: true,
+      );
+    }).toList();
+  }
+
+  @override
+  void dispose() {
+    _chewieControllers?.forEach((controller) {
+      controller.dispose();
+      controller.videoPlayerController.dispose();
+    });
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +80,20 @@ class _ExercicePageState extends State<ExercicePage> {
                     items: widget.exercice.photos.map((url) {
                       return Builder(
                         builder: (BuildContext context) {
-                          return Image.network(
-                            url,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          );
+                          if (url.endsWith('.mp4')) {
+                            final chewieController = _chewieControllers!
+                                .firstWhere((controller) =>
+                                    controller
+                                        .videoPlayerController.dataSource ==
+                                    url);
+                            return Chewie(controller: chewieController);
+                          } else {
+                            return Image.network(
+                              url,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            );
+                          }
                         },
                       );
                     }).toList(),
@@ -245,5 +282,16 @@ class _ExercicePageState extends State<ExercicePage> {
         ],
       ),
     );
+  }
+}
+
+class VideoPlayerWidget extends StatelessWidget {
+  final ChewieController controller;
+
+  const VideoPlayerWidget({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Chewie(controller: controller);
   }
 }
