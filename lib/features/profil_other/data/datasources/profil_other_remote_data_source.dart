@@ -19,12 +19,21 @@ class OtherProfilRemoteDataSourceImpl implements OtherProfilRemoteDataSource {
   @override
   Future<ProfilModel?> getProfil(String userId) async {
     try {
-      final response =
-          await supabaseClient.from('users').select().eq("uid", userId);
+      final response = await supabaseClient
+          .from('users')
+          .select()
+          .eq("uid", userId)
+          .single();
       /* if (response.error != null) {
         throw const ServerException('Error fetching data');
       } */
-      return ProfilModel.fromJson(response.first);
+      final profile_photo = await supabaseClient.storage
+          .from('profil')
+          .getPublicUrl(response['profile_photo']);
+
+      response['profile_photo'] = profile_photo;
+
+      return ProfilModel.fromJson(response);
     } on PostgrestException catch (e) {
       throw ServerException(e.message);
     } catch (e) {

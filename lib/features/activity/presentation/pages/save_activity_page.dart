@@ -248,9 +248,10 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                             _buildInfoCard('${activity.misses}', 'Ratés'),
                           ],
                         ), */
-                        ActivityStatsChart(
-                          stats: activity.stats,
-                        ),
+                        if (activity.stats.isNotEmpty)
+                          ActivityStatsChart(
+                            stats: activity.stats,
+                          ),
                         const SizedBox(height: 8),
                         const Text(
                           'Titre',

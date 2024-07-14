@@ -31,6 +31,7 @@ class _ProfilPageState extends State<ProfilPage> {
   @override
   void initState() {
     super.initState();
+    print("index userrrrrrrr");
     // Lancer l'événement pour obtenir le profil
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
@@ -287,7 +288,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                   ),
                   ...weekPosts.value.map((post) {
-                    print("index $index");
+                    print("index user $index");
                     return PostListItem(
                       post: post,
                       onTap: () {

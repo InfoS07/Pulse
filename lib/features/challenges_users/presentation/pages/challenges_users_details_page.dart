@@ -138,8 +138,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                           borderRadius: BorderRadius.circular(16),
                         ),
                         padding: EdgeInsets.symmetric(vertical: 16),
-                        minimumSize:
-                            Size(double.infinity, 0), // Occupe toute la largeur
+                        minimumSize: Size(double.infinity, 0),
                       ),
                       child: Text(
                         'Ajouter des amis',

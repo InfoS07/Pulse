@@ -43,21 +43,65 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     JoinChallenge event,
     Emitter<ChallengesState> emit,
   ) async {
-    final result = await _challengesRepository.joinChallenge(event.challengeId, event.userId);
-    result.fold(
-      (l) => emit(ChallengesError(l.message)),
-      (r) => add(ChallengesGetChallenges()),
-    );
+    final currentState = state;
+    if (currentState is ChallengesSuccess) {
+      final result = await _challengesRepository.joinChallenge(
+          event.challengeId, event.userId);
+      result.fold(
+        (l) => emit(ChallengesError(l.message)),
+        (r) {
+          if (currentState.challenges.isEmpty)
+            return;
+          else {
+            final updatedChallenges = currentState.challenges
+                .map((challenge) => challenge!.id == event.challengeId
+                    ? challenge!.copyWith(participants: [
+                        ...challenge.participants!,
+                        event.userId
+                      ])
+                    : challenge)
+                .toList();
+            emit(ChallengesSuccess(updatedChallenges));
+          }
+        } /* => add(ChallengesGetChallenges()) */,
+      );
+    }
   }
 
   void _onQuitChallenge(
     QuitChallenge event,
     Emitter<ChallengesState> emit,
   ) async {
-    final result = await _challengesRepository.quitChallenge(event.challengeId, event.userId);
+    /* final result = await _challengesRepository.quitChallenge(
+        event.challengeId, event.userId);
     result.fold(
       (l) => emit(ChallengesError(l.message)),
       (r) => add(ChallengesGetChallenges()),
     );
+ */
+
+    final currentState = state;
+    if (currentState is ChallengesSuccess) {
+      final result = await _challengesRepository.quitChallenge(
+          event.challengeId, event.userId);
+      result.fold(
+        (l) => emit(ChallengesError(l.message)),
+        (r) {
+          if (currentState.challenges.isEmpty)
+            return;
+          else {
+            final updatedChallenges = currentState.challenges
+                .map((challenge) => challenge!.id == event.challengeId
+                    ? challenge!.copyWith(
+                        participants: challenge.participants!
+                            .where((element) => element != event.userId)
+                            .toList())
+                    : challenge)
+                .toList();
+            emit(ChallengesSuccess(updatedChallenges));
+          }
+        } /* => add(ChallengesGetChallenges()) */,
+      );
+    }
   }
 }

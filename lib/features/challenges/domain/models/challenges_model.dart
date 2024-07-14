@@ -68,4 +68,34 @@ class ChallengesModel {
       'start_at': startAt?.toIso8601String(),
     };
   }
+
+  ChallengesModel copyWith({
+    int? id,
+    String? name,
+    String? description,
+    int? points,
+    String? type,
+    DateTime? createdAt,
+    String? photo,
+    int? exerciceId,
+    DateTime? endAt,
+    DateTime? startAt,
+    List<String>? participants,
+    List<String>? achievers,
+  }) {
+    return ChallengesModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      points: points ?? this.points,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
+      photo: photo ?? this.photo,
+      exerciceId: exerciceId ?? this.exerciceId,
+      endAt: endAt ?? this.endAt,
+      startAt: startAt ?? this.startAt,
+      participants: participants ?? this.participants,
+      achievers: achievers ?? this.achievers,
+    );
+  }
 }

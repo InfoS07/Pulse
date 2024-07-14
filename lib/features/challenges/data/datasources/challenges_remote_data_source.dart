@@ -42,11 +42,6 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
           .eq('id', challengeId.toString())
           .single();
 
-      // Vérifier si le challenge existe
-      if (response == null) {
-        throw ServerException(); // Gérer l'erreur si le challenge n'est pas trouvé
-      }
-
       // Récupérer les participants actuels
       List<dynamic> participants = response['participants'];
 
