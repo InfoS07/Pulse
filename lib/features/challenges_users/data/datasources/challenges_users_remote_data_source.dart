@@ -48,6 +48,14 @@ class ChallengeUserRemoteDataSourceImpl
             .select()
             .inFilter('uid', userIds);
 
+        for (var data in usersResponse) {
+          final profile_photo = await supabaseClient.storage
+              .from('profil')
+              .getPublicUrl(data['profile_photo']);
+
+          data['profile_photo'] = profile_photo;
+        }
+
         final users = (usersResponse as List)
             .map((json) => custom_user.User.fromJson(json))
             .toList();

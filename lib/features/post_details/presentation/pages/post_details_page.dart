@@ -341,32 +341,33 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                               },
                             ),
                             const SizedBox(height: 40),
-                            Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
-                              child: SizedBox(
-                                width: double
-                                    .infinity, // Button takes the full width
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    _showCreateChallengeUserDialog(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppPallete.primaryColor,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                            if (userId == post?.user.uid)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0),
+                                child: SizedBox(
+                                  width: double
+                                      .infinity, // Button takes the full width
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      _showCreateChallengeUserDialog(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppPallete.primaryColor,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 10),
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 10),
-                                  ),
-                                  child: const Text(
-                                    'Créer un défi',
-                                    style: TextStyle(
-                                        color: Colors.black, fontSize: 14),
+                                    child: const Text(
+                                      'Créer un défi',
+                                      style: TextStyle(
+                                          color: Colors.black, fontSize: 14),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ] else ...[
                             const Center(
                                 child: Text('Entraînement non trouvé')),

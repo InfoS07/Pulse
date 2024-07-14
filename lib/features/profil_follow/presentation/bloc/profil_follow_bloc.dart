@@ -26,6 +26,7 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
   ) async {
     emit(ProfilFollowLoading());
     final res = await _follow(event.params);
+    print('res _onFollow: $res');
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
       (r) => emit(const ProfilFollowSuccess()),
@@ -38,7 +39,7 @@ class ProfilFollowBloc extends Bloc<ProfilFollowEvent, ProfilFollowState> {
   ) async {
     emit(ProfilFollowLoading());
     final res = await _unfollow(event.params);
-
+    print('res _onUnfollow: $res');
     res.fold(
       (l) => emit(ProfilFollowFailure(l.message)),
       (r) => emit(const ProfilFollowSuccess()),

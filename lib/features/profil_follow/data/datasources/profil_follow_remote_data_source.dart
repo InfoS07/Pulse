@@ -14,16 +14,10 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
   @override
   Future<void> Follow(String userId, String followerId) async {
     try {
-      final response = await supabaseClient.from('user_followers').insert({
+      await supabaseClient.from('user_followers').insert({
         'user_id': userId,
         'follower_id': followerId,
       });
-
-      if (response.error != null) {
-        throw ServerException(response.error!.message);
-      }
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }
@@ -32,16 +26,11 @@ class ProfilFollowRemoteDataSourceImpl implements ProfilFollowRemoteDataSource {
   @override
   Future<void> Unfollow(String userId, String followerId) async {
     try {
-      final response = await supabaseClient
+      await supabaseClient
           .from('user_followers')
           .delete()
           .eq('user_id', userId)
           .eq('follower_id', followerId);
-      if (response.error != null) {
-        throw ServerException(response.error!.message);
-      }
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }

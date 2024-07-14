@@ -61,6 +61,14 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
           .select()
           .inFilter('uid', followerIds);
 
+      for (var data in userResponse) {
+        final profile_photo = await supabaseClient.storage
+            .from('profil')
+            .getPublicUrl(data['profile_photo']);
+
+        data['profile_photo'] = profile_photo;
+      }
+
       // Retourner la liste de ProfilModel
       return ProfilModel.fromJsonList(userResponse);
     } on PostgrestException catch (e) {
@@ -86,6 +94,14 @@ class ProfilRemoteDataSourceImpl implements ProfilRemoteDataSource {
           .from('users')
           .select()
           .inFilter('uid', followerIds);
+
+      for (var data in userResponse) {
+        final profile_photo = await supabaseClient.storage
+            .from('profil')
+            .getPublicUrl(data['profile_photo']);
+
+        data['profile_photo'] = profile_photo;
+      }
 
       // Retourner la liste de ProfilModel
       return ProfilModel.fromJsonList(userResponse);

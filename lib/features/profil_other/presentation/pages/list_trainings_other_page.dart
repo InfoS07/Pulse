@@ -10,21 +10,25 @@ class TrainingListOtherScreen extends StatefulWidget {
   const TrainingListOtherScreen({super.key, required this.userId});
 
   @override
-  _TrainingListOtherScreenState createState() => _TrainingListOtherScreenState();
+  _TrainingListOtherScreenState createState() =>
+      _TrainingListOtherScreenState();
 }
 
 class _TrainingListOtherScreenState extends State<TrainingListOtherScreen> {
-
   @override
   void initState() {
     super.initState();
     // Lancer l'événement pour obtenir les entraînements
-    context.read<ListTrainingsBloc>().add(ListTrainingsGetTraining(widget.userId));
+    context
+        .read<ListTrainingsBloc>()
+        .add(ListTrainingsGetTraining(widget.userId));
   }
 
   Future<void> _refreshTrainings() async {
     // Lancer l'événement pour rafraîchir les entraînements
-    context.read<ListTrainingsBloc>().add(ListTrainingsGetTraining(widget.userId));
+    context
+        .read<ListTrainingsBloc>()
+        .add(ListTrainingsGetTraining(widget.userId));
   }
 
   @override
@@ -60,7 +64,8 @@ class _TrainingListOtherScreenState extends State<TrainingListOtherScreen> {
             );
           } else {
             return const Center(
-              child: Text('Aucun entrainement trouvé.', style: TextStyle(color: Colors.white)),
+              child: Text('Aucun entrainement trouvé.',
+                  style: TextStyle(color: Colors.white)),
             );
           }
         },

@@ -102,7 +102,13 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         chipTheme: ChipThemeData(
-          backgroundColor: Colors.grey[800]!,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(38.0),
+            side: const BorderSide(
+              color: AppPallete.backgroundColor,
+            ),
+          ),
+          backgroundColor: AppPallete.backgroundColor,
           labelStyle: const TextStyle(color: Colors.white),
         ),
       ),

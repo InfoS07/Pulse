@@ -215,18 +215,35 @@ class _GroupPageState extends State<GroupPage> {
     final isAchiever = challenge.achievers?.contains(userId!) ?? false;
     String status;
     Color statusColor;
+    Color textColor = Colors.black;
     Color buttonColor = AppPallete.primaryColorFade;
     Color iconColor = Colors.white;
+    Function()? onPressed;
 
     if (isAchiever) {
       status = 'Terminé';
       statusColor = AppPallete.primaryColor;
     } else if (isParticipant) {
-      status = 'En cours';
+      status = 'Accepté';
       statusColor = AppPallete.primaryColorFade;
+      textColor = AppPallete.primaryColor;
     } else {
       status = 'Accepter';
       statusColor = AppPallete.primaryColor;
+    }
+
+    if (!isParticipant && !isAchiever) {
+      onPressed = () {
+        context
+            .read<ChallengesBloc>()
+            .add(JoinChallenge(challenge.id, userId!));
+      };
+    } else if (isParticipant && !isAchiever) {
+      onPressed = () {
+        context
+            .read<ChallengesBloc>()
+            .add(QuitChallenge(challenge.id, userId!));
+      };
     }
 
     return GestureDetector(
@@ -257,64 +274,28 @@ class _GroupPageState extends State<GroupPage> {
                 style: const TextStyle(color: Colors.white, fontSize: 14),
               ),
               const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!isParticipant && !isAchiever) ...[
-                    ElevatedButton(
-                      onPressed: () {
-                        context
-                            .read<ChallengesBloc>()
-                            .add(JoinChallenge(challenge.id, userId!));
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: statusColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                  if (!isParticipant && !isAchiever ||
+                      isParticipant && !isAchiever) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: onPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: statusColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 4),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20.0, vertical: 4.0),
+                        child: Text(
+                          status,
+                          style: TextStyle(color: textColor, fontSize: 12),
+                        ),
                       ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                  if (isParticipant && !isAchiever) ...[
-                    IconButton(
-                      onPressed: () {
-                        context
-                            .read<ChallengesBloc>()
-                            .add(QuitChallenge(challenge.id, userId!));
-                      },
-                      icon: const Icon(Icons.exit_to_app,
-                          color: AppPallete.primaryColor),
-                      color: buttonColor,
-                      padding: const EdgeInsets.all(16.0),
-                    ),
-                    BlocBuilder<ExercicesBloc, ExercicesState>(
-                      builder: (context, state) {
-                        if (state is ExercicesLoaded) {
-                          final exercise = _findExercise(
-                              state.exercisesByCategory, challenge.exerciceId!);
-                          if (exercise != null) {
-                            return IconButton(
-                              onPressed: () {
-                                context.push('/activity', extra: exercise);
-                              },
-                              icon: const Icon(Icons.play_arrow,
-                                  color: AppPallete.primaryColor),
-                              color: buttonColor,
-                              padding: const EdgeInsets.all(16.0),
-                            );
-                          }
-                        }
-                        return Container();
-                      },
                     ),
                   ],
                   if (isAchiever) ...[
@@ -418,68 +399,67 @@ class _GroupPageState extends State<GroupPage> {
               ),
               const SizedBox(height: 24),
               if (isParticipant && !isAchiever) ...[
-                ElevatedButton(
-                  onPressed: () {
-                    // Action when "Quitter" button is pressed
-                    context
-                        .read<ChallengesBloc>()
-                        .add(QuitChallenge(challenge.id, userId!));
-                    Navigator.of(context).pop(); // Close bottom sheet
-                    _refreshChallenges(); // Refresh challenge list
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppPallete.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                SizedBox(
+                  width: double.infinity, // Button takes the full width
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final exerciseId = challenge.exerciceId;
+                      final state = context.read<ExercicesBloc>().state;
+                      if (state is ExercicesLoaded) {
+                        final exercise = _findExercise(
+                            state.exercisesByCategory, exerciseId!);
+                        if (exercise != null) {
+                          context.push('/activity', extra: exercise);
+                        }
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      minimumSize: const Size(double.infinity, 0),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize:
-                        const Size(double.infinity, 0), // Occupies full width
-                  ),
-                  child: const Text(
-                    'Quitter',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    child: const Text(
+                      'Lancer',
+                      style: TextStyle(color: Colors.black, fontSize: 14),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // Action when "Lancer" button is pressed
-                    //Navigator.of(context).pop(); // Close bottom sheet
-                    // Navigate to Activity page
-                    final exerciseId = challenge.exerciceId;
-                    final state = context.read<ExercicesBloc>().state;
-                    if (state is ExercicesLoaded) {
-                      final exercise =
-                          _findExercise(state.exercisesByCategory, exerciseId!);
-                      if (exercise != null) {
-                        context.push('/activity', extra: exercise);
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppPallete.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context
+                          .read<ChallengesBloc>()
+                          .add(QuitChallenge(challenge.id, userId!));
+                      Navigator.of(context).pop();
+                      _refreshChallenges();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.errorColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      minimumSize: const Size(double.infinity, 0),
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    minimumSize:
-                        const Size(double.infinity, 0), // Occupies full width
-                  ),
-                  child: const Text(
-                    'Lancer',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    child: const Text(
+                      'Quitter',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   ),
                 ),
               ],
               if (!isParticipant && !isAchiever) ...[
                 ElevatedButton(
                   onPressed: () {
-                    // Action when "Accepter" button is pressed
                     context
                         .read<ChallengesBloc>()
                         .add(JoinChallenge(challenge.id, userId!));
-                    Navigator.of(context).pop(); // Close bottom sheet
+                    Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppPallete.primaryColor,

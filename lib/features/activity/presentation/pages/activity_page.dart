@@ -148,7 +148,10 @@ class _ActivityPageState extends State<ActivityPage>
       });
       FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
       FlutterBluePlus.scanResults.listen((results) {
+        print('Scanning... $results');
+
         for (ScanResult r in results) {
+          print('Scanning... $r');
           if (r.device.name == 'Pulse') {
             FlutterBluePlus.stopScan();
             connectToDevice(r.device);
@@ -156,9 +159,11 @@ class _ActivityPageState extends State<ActivityPage>
           }
         }
       }).onDone(() {
-        setState(() {
+        print('isScanning... $isScanning');
+        print('connectedDevice... $connectedDevice');
+        /* setState(() {
           isScanning = false;
-        });
+        }); */
         if (connectedDevice == null) {
           _showConnectionErrorDialog();
         }

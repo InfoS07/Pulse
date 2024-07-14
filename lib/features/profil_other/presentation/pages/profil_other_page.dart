@@ -86,7 +86,6 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                 listener: (context, followState) {
                   if (followState is ProfilFollowFailure ||
                       followState is ProfilFollowFailure) {
-                    // Rafraîchir le profil après une opération de follow/unfollow réussie
                     _refreshProfile();
                   }
                 },
@@ -107,7 +106,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                       children: <Widget>[
                         _buildProfileHeader(state, isFollowing),
                         const SizedBox(height: 16.0),
-                        _buildTrainingsList(state.profil),
+                        _buildTrainingsList(state.profil, isFollowing),
                         const SizedBox(height: 16.0),
                       ],
                     ),
@@ -188,20 +187,9 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                 isFollowing: isFollowing,
                 userId: currentUserId!,
                 profileId: widget.userId,
-                onFollowChanged: (isFollowing) {
-                  if (isFollowing) {
-                    context.read<ProfilFollowBloc>().add(
-                          ProfilUnfollow(UnfollowParams(
-                              userId: currentUserId!,
-                              followerId: widget.userId)),
-                        );
-                  } else {
-                    context.read<ProfilFollowBloc>().add(
-                          ProfilFollow(FollowParams(
-                              userId: currentUserId!,
-                              followerId: widget.userId)),
-                        );
-                  }
+                onFollowChanged: (followStatus) {
+                  // Rafraîchir le profil après une opération de follow/unfollow réussie
+                  _refreshProfile();
                 },
               ),
               /*  ElevatedButton.icon(
@@ -267,7 +255,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
     );
   }
 
-  Widget _buildTrainingsList(Profil profil) {
+  Widget _buildTrainingsList(Profil profil, bool isFollowing) {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is HomeError) {
@@ -277,6 +265,12 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
         }
       },
       builder: (context, state) {
+        if (!isFollowing) {
+          return const Center(
+            child: Text('Vous devez suivre.',
+                style: TextStyle(color: Colors.white)),
+          );
+        }
         if (state is HomeLoading) {
           return const Loader();
         } else if (state is HomeLoaded) {
@@ -316,11 +310,14 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                     ),
                   ),
                   ...weekPosts.value.map((post) {
-                    print("index $index");
+                    final newIndex = userPosts.indexOf(post);
+                    print("index other 1 $index");
+                    print("index newIndex $newIndex");
                     return PostListItem(
                       post: post,
                       onTap: () {
-                        context.push('/home/details/$index', extra: post);
+                        print("index other 2 $index");
+                        context.push('/home/details/${newIndex}');
                       },
                     );
                   }),

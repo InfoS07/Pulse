@@ -68,7 +68,7 @@ class _ExercicePageState extends State<ExercicePage> {
                 return FlexibleSpaceBar(
                   background: CarouselSlider(
                     options: CarouselOptions(
-                      height: MediaQuery.of(context).size.height * 0.5,
+                      height: MediaQuery.of(context).size.height * 0.8,
                       viewportFraction: 1.0,
                       enlargeCenterPage: false,
                       onPageChanged: (index, reason) {
@@ -175,9 +175,6 @@ class _ExercicePageState extends State<ExercicePage> {
                                 widget.exercice.categories.map((category) {
                               return Chip(
                                 label: Text(category),
-                                backgroundColor: Colors.grey[800],
-                                labelStyle:
-                                    const TextStyle(color: Colors.white),
                               );
                             }).toList(),
                           ),
@@ -211,12 +208,14 @@ class _ExercicePageState extends State<ExercicePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            _buildInfoCard(
+                            /* _buildInfoCard(
                                 '${widget.exercice.playerCount}', 'Joueur'),
+                            const SizedBox(width: 16), */
+                            _buildInfoCard('${nbColor}', 'Pods',
+                                FontAwesomeIcons.circleDot),
                             const SizedBox(width: 16),
-                            _buildInfoCard('${nbColor}', 'Pods'),
-                            const SizedBox(width: 16),
-                            _buildInfoCard('$sequence', 'Sequence'),
+                            _buildInfoCard('$sequence', 'Sequence',
+                                FontAwesomeIcons.shuffle),
                           ],
                         ),
                       ),
@@ -256,13 +255,13 @@ class _ExercicePageState extends State<ExercicePage> {
     );
   }
 
-  Widget _buildInfoCard(String value, String label) {
+  Widget _buildInfoCard(String value, String label, IconData icon) {
     return Container(
       width: 120,
       height: 80,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.grey[900],
+        color: AppPallete.backgroundColor,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -271,13 +270,23 @@ class _ExercicePageState extends State<ExercicePage> {
           Text(
             value,
             style: const TextStyle(
-                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
           ),
           const SizedBox(height: 4),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12, color: Colors.white),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              FaIcon(
+                icon,
+                size: 12,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 12, color: Colors.white),
+              ),
+            ],
           ),
         ],
       ),
