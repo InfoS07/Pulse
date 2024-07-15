@@ -288,6 +288,7 @@ void _initChallengesUsers() {
     ..registerFactory<ChallengesUsersRemoteDataSource>(
       () => ChallengeUserRemoteDataSourceImpl(
         serviceLocator(),
+        serviceLocator(),
       ),
     )
     // Repository

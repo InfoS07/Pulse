@@ -14,6 +14,7 @@ class Exercice {
   double score = 0.0;
   String difficulty = "Facile";
   int laps = 0;
+  String hit_type = "Hand";
 
   Exercice(
       {required this.id,
@@ -30,25 +31,26 @@ class Exercice {
       required this.caloriesBurned,
       required this.score,
       required this.difficulty,
-      required this.laps});
+      required this.laps,
+      required this.hit_type});
 
   static Exercice empty() {
     return Exercice(
-      id: 0,
-      title: '',
-      photos: [''],
-      categories: [''],
-      description: '',
-      duration: 0,
-      sequence: [],
-      repetitions: 0,
-      podCount: 0,
-      playerCount: 0,
-      durationOneRepetition: 0,
-      caloriesBurned: 0,
-      score: 0.0,
-      difficulty: 'Facile',
-      laps: 0,
-    );
+        id: 0,
+        title: '',
+        photos: [''],
+        categories: [''],
+        description: '',
+        duration: 0,
+        sequence: [],
+        repetitions: 0,
+        podCount: 0,
+        playerCount: 0,
+        durationOneRepetition: 0,
+        caloriesBurned: 0,
+        score: 0.0,
+        difficulty: 'Facile',
+        laps: 0,
+        hit_type: 'Hand');
   }
 }

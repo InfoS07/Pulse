@@ -46,11 +46,11 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isParticipant = widget.challengeUser.participants.values
-        .any((participant) => participant.idUser == userId);
+    final isParticipant = widget.challengeUser.participants
+        .any((participant) => participant.user.uid == userId);
     final isAchiever = isParticipant &&
-        widget.challengeUser.participants.values
-                .firstWhere((participant) => participant.idUser == userId)
+        widget.challengeUser.participants
+                .firstWhere((participant) => participant.user.uid == userId)
                 .score >
             0;
 
@@ -58,7 +58,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
       appBar: AppBar(
         title: Text('Défis', style: TextStyle(color: Colors.white)),
         actions: [
-          if (userId == widget.challengeUser.authorId)
+          if (userId == widget.challengeUser.author.uid)
             PopupMenuButton<String>(
               color: AppPallete.popUpBackgroundColor,
               tooltip: 'Plus d\'options',
@@ -107,7 +107,8 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        _formatEndTime(widget.challengeUser.endAt),
+                        widget.challengeUser
+                            .endAt, //_formatEndTime(widget.challengeUser.endAt),
                         style: TextStyle(fontSize: 14, color: Colors.white70),
                       ),
                       const SizedBox(height: 16),
@@ -160,11 +161,13 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                           child: Text('Terminé',
                               style: TextStyle(color: Colors.white)),
                         ),
-                        SizedBox(height: 10,),
-                      if (userId == widget.challengeUser.authorId)
+                      SizedBox(
+                        height: 10,
+                      ),
+                      if (userId == widget.challengeUser.author.uid)
                         ElevatedButton(
-                          onPressed: () =>
-                              _showAddFriendsDialog(context, widget.challengeUser),
+                          onPressed: () => _showAddFriendsDialog(
+                              context, widget.challengeUser),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppPallete.secondaryColor,
                             shape: RoundedRectangleBorder(
@@ -178,11 +181,16 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                         ),
-                      ExerciseCardWidget(exerciseTitle: widget.challengeUser.training.title, exerciseUrlPhoto: widget.challengeUser.training.exercice.photos.first,
+                      ExerciseCardWidget(
+                        exerciseTitle: widget.challengeUser.training.title,
+                        exerciseUrlPhoto:
+                            widget.challengeUser.training.exercice.photos.first,
                         onTap: () {
-                        context.push('/exercices/details/${widget.challengeUser.training.exercice.id}',
-                            extra: widget.challengeUser.training.exercice);
-                      },)  
+                          context.push(
+                              '/exercices/details/${widget.challengeUser.training.exercice.id}',
+                              extra: widget.challengeUser.training.exercice);
+                        },
+                      )
                     ],
                   ),
                 ),
@@ -203,7 +211,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                 itemCount: widget.challengeUser.participants.length,
                 itemBuilder: (context, index) {
                   final participant =
-                      widget.challengeUser.participants.values.elementAt(index);
+                      widget.challengeUser.participants.elementAt(index);
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16.0),

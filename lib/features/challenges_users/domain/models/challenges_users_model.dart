@@ -2,89 +2,71 @@ import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/common/entities/training_challenges.dart';
 import 'package:pulse/core/common/entities/user.dart';
 import 'package:pulse/features/activity/domain/models/training_model.dart';
+import 'package:pulse/features/auth/domain/models/user_model.dart';
 
 class ChallengeUserModel {
   final int id;
   final String name;
-  final DateTime createdAt;
+  final String createdAt;
   final String? photo;
-  final DateTime? endAt;
+  final String endAt;
   final TrainingChallenge training;
   final String description;
-  final List<String> invites;
   final String type;
-  final Map<String, Participant> participants;
-  final String authorId;
-  List<User> participantsDetails; // New field
+  final List<User> invites;
+  final List<Participant> participants;
+  final User author;
 
   ChallengeUserModel({
     required this.id,
     required this.name,
     required this.createdAt,
     this.photo,
-    this.endAt,
+    required this.endAt,
     required this.training,
     required this.description,
     required this.type,
     required this.participants,
-    required this.authorId,
+    required this.author,
     required this.invites,
-    required this.participantsDetails, // New required parameter
   });
 
   factory ChallengeUserModel.fromJson(Map<String, dynamic> json) {
-    final participantsJson = json['participants'] as Map<String, dynamic>;
-    final participants = participantsJson.map(
-      (key, value) =>
-          MapEntry(key, Participant.fromJson(value as Map<String, dynamic>)),
-    );
-
-    // Initialize participantsDetails from participants data
-    final participantsDetails = participants.values.map((participant) {
-      final user = User(
-        uid: participant.idUser,
-        email: '', // Add these fields if available in your database
-        lastName: '', // Add these fields if available in your database
-        firstName: '', // Add these fields if available in your database
-        birthDate:
-            DateTime.now(), // Add these fields if available in your database
-        urlProfilePhoto: '', // Add these fields if available in your database
-        points: 0, // Add these fields if available in your database
-      );
-      return user;
-    }).toList();
-    print(" laaaaaaaaaaaaaa ${json["training"]}");
     return ChallengeUserModel(
-      id: json['id'],
-      name: json['name'],
-      createdAt: DateTime.parse(json['created_at']),
-      photo: json['photo'],
-      endAt: json['end_at'] != null ? DateTime.parse(json['end_at']) : null,
+      id: json['id'] is int
+          ? json['id']
+          : int.tryParse(json['id'].toString()) ?? 0,
+      name: json['name'] ?? '',
+      createdAt: json['created_at'] ?? '',
+      photo: json['photo'] ?? '',
+      endAt: json['end_at'] ?? '',
       training: TrainingChallenge.fromJson(json['training']),
-      description: json['description'],
-      type: json['type'],
-      participants: participants,
-      authorId: json['author_id'],
-      invites: List<String>.from(json['invites']),
-      participantsDetails: participantsDetails, // Assign participantsDetails
+      description: json['description'] ?? '',
+      type: json['type'] ?? '',
+      author: UserModel.fromJson(json['author']),
+      participants: (json['participants'] as List<dynamic>?)
+              ?.map((participant) => Participant.fromJson(participant))
+              .toList() ??
+          [],
+      invites: (json['invites'] as List<dynamic>?)
+              ?.map((invite) => UserModel.fromJson(invite))
+              .toList() ??
+          [],
     );
   }
 
   Map<String, dynamic> toJson() {
-    final participantsJson =
-        participants.map((key, value) => MapEntry(key, value.toJson()));
-
     return {
       'id': id,
       'name': name,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': createdAt,
       'photo': photo,
-      'end_at': endAt?.toIso8601String(),
+      'end_at': endAt,
       'training': training,
       'description': description,
       'type': type,
-      'participants': participantsJson,
-      'author_id': authorId,
+      'participants': participants,
+      'author': author,
       'invites': invites,
     };
   }
@@ -92,27 +74,24 @@ class ChallengeUserModel {
 
 class Participant {
   final int score;
-  final String idUser;
   User user; // New field
 
   Participant({
     required this.score,
-    required this.idUser,
-    required this.user, // Initialize with User
+    required this.user,
   });
 
   factory Participant.fromJson(Map<String, dynamic> json) {
     return Participant(
       score: json['score'],
-      idUser: json['idUser'],
-      user: User.empty(), // Initialize user
+      user: UserModel.fromJson(json['user']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'score': score,
-      'idUser': idUser,
+      'user': user,
     };
   }
 }

@@ -1,15 +1,16 @@
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/entities/training.dart';
+import 'package:pulse/core/common/entities/user.dart';
+import 'package:pulse/features/auth/domain/models/user_model.dart';
 import 'package:pulse/features/exercices/domain/models/exercices_model.dart';
 
 class TrainingChallenge {
   final int id;
   final String title;
   final String description;
-  final int exerciseId;
   final String startAt;
   final String endAt;
-  final String authorId;
+  final User author;
   final int repetitions;
   final List<TrainingStats> stats;
   final Exercice exercice;
@@ -18,13 +19,12 @@ class TrainingChallenge {
     required this.id,
     required this.title,
     required this.description,
-    required this.exerciseId,
     required this.startAt,
     required this.endAt,
-    required this.authorId,
     required this.repetitions,
     required this.stats,
     required this.exercice,
+    required this.author,
   });
 
   /*factory TrainingChallenge.fromTraining(
@@ -59,29 +59,27 @@ class TrainingChallenge {
               pressedAt: e['pressed_at'],
             ))
         .toList();
-    print("\n\n\n\n\n LALALALALALALALALALLA ${json["exercises"]}");
     return TrainingChallenge(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      exerciseId: json['exercise_id'],
-      startAt: json['start_at'],
-      endAt: json['end_at'],
-      authorId: json['author_id'],
-      repetitions: json['repetitions'],
-      stats: stats,
-      exercice: ExercicesModel.fromJson(json['exercises'])
-    );
+        id: json['id'] is int
+            ? json['id']
+            : int.tryParse(json['id'].toString()) ?? 0,
+        title: json['title'],
+        description: json['description'],
+        startAt: json['start_at'],
+        endAt: json['end_at'],
+        author: UserModel.fromJson(json['author']),
+        repetitions: json['repetitions'],
+        stats: stats,
+        exercice: ExercicesModel.fromJson(json['exercise']));
   }
 
   Map<String, dynamic> toJson() {
     return {
       'title': title,
       'description': description,
-      'exercise_id': exerciseId,
       'start_at': startAt,
       'end_at': endAt,
-      'author_id': authorId,
+      'author': author,
       'repetitions': repetitions,
       'stats': stats.map((e) => e.toJson()).toList(),
     };

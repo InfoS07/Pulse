@@ -311,12 +311,9 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                   ),
                   ...weekPosts.value.map((post) {
                     final newIndex = userPosts.indexOf(post);
-                    print("index other 1 $index");
-                    print("index newIndex $newIndex");
                     return PostListItem(
                       post: post,
                       onTap: () {
-                        print("index other 2 $index");
                         context.push('/home/details/${newIndex}');
                       },
                     );

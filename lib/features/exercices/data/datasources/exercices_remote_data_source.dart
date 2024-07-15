@@ -48,7 +48,6 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
       }
 
       final data = result.data?["exercises"] as List;
-      print(data);
 
       return transformData(data);
     } catch (e) {

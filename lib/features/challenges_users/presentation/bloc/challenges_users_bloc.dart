@@ -35,6 +35,7 @@ class ChallengesUsersBloc
     emit(ChallengesUsersLoading());
     try {
       final challenges = await remoteDataSource.getChallengeUsers();
+      print('Astrid challenges $challenges');
       emit(ChallengesUsersSuccess(challenges));
     } catch (_) {
       emit(ChallengesUsersError("error"));
