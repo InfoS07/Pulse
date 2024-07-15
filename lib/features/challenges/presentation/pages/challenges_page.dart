@@ -289,7 +289,7 @@ class _GroupPageState extends State<GroupPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          padding: const EdgeInsets.symmetric(vertical: 5),
                         ),
                         child: Text(
                           status,

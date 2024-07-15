@@ -190,8 +190,6 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
         throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
-      print("result delete  $result");
-
       final success = result.data?['deleteTraining']['success'] as bool;
       if (!success) {
         final errorCode = result.data?['deleteTraining']['errorCode'] as String;

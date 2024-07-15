@@ -17,10 +17,11 @@ class ExercicesModel extends Exercice {
     required super.score,
     required super.difficulty,
     required super.laps,
+    required super.hit_type,
   });
 
   factory ExercicesModel.fromJson(Map<String, dynamic> map) {
-    return ExercicesModel(
+    final exo = ExercicesModel(
       id: map['id'] is int
           ? map['id']
           : int.tryParse(map['id'].toString()) ?? 0,
@@ -47,7 +48,9 @@ class ExercicesModel extends Exercice {
       score: map['score'] ?? 0.0,
       difficulty: map['difficulty'] ?? '',
       laps: map['laps'] ?? 0,
+      hit_type: map['hit_type'] ?? '',
     );
+    return exo;
   }
 
   ExercicesModel copyWith({
@@ -57,6 +60,10 @@ class ExercicesModel extends Exercice {
     List<String>? categories,
     String? description,
     int? duration,
+    List<int>? sequence,
+    int? repetitions,
+    int? podCount,
+    int? playerCount,
   }) {
     return ExercicesModel(
       id: id ?? this.id,
@@ -65,15 +72,16 @@ class ExercicesModel extends Exercice {
       categories: categories ?? this.categories,
       description: description ?? this.description,
       duration: duration ?? this.duration,
-      sequence: sequence,
-      repetitions: repetitions,
-      podCount: podCount,
-      playerCount: playerCount,
+      sequence: sequence ?? this.sequence,
+      repetitions: repetitions ?? this.repetitions,
+      podCount: podCount ?? this.podCount,
+      playerCount: playerCount ?? this.playerCount,
       durationOneRepetition: durationOneRepetition,
       caloriesBurned: caloriesBurned,
       score: score,
       difficulty: difficulty,
       laps: laps,
+      hit_type: hit_type,
     );
   }
 }

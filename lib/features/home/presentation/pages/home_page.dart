@@ -35,7 +35,6 @@ class _HomePageState extends State<HomePage> {
     if (authState is AppUserLoggedIn) {
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;
-      print("urlProfilePhoto: $urlProfilePhoto");
     }
   }
 
