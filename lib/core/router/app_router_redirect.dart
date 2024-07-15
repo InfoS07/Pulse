@@ -17,8 +17,6 @@ FutureOr<String?> appRouterRedirect(
   final isLoggingIn = state.matchedLocation == '/login';
   final isSignup = state.matchedLocation == '/signup';
 
-  print('isSignup: $isSignup');
-  print('authBlocState: $authBlocState');
   /* if (isSignup && authBlocState is AuthFailure) {
     return '/signup';
   } else {
@@ -29,6 +27,9 @@ FutureOr<String?> appRouterRedirect(
 
   if (isLoggedIn && isLoggingIn) {
     return '/home';
+  }
+  if (isLoggingOut) {
+    return '/login';
   }
 
   return null;

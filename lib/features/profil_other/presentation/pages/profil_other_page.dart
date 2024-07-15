@@ -314,7 +314,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
                     return PostListItem(
                       post: post,
                       onTap: () {
-                        context.push('/home/details/${newIndex}');
+                        context.go('/home/details/${newIndex}');
                       },
                     );
                   }),

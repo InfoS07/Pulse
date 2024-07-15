@@ -85,6 +85,11 @@ class _ActivityPageState extends State<ActivityPage>
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
     _activityBloc.add(StartActivity(widget.exercise));
     _checkBluetoothState();
+    _preloadSound(); // Préchargement du son
+  }
+
+  Future<void> _preloadSound() async {
+    await player.setSource(AssetSource('sounds/notif.mp3'));
   }
 
   Future<void> _checkBluetoothState() async {
@@ -133,7 +138,7 @@ class _ActivityPageState extends State<ActivityPage>
   Future<void> reconnectIfNecessary() async {
     try {
       for (var device in await FlutterBluePlus.connectedDevices) {
-        if (device.name == 'Pulse') {
+        if (device.platformName == 'Pulse') {
           connectToDevice(device);
           return;
         }
@@ -146,15 +151,12 @@ class _ActivityPageState extends State<ActivityPage>
 
   void startScan() {
     if (!isScanning) {
-      /* setState(() {
+      setState(() {
         isScanning = true;
-      }); */
+      });
       FlutterBluePlus.startScan(/* timeout: const Duration(seconds: 5) */);
       FlutterBluePlus.scanResults.listen((results) {
-        print('Scanning... $results');
-
         for (ScanResult r in results) {
-          print('Scanningnn... $r');
           if (r.device.platformName == 'Pulse') {
             FlutterBluePlus.stopScan();
             connectToDevice(r.device);
@@ -162,9 +164,6 @@ class _ActivityPageState extends State<ActivityPage>
           }
         }
       }).onDone(() {
-        print('isScanning... $isScanning');
-        print('connectedDevice... $connectedDevice');
-
         if (connectedDevice == null) {
           _showConnectionErrorDialog();
         }
@@ -236,15 +235,9 @@ class _ActivityPageState extends State<ActivityPage>
     });
 
     if (activeBuzzers.isNotEmpty) {
-      print('nextBuzzerColor: $activeBuzzers');
       String nextBuzzerColor = activeBuzzers[currentBuzzerIndex];
       String nextBuzzerStartCommand = buzzerClass.firstWhere((buzzer) =>
           buzzer['color']!.split('.').last == nextBuzzerColor)['start']!;
-      print('currentBuzzerIndex: $currentBuzzerIndex');
-      print('nextBuzzerColor: $nextBuzzerColor');
-      print('nextBuzzerStartCommand: $nextBuzzerStartCommand');
-      /* currentBuzzerIndex = buzzerClass.indexOf(buzzerClass.firstWhere(
-          (buzzer) => buzzer['color']!.split('.').last == nextBuzzerColor)); */
       sendDeviceNotification(nextBuzzerStartCommand);
     }
   }
@@ -257,7 +250,7 @@ class _ActivityPageState extends State<ActivityPage>
     buzzerClass.forEach((buzzer) {
       if (!buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value &&
           decodedValue == buzzer["trigger"]) {
-        //player.play(AssetSource('sounds/notif.mp3'));
+        player.play(AssetSource('sounds/notif.mp3'));
         buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value = true;
         if (!activeBuzzers.contains(buzzer["color"]!.split('.').last)) {
           setState(() {
@@ -292,13 +285,8 @@ class _ActivityPageState extends State<ActivityPage>
         pressedAt: DateTime.now(),
       ));
 
-      print('decodedValue: $decodedValue');
-      print('currentBuzzerIndex aaa: $currentBuzzerIndex');
-      print('trigger aaa: $trigger');
-      print(
-          'buzzerClass[currentBuzzerIndex]: ${buzzerClass[currentBuzzerIndex]}');
       if (decodedValue == trigger) {
-        //player.play(AssetSource('sounds/notif.mp3'));
+        player.play(AssetSource('sounds/notif.mp3'));
 
         setState(() {
           messageCount++;
@@ -380,6 +368,7 @@ class _ActivityPageState extends State<ActivityPage>
           caloriesBurned: 200,
         ));
         _activityBloc.add(StopActivity(_timeElapsed.value));
+        turnOffAllBuzzer();
         context.push('/activity/save');
       },
       onCancel: () {
@@ -678,156 +667,104 @@ class _ActivityPageState extends State<ActivityPage>
                                   ))
                               .toList(),
                         ),
-
-                        //ici un bouton rond avec écrie lancer l'exercice et lui il lancer l'exercice
-                        /* ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            shape: CircleBorder(),
-                            padding: EdgeInsets.all(40),
-                            backgroundColor: AppPallete.primaryColor,
-                          ),
-                          child: Text(
-                            'Lancer',
-                            style: TextStyle(
-                              fontSize: 32,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ), */
-                        RippleAnimation(
-                          color: AppPallete.primaryColor,
-                          delay: const Duration(milliseconds: 300),
-                          repeat: true,
-                          minRadius: 75,
-                          ripplesCount: 6,
-                          duration: const Duration(milliseconds: 6 * 300),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _showConnectionDialog(
-                                  context, connectionStatusNotifier);
-                              if (connectedDevice == null) {
-                                reconnectIfNecessary();
-                              } else {
-                                discoverServices();
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: const CircleBorder(),
-                              padding: const EdgeInsets.all(
-                                  50), // Ajustez la taille du bouton ici
-                              backgroundColor: AppPallete.primaryColor,
-                            ),
-                            child: const Text(
-                              'Lancer',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
                         const SizedBox(height: 40),
                       ],
                     ),
                   ),
-                  Container(
-                    color: AppPallete.backgroundColorDarker,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 32.0, horizontal: 16.0),
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () => _startStopTimer(),
-                          child: Container(
-                            width: 300,
-                            decoration: BoxDecoration(
-                              color: AppPallete.primaryColor,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 16),
-                            margin: const EdgeInsets.only(top: 32),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ConstrainedBox(
-                                  constraints:
-                                      const BoxConstraints(minWidth: 100),
-                                  child: ValueListenableBuilder<Duration>(
-                                    valueListenable: _timeElapsed,
-                                    builder: (context, value, child) {
-                                      return Text(
-                                        _formatTime(value),
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      );
-                                    },
+                  RippleAnimation(
+                    color: AppPallete.primaryColor,
+                    delay: const Duration(milliseconds: 300),
+                    repeat: true,
+                    ripplesCount: 6,
+                    duration: const Duration(milliseconds: 6 * 300),
+                    child: Container(
+                      color: AppPallete.backgroundColorDarker,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 32.0, horizontal: 16.0),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => {
+                              if (isScanning)
+                                {_startStopTimer()}
+                              else
+                                {
+                                  _showConnectionDialog(
+                                      context, connectionStatusNotifier),
+                                  startScan()
+                                }
+                            },
+                            child: Container(
+                              width: 300,
+                              decoration: BoxDecoration(
+                                color: AppPallete.primaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 16),
+                              margin: const EdgeInsets.only(top: 32),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ConstrainedBox(
+                                    constraints:
+                                        const BoxConstraints(minWidth: 100),
+                                    child: ValueListenableBuilder<Duration>(
+                                      valueListenable: _timeElapsed,
+                                      builder: (context, value, child) {
+                                        return Text(
+                                          _formatTime(value),
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 28,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        );
+                                      },
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 16),
-                                Icon(
-                                  _isRunning ? Icons.pause : Icons.play_arrow,
-                                  color: Colors.black,
-                                  size: 32,
-                                ),
-                              ],
+                                  const SizedBox(width: 16),
+                                  Icon(
+                                    _isRunning ? Icons.pause : Icons.play_arrow,
+                                    color: Colors.black,
+                                    size: 32,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        /* const SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.bluetooth,
-                                  color: Colors.white),
-                              onPressed: () {
-                                _showConnectionDialog(
-                                    context, connectionStatusNotifier);
-                                if (connectedDevice == null) {
-                                  reconnectIfNecessary();
-                                } else {
-                                  discoverServices();
-                                }
-                              },
-                            ),
-                          ],
-                        ), */
-                        const SizedBox(height: 20),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                _buildInfoCard(errorCount.toString(),
-                                    'Erreurs'), // Affichage des erreurs
-                                _buildInfoCard(
-                                    messageCount.toString(), 'Touches',
-                                    highlight: true),
-                                ValueListenableBuilder<Duration>(
-                                  valueListenable: _reactionTime,
-                                  builder: (context, value, child) {
-                                    return _buildInfoCard(
-                                        _formatReactionTime(value), 'Réaction');
-                                  },
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 40),
-                          ],
-                        ),
-                        const SizedBox(height: 30),
-                      ],
+                          const SizedBox(height: 20),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  _buildInfoCard(errorCount.toString(),
+                                      'Erreurs'), // Affichage des erreurs
+                                  _buildInfoCard(
+                                      messageCount.toString(), 'Touches',
+                                      highlight: true),
+                                  ValueListenableBuilder<Duration>(
+                                    valueListenable: _reactionTime,
+                                    builder: (context, value, child) {
+                                      return _buildInfoCard(
+                                          _formatReactionTime(value),
+                                          'Réaction');
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 40),
+                            ],
+                          ),
+                          const SizedBox(height: 30),
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -158,8 +158,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
       body: BlocListener<ActivityBloc, ActivityState>(
         listener: (context, state) {
           if (state is ActivitySavedError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+            ToastService.showErrorToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: state.message,
             );
           } else if (state is ActivitySaved) {
             context.go('/home');
@@ -386,6 +389,12 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                           child: ElevatedButton(
                             onPressed: () {
                               context.go('/home');
+                              ToastService.showErrorToast(
+                                context,
+                                length: ToastLength.long,
+                                expandedHeight: 100,
+                                message: "Entrainement rejeté",
+                              );
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppPallete.errorColor,

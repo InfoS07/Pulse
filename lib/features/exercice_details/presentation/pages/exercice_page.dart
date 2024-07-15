@@ -49,7 +49,7 @@ class _ExercicePageState extends State<ExercicePage> {
   @override
   Widget build(BuildContext context) {
     final sequence =
-        widget.exercice.sequence.length > 1 ? "Suite" : "Aléatoire";
+        widget.exercice.sequence.length > 0 ? "Suite" : "Aléatoire";
     final nbColor = widget.exercice.podCount > 0 ? widget.exercice.podCount : 3;
 
     return Scaffold(

@@ -88,7 +88,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (currentState is HomeLoaded) {
       final res = await _addCommentUc(
           AddCommentParams(event.trainingId, AddComment(text: event.text)));
-      print(res);
       res.fold(
         (l) => emit(HomeError(l.toString())),
         (r) {

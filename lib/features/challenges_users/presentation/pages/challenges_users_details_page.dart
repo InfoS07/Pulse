@@ -115,7 +115,13 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                         child: SizedBox(
                           width: double.infinity, // Button takes the full width
                           child: ElevatedButton(
-                            onPressed: () => {},
+                            onPressed: () => {
+                              context.push('/activitychallenge', extra: {
+                                "exercise":
+                                    widget.challengeUser.training.exercice,
+                                "challengeUser": widget.challengeUser
+                              })
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppPallete.primaryColor,
                               shape: RoundedRectangleBorder(

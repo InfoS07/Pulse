@@ -83,10 +83,9 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         final _formKey = GlobalKey<FormState>();
         String challengeName = '';
         String description = '';
-        DateTime endDate =
-            DateTime.now(); // Implement date picker or use a predefined date
-        String type = 'Répétitions'; // Example, modify based on user input
-        List<String> invites = [userId!]; // Example, modify based on user input
+        DateTime endDate = DateTime.now();
+        String type = 'Répétitions';
+        List<String> invites = [userId!];
 
         return AlertDialog(
           title: Text('Créer un Défi Utilisateur'),
@@ -189,7 +188,14 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                           '1': {'score': score, 'idUser': userId}
                         },
                       ));
+
                   Navigator.of(context).pop();
+                  ToastService.showSuccessToast(
+                    context,
+                    length: ToastLength.long,
+                    expandedHeight: 100,
+                    message: "Défi créé",
+                  );
                 }
               },
             ),
@@ -239,8 +245,11 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       body: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
           if (state is HomeError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+            ToastService.showErrorToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: state.message,
             );
           }
         },

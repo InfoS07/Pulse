@@ -88,8 +88,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 } else if (state is ChallengesUsersSuccess) {
                   final filteredChallenges = state.challenges
                       .where((challenge) =>
-                          challenge!.participants.any((participant) =>
-                              participant.user.uid == userId) ||
+                          challenge!.invites
+                              .any((invite) => invite.uid == userId) ||
                           challenge.author.uid == userId)
                       .toList();
 

@@ -27,6 +27,7 @@ class _ProfilPageState extends State<ProfilPage> {
   String? userId;
   List<Profil>? followers;
   List<Profil>? followings;
+  int points = 0;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _ProfilPageState extends State<ProfilPage> {
     if (authState is AppUserLoggedIn) {
       userId = authState.user.uid;
       context.read<ProfilBloc>().add(ProfilGetProfil(userId!));
+      points = authState.user.points;
     }
     // Lancer l'événement pour obtenir les posts
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
@@ -202,6 +204,14 @@ class _ProfilPageState extends State<ProfilPage> {
                   _buildInfoColumn(
                       followings!.length.toString(), 'Abonnements'),
                 ],
+              ),
+              Chip(
+                backgroundColor: AppPallete.secondaryColorFade,
+                label: Text('$points points',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
               ),
             ],
           ),
