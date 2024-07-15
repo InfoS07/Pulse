@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/error/exceptions.dart';
@@ -19,6 +21,7 @@ abstract class ChallengesUsersRemoteDataSource {
   Future<void> deleteChallenge(int challengeId);
   Future<void> createChallenge(CreateChallengeUser challengeUser);
   Future<void> addInvitesToChallenge(int challengeId, List<String> userIds);
+  StreamSubscription<List<Map<String, dynamic>>> getChallengesStream();
 }
 
 class ChallengeUserRemoteDataSourceImpl
@@ -27,6 +30,15 @@ class ChallengeUserRemoteDataSourceImpl
   final GraphQLService graphQLService;
 
   ChallengeUserRemoteDataSourceImpl(this.supabaseClient, this.graphQLService);
+
+  @override
+  StreamSubscription<List<Map<String, dynamic>>> getChallengesStream() {
+    return supabaseClient
+        .from('challenges_users')
+        .stream(primaryKey: ['id']).listen((List<Map<String, dynamic>> data) {
+      // Do something awesome with the data
+    });
+  }
 
   @override
   Future<List<ChallengeUserModel>> getChallengeUsers() async {

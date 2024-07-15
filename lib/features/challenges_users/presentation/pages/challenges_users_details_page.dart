@@ -77,165 +77,169 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Card(
-                color: AppPallete.backgroundColorDarker,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
-                ),
-                elevation: 4.0,
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.challengeUser.name,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+        child: Column(
+          children: [
+            Container(
+              color: AppPallete.backgroundColorDarker,
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.challengeUser.name,
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        widget.challengeUser.description,
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        widget.challengeUser
-                            .endAt, //_formatEndTime(widget.challengeUser.endAt),
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        "${widget.challengeUser.training.repetitions} ${widget.challengeUser.type} nécessaires",
-                        style: TextStyle(fontSize: 14, color: Colors.white70),
-                      ),
-                      const SizedBox(height: 16),
-                      if (isParticipant && !isAchiever)
-                        ElevatedButton(
-                          onPressed: () {
-                            // Navigate to activity
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppPallete.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text('Participer',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      if (!isParticipant)
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<ChallengesUsersBloc>().add(
-                                JoinChallengeEvent(
-                                    widget.challengeUser.id, userId!));
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppPallete.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text('Accepter',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      if (isAchiever)
-                        ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppPallete.primaryColor,
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            minimumSize: Size(double.infinity, 0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: Text('Terminé',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      if (userId == widget.challengeUser.author.uid)
-                        ElevatedButton(
-                          onPressed: () => _showAddFriendsDialog(
-                              context, widget.challengeUser),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppPallete.secondaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            minimumSize: Size(double.infinity, 0),
-                          ),
-                          child: Text(
-                            'Ajouter des amis',
-                            style: TextStyle(color: Colors.white, fontSize: 16),
-                          ),
-                        ),
-                      ExerciseCardWidget(
-                        exerciseTitle: widget.challengeUser.training.title,
-                        exerciseUrlPhoto:
-                            widget.challengeUser.training.exercice.photos.first,
-                        onTap: () {
-                          context.push(
-                              '/exercices/details/${widget.challengeUser.training.exercice.id}',
-                              extra: widget.challengeUser.training.exercice);
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      widget.challengeUser.description,
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      widget.challengeUser
+                          .endAt, //_formatEndTime(widget.challengeUser.endAt),
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "${widget.challengeUser.training.repetitions} ${widget.challengeUser.type} nécessaires",
+                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    if (isParticipant && !isAchiever)
+                      ElevatedButton(
+                        onPressed: () {
+                          // Navigate to activity
                         },
-                      )
-                    ],
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppPallete.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text('Participer',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    if (!isParticipant)
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ChallengesUsersBloc>().add(
+                              JoinChallengeEvent(
+                                  widget.challengeUser.id, userId!));
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppPallete.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text('Accepter',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    if (isAchiever)
+                      Container(
+                        child: SizedBox(
+                          width: double.infinity, // Button takes the full width
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppPallete.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            child: const Text(
+                              'Terminé',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
+                    if (userId == widget.challengeUser.author.uid)
+                      Container(
+                        child: SizedBox(
+                          width: double.infinity, // Button takes the full width
+                          child: ElevatedButton(
+                            onPressed: () => _showAddFriendsDialog(
+                                context, widget.challengeUser),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppPallete.secondaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            child: const Text(
+                              'Ajouter des amis',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 30),
+                    ExerciseCardWidget(
+                      exerciseTitle: widget.challengeUser.training.title,
+                      exerciseUrlPhoto:
+                          widget.challengeUser.training.exercice.photos.first,
+                      onTap: () {
+                        context.push(
+                            '/exercices/details/${widget.challengeUser.training.exercice.id}',
+                            extra: widget.challengeUser.training.exercice);
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Classement',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: widget.challengeUser.participants.length,
+              itemBuilder: (context, index) {
+                final participant =
+                    widget.challengeUser.participants.elementAt(index);
+                return Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Classement',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppPallete.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: widget.challengeUser.participants.length,
-                itemBuilder: (context, index) {
-                  final participant =
-                      widget.challengeUser.participants.elementAt(index);
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16.0),
+                  elevation: 2.0,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(participant.user.urlProfilePhoto),
                     ),
-                    elevation: 2.0,
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage:
-                            NetworkImage(participant.user.urlProfilePhoto),
-                      ),
-                      title: Text(
-                        '${participant.user.firstName} ${participant.user.lastName}',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      trailing: Text(
-                        'Score: ${participant.score}',
-                        style: TextStyle(color: AppPallete.primaryColor),
-                      ),
+                    title: Text(
+                      '${participant.user.firstName} ${participant.user.lastName}',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  );
-                },
-              ),
-            ],
-          ),
+                    trailing: Text(
+                      'Score: ${participant.score}',
+                      style: TextStyle(color: AppPallete.primaryColor),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );

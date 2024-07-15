@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/error/failures.dart';
@@ -6,4 +8,5 @@ import 'package:pulse/features/challenges_users/domain/models/challenges_users_m
 
 abstract class ChallengeUserRepository {
   Future<Either<Failure, List<ChallengeUserModel?>>> getChallengeUsers();
+  StreamSubscription<List<Map<String, dynamic>>> watchChallenges();
 }

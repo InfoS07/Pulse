@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/error/exceptions.dart';
@@ -26,8 +28,8 @@ class ChallengesRepositoryImpl implements ChallengesRepository {
     );
   }
 
-  Future<Either<Failure, List<ChallengesModel?>>>  _getChallenges(
-   Future<List<ChallengesModel?>> Function() fn,
+  Future<Either<Failure, List<ChallengesModel?>>> _getChallenges(
+    Future<List<ChallengesModel?>> Function() fn,
   ) async {
     try {
       final profil = await fn();
@@ -40,7 +42,8 @@ class ChallengesRepositoryImpl implements ChallengesRepository {
   }
 
   @override
-  Future<Either<Failure, void>> joinChallenge(int challengeId, String userId) async {
+  Future<Either<Failure, void>> joinChallenge(
+      int challengeId, String userId) async {
     try {
       await challengesDataSource.joinChallenge(challengeId, userId);
       return Right(null);
@@ -50,7 +53,8 @@ class ChallengesRepositoryImpl implements ChallengesRepository {
   }
 
   @override
-  Future<Either<Failure, void>> quitChallenge(int challengeId, String userId) async {
+  Future<Either<Failure, void>> quitChallenge(
+      int challengeId, String userId) async {
     try {
       await challengesDataSource.quitChallenge(challengeId, userId);
       return Right(null);

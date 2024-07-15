@@ -9,6 +9,7 @@ import 'package:pulse/features/challenges_users/data/datasources/challenges_user
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
 import 'package:pulse/features/challenges_users/domain/usecases/get_challenges_users.dart';
+import 'package:pulse/features/challenges_users/domain/usecases/watch_challenges_insert.dart';
 import 'package:pulse/features/exercices/domain/usecases/get_exercices.dart';
 import 'package:pulse/features/exercices/domain/usecases/search_exercices.dart';
 import 'package:pulse/features/list_trainings/domain/models/create_challenge_user.dart';
@@ -18,23 +19,39 @@ part 'challenges_users_state.dart';
 
 class ChallengesUsersBloc
     extends Bloc<ChallengesUsersEvent, ChallengesUsersState> {
-  final ChallengesUsersRemoteDataSource remoteDataSource;
+  final ChallengesUsersRemoteDataSource _remoteDataSource;
+  final WatchChallengesInsert _watchChallengesUseCase;
 
-  ChallengesUsersBloc({required this.remoteDataSource})
-      : super(ChallengesUsersInitial()) {
+  ChallengesUsersBloc(
+      {required ChallengesUsersRemoteDataSource remoteDataSource,
+      required WatchChallengesInsert watchChallengesUseCase})
+      : _watchChallengesUseCase = watchChallengesUseCase,
+        _remoteDataSource = remoteDataSource,
+        super(ChallengesUsersInitial()) {
     on<ChallengesUsersGetChallenges>(_onGetChallengesUsers);
     on<JoinChallengeEvent>(_onJoinChallenge);
     on<QuitChallengeEvent>(_onQuitChallenge);
     on<DeleteChallengeEvent>(_onDeleteChallenge);
     on<CreateChallengeEvent>(_onCreateChallenge);
     on<AddInvitesToChallengeEvent>(_onAddInvitesToChallenge);
+    on<StartListeningToChallengesEvent>(_onStartListeningToChallenges);
+  }
+
+  void _onStartListeningToChallenges(StartListeningToChallengesEvent event,
+      Emitter<ChallengesUsersState> emit) {
+    /*  _watchChallengesUseCase.listen((challenges) {
+      // Émettre un état avec les nouveaux challenges
+      emit(ChallengesUsersSuccess(challenges));
+    }).onError((error) {
+      emit(ChallengesUsersError(error.toString()));
+    }); */
   }
 
   Future<void> _onGetChallengesUsers(ChallengesUsersGetChallenges event,
       Emitter<ChallengesUsersState> emit) async {
     emit(ChallengesUsersLoading());
     try {
-      final challenges = await remoteDataSource.getChallengeUsers();
+      final challenges = await _remoteDataSource.getChallengeUsers();
       print('Astrid challenges $challenges');
       emit(ChallengesUsersSuccess(challenges));
     } catch (_) {
@@ -42,10 +59,14 @@ class ChallengesUsersBloc
     }
   }
 
+  Stream<ChallengesUsersState> mapEventToState(ChallengesUsersEvent event) {
+    throw UnimplementedError();
+  }
+
   Future<void> _onJoinChallenge(
       JoinChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.joinChallenge(event.challengeId, event.userId);
+      await _remoteDataSource.joinChallenge(event.challengeId, event.userId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
@@ -55,7 +76,7 @@ class ChallengesUsersBloc
   Future<void> _onQuitChallenge(
       QuitChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.quitChallenge(event.challengeId, event.userId);
+      await _remoteDataSource.quitChallenge(event.challengeId, event.userId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
@@ -65,7 +86,7 @@ class ChallengesUsersBloc
   Future<void> _onDeleteChallenge(
       DeleteChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.deleteChallenge(event.challengeId);
+      await _remoteDataSource.deleteChallenge(event.challengeId);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));
@@ -88,7 +109,7 @@ class ChallengesUsersBloc
 
       print('createChallengeUser $createChallengeUser');
 
-      await remoteDataSource.createChallenge(createChallengeUser);
+      await _remoteDataSource.createChallenge(createChallengeUser);
 
       add(ChallengesUsersGetChallenges());
     } catch (_) {
@@ -99,7 +120,7 @@ class ChallengesUsersBloc
   Future<void> _onAddInvitesToChallenge(AddInvitesToChallengeEvent event,
       Emitter<ChallengesUsersState> emit) async {
     try {
-      await remoteDataSource.addInvitesToChallenge(
+      await _remoteDataSource.addInvitesToChallenge(
           event.challengeId, event.userIds);
       add(ChallengesUsersGetChallenges());
     } catch (_) {

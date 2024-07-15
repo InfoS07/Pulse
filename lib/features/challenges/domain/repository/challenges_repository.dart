@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/error/failures.dart';

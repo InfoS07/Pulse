@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
@@ -50,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                       if (state is AuthFailure) {
                         showSnackBar(context, state.message);
                       } else if (state is AuthSuccess) {
-                        context.pushReplacement('/home');
+                        context.go('/home');
                       }
                     },
                     builder: (context, state) {
@@ -69,27 +70,26 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 20),
                             ShaderMask(
-                              shaderCallback: (Rect bounds) {
-                                return const LinearGradient(
-                                  colors: <Color>[
-                                    AppPallete.primaryColor,
-                                    Colors.lightGreen,
-                                    Colors.greenAccent
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ).createShader(bounds);
-                              },
-                              child: const Text(
-                                'PULSE',
-                                style: TextStyle(
-                                  fontSize: 50,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors
-                                      .white, // Cette couleur sera masquée par le shader
-                                ),
-                              ),
-                            ),
+                                shaderCallback: (Rect bounds) {
+                                  return const LinearGradient(
+                                    colors: [
+                                      AppPallete.primaryColor,
+                                      AppPallete.secondaryColor
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ).createShader(bounds);
+                                },
+                                child: Animate(
+                                  effects: [FadeEffect(), ScaleEffect()],
+                                  child: Text(
+                                    'PULSE',
+                                    style: TextStyle(
+                                      fontSize: 50,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                )),
                             const SizedBox(height: 30),
                             AuthField(
                               hintText: 'Email',
@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 20),
                             GestureDetector(
                               onTap: () {
-                                context.pushReplacement('/forgot_password');
+                                context.go('/forgot_password');
                               },
                               child: Center(
                                 child: RichText(
@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                             const SizedBox(height: 60),
                             GestureDetector(
                               onTap: () {
-                                context.pushReplacementNamed('/signup');
+                                context.go('/signup');
                               },
                               child: Center(
                                 child: RichText(

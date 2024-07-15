@@ -46,17 +46,6 @@ class SplashScreen extends StatelessWidget {
                     ripplesCount: 6,
                     duration: const Duration(milliseconds: 6 * 300),
                   ),
-                  /* Animate(
-                    effects: [FadeEffect(), ScaleEffect()],
-                    child: Text(
-                      'PULSE',
-                      style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ), */
                   ShaderMask(
                       shaderCallback: (Rect bounds) {
                         return const LinearGradient(
