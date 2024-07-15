@@ -15,6 +15,7 @@ import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/features/activity/presentation/widgets/buzzer_indicator.dart';
+import 'package:simple_ripple_animation/simple_ripple_animation.dart';
 
 class ActivityPage extends StatefulWidget {
   final Exercice exercise;
@@ -87,11 +88,13 @@ class _ActivityPageState extends State<ActivityPage>
   }
 
   Future<void> _checkBluetoothState() async {
-    if (await FlutterBluePlus.isOn) {
-      checkBluetoothPermissionsAndState();
-    } else {
-      _showBluetoothActivationDialog();
-    }
+    FlutterBluePlus.adapterState.listen((state) {
+      if (state == BluetoothAdapterState.off) {
+        _showBluetoothActivationDialog();
+      } else if (state == BluetoothAdapterState.on) {
+        checkBluetoothPermissionsAndState();
+      }
+    });
   }
 
   Future<void> checkBluetoothPermissionsAndState() async {
@@ -146,7 +149,7 @@ class _ActivityPageState extends State<ActivityPage>
       setState(() {
         isScanning = true;
       });
-      FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
+      FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
       FlutterBluePlus.scanResults.listen((results) {
         print('Scanning... $results');
 
@@ -161,9 +164,7 @@ class _ActivityPageState extends State<ActivityPage>
       }).onDone(() {
         print('isScanning... $isScanning');
         print('connectedDevice... $connectedDevice');
-        /* setState(() {
-          isScanning = false;
-        }); */
+
         if (connectedDevice == null) {
           _showConnectionErrorDialog();
         }
@@ -543,7 +544,7 @@ class _ActivityPageState extends State<ActivityPage>
                 children: [
                   Text(
                     'Veuillez allumer ${widget.exercise.podCount} buzzers nécessaires pour cet exercice.',
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -555,7 +556,7 @@ class _ActivityPageState extends State<ActivityPage>
                             ? _getColor(activeBuzzers[index])
                             : Colors.grey,
                         child: activeBuzzers.length > index
-                            ? Icon(Icons.check, color: Colors.white)
+                            ? const Icon(Icons.check, color: Colors.white)
                             : const SizedBox.shrink(),
                       );
                     }),
@@ -566,6 +567,11 @@ class _ActivityPageState extends State<ActivityPage>
                         ? 'Tous les buzzers sont synchronisés.'
                         : 'Synchronisation des buzzers en cours...',
                     style: const TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 20),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, 'CANCEL'),
+                    child: const Text('Annuler'),
                   ),
                 ],
               ),
@@ -661,13 +667,78 @@ class _ActivityPageState extends State<ActivityPage>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: activeBuzzers
-                              .map((buzzerColor) => BuzzerIndicator(
-                                    isActive: true,
-                                    color: _getColor(buzzerColor),
+                              .map((buzzerColor) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal:
+                                            8.0), // Adjust the spacing as needed
+                                    child: BuzzerIndicator(
+                                      isActive: true,
+                                      color: _getColor(buzzerColor),
+                                    ),
                                   ))
                               .toList(),
                         ),
-                        const SizedBox(height: 64),
+
+                        //ici un bouton rond avec écrie lancer l'exercice et lui il lancer l'exercice
+                        /* ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(40),
+                            backgroundColor: AppPallete.primaryColor,
+                          ),
+                          child: Text(
+                            'Lancer',
+                            style: TextStyle(
+                              fontSize: 32,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ), */
+                        RippleAnimation(
+                          color: AppPallete.primaryColor,
+                          delay: const Duration(milliseconds: 300),
+                          repeat: true,
+                          minRadius: 75,
+                          ripplesCount: 6,
+                          duration: const Duration(milliseconds: 6 * 300),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showConnectionDialog(
+                                  context, connectionStatusNotifier);
+                              if (connectedDevice == null) {
+                                reconnectIfNecessary();
+                              } else {
+                                discoverServices();
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              shape: const CircleBorder(),
+                              padding: const EdgeInsets.all(
+                                  50), // Ajustez la taille du bouton ici
+                              backgroundColor: AppPallete.primaryColor,
+                            ),
+                            child: const Text(
+                              'Lancer',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 40),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 32.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
                         GestureDetector(
                           onTap: () => _startStopTimer(),
                           child: Container(
@@ -684,7 +755,8 @@ class _ActivityPageState extends State<ActivityPage>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(minWidth: 100),
+                                  constraints:
+                                      const BoxConstraints(minWidth: 100),
                                   child: ValueListenableBuilder<Duration>(
                                     valueListenable: _timeElapsed,
                                     builder: (context, value, child) {
@@ -710,15 +782,7 @@ class _ActivityPageState extends State<ActivityPage>
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: AppPallete.backgroundColorDarker,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 32.0, horizontal: 16.0),
-                    child: Column(
-                      children: [
+                        /* const SizedBox(height: 30),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -737,8 +801,8 @@ class _ActivityPageState extends State<ActivityPage>
                               },
                             ),
                           ],
-                        ),
-                        const SizedBox(height: 16),
+                        ), */
+                        const SizedBox(height: 20),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [

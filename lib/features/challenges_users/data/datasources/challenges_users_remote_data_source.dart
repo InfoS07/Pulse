@@ -69,8 +69,6 @@ class ChallengeUserRemoteDataSourceImpl
         }
       }
 
-      print("challenges nicolas: $challenges");
-
       return challenges;
     } on PostgrestException catch (e) {
       throw ServerException("Error");

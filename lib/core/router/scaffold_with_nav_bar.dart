@@ -37,7 +37,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
           ),
           _buildBottomNavigationBarItem(
             icon: const FaIcon(FontAwesomeIcons.layerGroup),
-            label: 'Groupe',
+            label: 'Défis',
             isSelected: navigationShell.currentIndex == 2,
           ),
           _buildBottomNavigationBarItem(

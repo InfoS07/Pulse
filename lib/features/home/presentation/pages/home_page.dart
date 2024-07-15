@@ -24,6 +24,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   String userName = "Utilisateur"; // Nom par défaut
   String urlProfilePhoto = "";
+  int points = 0;
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _HomePageState extends State<HomePage> {
     if (authState is AppUserLoggedIn) {
       userName = authState.user.firstName + " " + authState.user.lastName;
       urlProfilePhoto = authState.user.urlProfilePhoto;
-      print("urlProfilePhoto: $urlProfilePhoto");
+      points = authState.user.points;
     }
   }
 
@@ -164,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       const SizedBox(height: 32),
                       AchievementBadgeWidget(
-                        message: 'Vous avez 10,000 points',
+                        message: 'Vous avez ${points} points',
                       ),
                       Loader(),
                     ],
@@ -180,7 +181,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SliverToBoxAdapter(
                         child: AchievementBadgeWidget(
-                          message: 'Vous avez 10,000 points',
+                          message: 'Vous avez ${points} points',
                         ),
                       ),
                       const SliverToBoxAdapter(

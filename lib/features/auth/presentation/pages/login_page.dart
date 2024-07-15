@@ -27,128 +27,150 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
+  void _dismissKeyboard() {
+    FocusScope.of(context).unfocus();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(60.0),
-        child: BlocConsumer<AuthBloc, AuthState>(
-          listener: (context, state) {
-            if (state is AuthFailure) {
-              showSnackBar(context, state.message);
-            } else if (state is AuthSuccess) {
-              context.go('/home');
-            }
-          },
-          builder: (context, state) {
-            if (state is AuthLoading) {
-              return const Loader();
-            }
-
-            return Form(
-              key: formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/ic_logobg.png',
-                    height: 100,
-                  ),
-                  const SizedBox(height: 20),
-                  ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return const LinearGradient(
-                        colors: <Color>[
-                          AppPallete.primaryColor,
-                          Colors.lightGreen,
-                          Colors.greenAccent
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ).createShader(bounds);
-                    },
-                    child: const Text(
-                      'PULSE',
-                      style: TextStyle(
-                        fontSize: 50,
-                        fontWeight: FontWeight.bold,
-                        color: Colors
-                            .white, // Cette couleur sera masquée par le shader
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  AuthField(
-                    hintText: 'Email',
-                    controller: emailController,
-                  ),
-                  const SizedBox(height: 15),
-                  AuthField(
-                    hintText: 'Mot de passe',
-                    controller: passwordController,
-                    isObscureText: true,
-                  ),
-                  const SizedBox(height: 20),
-                  AuthGradientButton(
-                    buttonText: 'Se connecter',
-                    onPressed: () {
-                      if (formKey.currentState!.validate()) {
-                        context.read<AuthBloc>().add(
-                              AuthLogin(
-                                email: emailController.text.trim(),
-                                password: passwordController.text.trim(),
-                              ),
-                            );
+      body: GestureDetector(
+        onTap: _dismissKeyboard,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(60.0),
+                  child: BlocConsumer<AuthBloc, AuthState>(
+                    listener: (context, state) {
+                      if (state is AuthFailure) {
+                        showSnackBar(context, state.message);
+                      } else if (state is AuthSuccess) {
+                        context.pushReplacement('/home');
                       }
                     },
-                  ),
-                  const SizedBox(height: 20),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/forgot_password');
-                    },
-                    child: Center(
-                      child: RichText(
-                        textAlign: TextAlign.center, // Centrer le texte
-                        text: TextSpan(
-                          text: 'Mot de passe oublié ?',
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppPallete.primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-                  GestureDetector(
-                    onTap: () {
-                      context.go('/signup');
-                    },
-                    child: Center(
-                      child: RichText(
-                        textAlign: TextAlign.center, // Centrer le texte
-                        text: TextSpan(
-                          text: 'Tu n\'es pas encore un pulseur?\n ',
-                          style: Theme.of(context).textTheme.titleMedium,
+                    builder: (context, state) {
+                      if (state is AuthLoading) {
+                        return const Loader();
+                      }
+
+                      return Form(
+                        key: formKey,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            TextSpan(
-                              text: 'Cree ton compte',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(
-                                    color: AppPallete.primaryColor,
-                                    fontWeight: FontWeight.bold,
+                            Image.asset(
+                              'assets/ic_logobg.png',
+                              height: 100,
+                            ),
+                            const SizedBox(height: 20),
+                            ShaderMask(
+                              shaderCallback: (Rect bounds) {
+                                return const LinearGradient(
+                                  colors: <Color>[
+                                    AppPallete.primaryColor,
+                                    Colors.lightGreen,
+                                    Colors.greenAccent
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ).createShader(bounds);
+                              },
+                              child: const Text(
+                                'PULSE',
+                                style: TextStyle(
+                                  fontSize: 50,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors
+                                      .white, // Cette couleur sera masquée par le shader
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 30),
+                            AuthField(
+                              hintText: 'Email',
+                              controller: emailController,
+                            ),
+                            const SizedBox(height: 15),
+                            AuthField(
+                              hintText: 'Mot de passe',
+                              controller: passwordController,
+                              isObscureText: true,
+                            ),
+                            const SizedBox(height: 20),
+                            AuthGradientButton(
+                              buttonText: 'Se connecter',
+                              onPressed: () {
+                                if (formKey.currentState!.validate()) {
+                                  context.read<AuthBloc>().add(
+                                        AuthLogin(
+                                          email: emailController.text.trim(),
+                                          password:
+                                              passwordController.text.trim(),
+                                        ),
+                                      );
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 20),
+                            GestureDetector(
+                              onTap: () {
+                                context.pushReplacement('/forgot_password');
+                              },
+                              child: Center(
+                                child: RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    text: 'Mot de passe oublié ?',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          color: AppPallete.primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 60),
+                            GestureDetector(
+                              onTap: () {
+                                context.pushReplacementNamed('/signup');
+                              },
+                              child: Center(
+                                child: RichText(
+                                  textAlign: TextAlign.center,
+                                  text: TextSpan(
+                                    text: 'Tu n\'es pas encore un pulseur?\n ',
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium,
+                                    children: [
+                                      TextSpan(
+                                        text: 'Cree ton compte',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleMedium
+                                            ?.copyWith(
+                                              color: AppPallete.primaryColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                ],
+                ),
               ),
             );
           },

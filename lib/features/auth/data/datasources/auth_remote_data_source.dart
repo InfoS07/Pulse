@@ -85,6 +85,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String email,
     required String password,
   }) async {
+    if (!_isValidName(firstName)) {
+      throw const ServerException(
+          'Prénom invalide. Seuls les caractères alphabétiques, les apostrophes et les tirets sont autorisés.');
+    }
+    if (!_isValidName(lastName)) {
+      throw const ServerException(
+          'Nom invalide. Seuls les caractères alphabétiques, les apostrophes et les tirets sont autorisés.');
+    }
+    if (!_isValidEmail(email)) {
+      throw const ServerException("Format d\'email invalide.");
+    }
+    if (password.length < 6) {
+      throw const ServerException(
+          'Le mot de passe doit contenir au moins 6 caractères.');
+    }
+
     try {
       final data = <String, dynamic>{
         "last_name": lastName,
@@ -94,8 +110,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final response = await supabaseClient.auth
           .signUp(email: email, password: password, data: data);
 
-      supabaseClient.auth.resetPasswordForEmail(email);
-      print('response singup: $response');
       if (response.user == null || response.session == null) {
         throw const ServerException('Signup failed: User or session is null.');
       }
@@ -124,6 +138,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     } catch (e) {
       throw ServerException(e.toString());
     }
+  }
+
+  bool _isValidName(String name) {
+    final regex = RegExp(r"^[a-zA-ZÀ-ÿ'-]+$");
+    return regex.hasMatch(name);
+  }
+
+  bool _isValidEmail(String email) {
+    final regex = RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$");
+    return regex.hasMatch(email);
   }
 
   Future<void> _saveToken(String token) async {
