@@ -31,6 +31,8 @@ final class AuthIsUserLoggedIn extends AuthEvent {}
 
 final class AuthSignOut extends AuthEvent {}
 
+final class AuthReloadUser extends AuthEvent {}
+
 final class AuthResetPassword extends AuthEvent {
   final String email;
 

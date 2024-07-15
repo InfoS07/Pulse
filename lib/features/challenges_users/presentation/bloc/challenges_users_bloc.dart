@@ -52,7 +52,6 @@ class ChallengesUsersBloc
     emit(ChallengesUsersLoading());
     try {
       final challenges = await _remoteDataSource.getChallengeUsers();
-      print('Astrid challenges $challenges');
       emit(ChallengesUsersSuccess(challenges));
     } catch (_) {
       emit(ChallengesUsersError("error"));
@@ -106,8 +105,6 @@ class ChallengesUsersBloc
           invites: event.invites,
           createdAt: event.createdAt,
           participant: event.participant);
-
-      print('createChallengeUser $createChallengeUser');
 
       await _remoteDataSource.createChallenge(createChallengeUser);
 

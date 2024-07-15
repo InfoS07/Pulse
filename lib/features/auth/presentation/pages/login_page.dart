@@ -55,10 +55,6 @@ class _LoginPageState extends State<LoginPage> {
                       }
                     },
                     builder: (context, state) {
-                      if (state is AuthLoading) {
-                        return const Loader();
-                      }
-
                       return Form(
                         key: formKey,
                         child: Column(
@@ -103,18 +99,24 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 20),
                             AuthGradientButton(
-                              buttonText: 'Se connecter',
-                              onPressed: () {
-                                if (formKey.currentState!.validate()) {
-                                  context.read<AuthBloc>().add(
-                                        AuthLogin(
-                                          email: emailController.text.trim(),
-                                          password:
-                                              passwordController.text.trim(),
-                                        ),
-                                      );
-                                }
-                              },
+                              buttonText: state is AuthLoading
+                                  ? 'Connexion en cours...'
+                                  : 'Se connecter',
+                              onPressed: state is AuthLoading
+                                  ? () {}
+                                  : () {
+                                      if (formKey.currentState!.validate()) {
+                                        context.read<AuthBloc>().add(
+                                              AuthLogin(
+                                                email:
+                                                    emailController.text.trim(),
+                                                password: passwordController
+                                                    .text
+                                                    .trim(),
+                                              ),
+                                            );
+                                      }
+                                    },
                             ),
                             const SizedBox(height: 20),
                             GestureDetector(

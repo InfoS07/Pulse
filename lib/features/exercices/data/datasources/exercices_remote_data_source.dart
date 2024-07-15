@@ -32,6 +32,7 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
               difficulty
               player_count
               type
+              sequence
             }
           }
       ''';

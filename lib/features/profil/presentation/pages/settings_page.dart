@@ -56,11 +56,11 @@ class _SettingsPageState extends State<SettingsPage> {
     if (await Permission.camera.isGranted) {
       _showPickerDialog();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text("Permission d'accès à la galerie et à la caméra refusée"),
-        ),
+      ToastService.showErrorToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: "Permission d'accès à la galerie et à la caméra refusée",
       );
     }
   }
@@ -297,9 +297,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16.0),
                     SizedBox(
-                      height: 16.0,
+                      height: 60.0,
                     ),
                     SizedBox(
                       width: double.infinity,
@@ -408,7 +407,9 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
           ),
-          const SizedBox(height: 16.0),
+          SizedBox(
+            height: 60.0,
+          ),
           Shimmer.fromColors(
             baseColor: Colors.grey.shade300,
             highlightColor: Colors.grey.shade100,

@@ -7,12 +7,14 @@ import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercice_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -40,8 +42,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _updateUserInfo() {
+    context.read<AuthBloc>().add(AuthReloadUser());
+    final authState = context.read<AppUserCubit>().state;
+
+    if (authState is AppUserLoggedIn) {
+      setState(() {
+        userName = authState.user.firstName + " " + authState.user.lastName;
+        urlProfilePhoto = authState.user.urlProfilePhoto;
+        points = authState.user.points;
+      });
+    }
+  }
+
   Future<void> _refreshPosts() async {
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
+    _updateUserInfo();
   }
 
   String getTotalTimeForMyPosts(List<SocialMediaPost> posts) {
@@ -115,33 +131,34 @@ class _HomePageState extends State<HomePage> {
             ),
             const Stack(
               children: [
-                /* IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 11,
-                top: 11,
-                child: Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
-                    color: Colors.red,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  constraints: const BoxConstraints(
-                    minWidth: 12,
-                    minHeight: 12,
-                  ),
-                  child: const Text(
-                    '5',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 8,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),*/
+                // Commented out notification icon for now
+                // IconButton(
+                //   icon: const Icon(Icons.notifications),
+                //   onPressed: () {},
+                // ),
+                // Positioned(
+                //   right: 11,
+                //   top: 11,
+                //   child: Container(
+                //     padding: const EdgeInsets.all(2),
+                //     decoration: BoxDecoration(
+                //       color: Colors.red,
+                //       borderRadius: BorderRadius.circular(6),
+                //     ),
+                //     constraints: const BoxConstraints(
+                //       minWidth: 12,
+                //       minHeight: 12,
+                //     ),
+                //     child: const Text(
+                //       '5',
+                //       style: TextStyle(
+                //         color: Colors.white,
+                //         fontSize: 8,
+                //       ),
+                //       textAlign: TextAlign.center,
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ],
@@ -149,27 +166,99 @@ class _HomePageState extends State<HomePage> {
         body: BlocListener<ProfilBloc, ProfilState>(
           listener: (context, state) {
             if (state is ProfilSuccess) {
-              setState(() {
-                userName = state.profil.firstName + " " + state.profil.lastName;
-                urlProfilePhoto = state.profil.profilePhoto;
-              });
               _refreshPosts();
             }
           },
           child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
               if (state is HomeLoading) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 32),
-                      AchievementBadgeWidget(
-                        message: 'Vous avez ${points} points',
+                return CustomScrollView(
+                  slivers: [
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 32),
+                    ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 100,
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[600]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Container(
+                            width: 300,
+                            margin: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
                       ),
-                      Loader(),
-                    ],
-                  ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 32),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 12),
+                        child: Text(
+                          "Recommendations",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 200,
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[600]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Container(
+                            width: 300,
+                            margin: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                              color: Colors.grey,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 32),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 12.0, horizontal: 12),
+                        child: Text(
+                          "Entrainements",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey[600]!,
+                            highlightColor: Colors.grey[200]!,
+                            child: Container(
+                              height: 150,
+                              margin: const EdgeInsets.symmetric(vertical: 8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          );
+                        },
+                        childCount: 5, // Number of shimmer items
+                      ),
+                    ),
+                  ],
                 );
               } else if (state is HomeLoaded) {
                 return RefreshIndicator(
@@ -253,66 +342,6 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                      /* SliverToBoxAdapter(
-                    child: Container(
-                      color: AppPallete.backgroundColorDarker,
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Votre résumé hebdomadaire',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Column(
-                                children: [
-                                  Text(
-                                    "Entrainements",
-                                    style: const TextStyle(
-                                        color: Colors.grey, fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    state.posts.length.toString(),
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: [
-                                  Text(
-                                    "Temps",
-                                    style: const TextStyle(
-                                        color: Colors.grey, fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    getTotalTimeForMyPosts(
-                                        state.posts as List<SocialMediaPost>),
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ), */
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {

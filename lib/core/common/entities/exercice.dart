@@ -5,7 +5,7 @@ class Exercice {
   final List<String> photos;
   final List<String> categories;
   final int duration;
-  List<int> sequence = [1, 2, 3, 4];
+  List<int> sequence = [1, 2];
   int repetitions = 3;
   int podCount = 0;
   int playerCount = 0;
