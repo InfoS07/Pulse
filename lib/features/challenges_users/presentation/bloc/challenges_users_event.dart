@@ -19,6 +19,17 @@ class JoinChallengeEvent extends ChallengesUsersEvent {
   List<Object> get props => [challengeId, userId];
 }
 
+class FinishChallengeUserEvent extends ChallengesUsersEvent {
+  final int challengeId;
+  final String userId;
+  final int score;
+
+  FinishChallengeUserEvent(this.challengeId, this.userId,this.score);
+
+  @override
+  List<Object> get props => [challengeId, userId];
+}
+
 class QuitChallengeEvent extends ChallengesUsersEvent {
   final int challengeId;
   final String userId;

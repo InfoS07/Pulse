@@ -16,6 +16,7 @@ import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/activity/presentation/widgets/buzzer_indicator.dart';
+import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 
 class ActivityChallengeUserPage extends StatefulWidget {
   final Exercice exercise;
@@ -303,17 +304,13 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
           currentRepetition++;
         }
 
-        if (widget.challengeUserModel!.type == 'Répétitions' &&
-            messageCount >= widget.challengeUserModel!.training.repetitions!) {
-          _showSuccessDialog('Bravo fdp');
-          _startStopTimer();
-        } else if (widget.challengeUserModel!.type == 'Timer' &&
+        if (
             _timeElapsed.value >=
                 Duration(
                     seconds: _durationFromStartAndEndInSecondes(
                         widget.challengeUserModel!.training.startAt,
                         widget.challengeUserModel!.training.endAt!)!)) {
-          _showSuccessDialog('Bravo fdp');
+          _showSuccessDialog('Bravo tu viens de finir le défi lancé par ton ami',messageCount);
           _startStopTimer();
         }
 
@@ -395,7 +392,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     );
   }
 
-  void _showSuccessDialog(String message) {
+  void _showSuccessDialog(String message,int score) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -405,6 +402,10 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
           actions: [
             TextButton(
               onPressed: () {
+                context.read<ChallengesUsersBloc>().add(
+                  FinishChallengeUserEvent(
+                  widget.challengeUserModel!.id, userId!,score)
+                );
                 Navigator.of(context).pop();
               },
               child: Text('OK'),
@@ -744,26 +745,18 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                           },
                         ),
                         const SizedBox(height: 8),
-                        if (widget.challengeUserModel!.type == 'Répétitions')
-                          Text(
-                            'Nombre de touche à battre : ${widget.challengeUserModel!.training.repetitions}',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold),
-                          ),
-                        if (widget.challengeUserModel!.type == 'Timer')
+                        if (widget.challengeUserModel!.type == 'Timer' || widget.challengeUserModel!.type == 'Répétitions')
                           Column(
                             children: [
                               Text(
-                                'Nombre de répétitions : ${widget.challengeUserModel!.training.repetitions}',
+                                'Nombre de répétitions à battre : ${widget.challengeUserModel!.training.repetitions}',
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                'Durée : ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}',
+                                "Durée pour faire l'exercice: ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
