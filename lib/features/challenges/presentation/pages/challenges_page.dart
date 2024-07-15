@@ -6,6 +6,7 @@ import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/bottom_sheet.dart';
 import 'package:pulse/features/challenges/domain/models/challenges_model.dart';
+import 'package:pulse/features/challenges/domain/models/data_challenge_activity.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenges_users_page.dart';
@@ -210,7 +211,7 @@ class _GroupPageState extends State<GroupPage> {
     );
   }
 
-  Widget _buildChallengeCard(ChallengesModel challenge) {
+Widget _buildChallengeCard(ChallengesModel challenge) {
     final isParticipant = challenge.participants?.contains(userId!) ?? false;
     final isAchiever = challenge.achievers?.contains(userId!) ?? false;
     String status;
@@ -221,109 +222,112 @@ class _GroupPageState extends State<GroupPage> {
     Function()? onPressed;
 
     if (isAchiever) {
-      status = 'Terminé';
-      statusColor = AppPallete.primaryColor;
+        status = 'Terminé';
+        statusColor = AppPallete.primaryColor;
     } else if (isParticipant) {
-      status = 'Accepté';
-      statusColor = AppPallete.primaryColorFade;
-      textColor = AppPallete.primaryColor;
+        status = 'Accepté';
+        statusColor = AppPallete.primaryColorFade;
+        textColor = AppPallete.primaryColor;
     } else {
-      status = 'Accepter';
-      statusColor = AppPallete.primaryColor;
+        status = 'Accepter';
+        statusColor = AppPallete.primaryColor;
     }
 
     if (!isParticipant && !isAchiever) {
-      onPressed = () {
-        context
-            .read<ChallengesBloc>()
-            .add(JoinChallenge(challenge.id, userId!));
-      };
+        onPressed = () {
+            context
+                .read<ChallengesBloc>()
+                .add(JoinChallenge(challenge.id, userId!));
+        };
     } else if (isParticipant && !isAchiever) {
-      onPressed = () {
-        context
-            .read<ChallengesBloc>()
-            .add(QuitChallenge(challenge.id, userId!));
-      };
+        onPressed = () {
+            context
+                .read<ChallengesBloc>()
+                .add(QuitChallenge(challenge.id, userId!));
+        };
     }
 
     return GestureDetector(
-      onTap: () {
-        _showChallengeDetailsBottomSheet(context, challenge);
-      },
-      child: Card(
-        color: AppPallete.backgroundColorDarker,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                challenge.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+        onTap: () {
+            _showChallengeDetailsBottomSheet(context, challenge);
+        },
+        child: Card(
+            color: AppPallete.backgroundColorDarker,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Text(
+                            challenge.name,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                            ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                            challenge.description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                                if (!isParticipant && !isAchiever ||
+                                    isParticipant && !isAchiever) ...[
+                                    SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                            onPressed: onPressed,
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: statusColor,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                padding: const EdgeInsets.symmetric(vertical: 5),
+                                            ),
+                                            child: Text(
+                                                status,
+                                                style: TextStyle(color: textColor, fontSize: 12),
+                                            ),
+                                        ),
+                                    ),
+                                ],
+                                if (isAchiever) ...[
+                                    ElevatedButton(
+                                        onPressed: null, // bouton désactivé
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: statusColor,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 30.0, vertical: 8.0),
+                                        ),
+                                        child: Text(
+                                            status,
+                                            style: const TextStyle(
+                                                color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
+                                    ),
+                                ],
+                            ],
+                        ),
+                    ],
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                challenge.description,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-              const SizedBox(height: 16),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!isParticipant && !isAchiever ||
-                      isParticipant && !isAchiever) ...[
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: onPressed,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: statusColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                        ),
-                        child: Text(
-                          status,
-                          style: TextStyle(color: textColor, fontSize: 12),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (isAchiever) ...[
-                    ElevatedButton(
-                      onPressed: null, // bouton désactivé
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: statusColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                      ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
+            ),
         ),
-      ),
     );
-  }
+}
+
 
   void _showChallengeDetailsBottomSheet(
       BuildContext context, ChallengesModel challenge) {
@@ -352,7 +356,13 @@ class _GroupPageState extends State<GroupPage> {
             final exercise =
                 _findExercise(state.exercisesByCategory, exerciseId!);
             if (exercise != null) {
-              context.go('/activity', extra: exercise);
+                DataChallengeActivity activity = DataChallengeActivity(
+                  exercice: exercise,
+                  points: challenge.points,
+                  repetitions: challenge.numbers,
+                  idChallenge: challenge.id
+                );
+              context.go('/activityClassicChallenge', extra: exercise);
             }
           }
         }
@@ -409,7 +419,13 @@ class _GroupPageState extends State<GroupPage> {
                         final exercise = _findExercise(
                             state.exercisesByCategory, exerciseId!);
                         if (exercise != null) {
-                          context.push('/activity', extra: exercise);
+                          DataChallengeActivity activity = DataChallengeActivity(
+                            exercice: exercise,
+                            points: challenge.points,
+                            repetitions: challenge.numbers,
+                            idChallenge: challenge.id
+                          );
+                          context.push('/activityClassicChallenge', extra: activity);
                         }
                       }
                     },
@@ -427,7 +443,7 @@ class _GroupPageState extends State<GroupPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
