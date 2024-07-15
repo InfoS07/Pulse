@@ -33,6 +33,8 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
               player_count
               type
               sequence
+              price_coin
+              premiums
             }
           }
       ''';

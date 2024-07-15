@@ -304,13 +304,14 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
           currentRepetition++;
         }
 
-        if (
-            _timeElapsed.value >=
-                Duration(
-                    seconds: _durationFromStartAndEndInSecondes(
-                        widget.challengeUserModel!.training.startAt,
-                        widget.challengeUserModel!.training.endAt!)!)) {
-          _showSuccessDialog('Bravo tu viens de finir le défi lancé par ton ami',messageCount);
+        if (_timeElapsed.value >=
+            Duration(
+                seconds: _durationFromStartAndEndInSecondes(
+                    widget.challengeUserModel!.training.startAt,
+                    widget.challengeUserModel!.training.endAt!)!)) {
+          _showSuccessDialog(
+              'Bravo tu viens de finir le défi lancé par ton ami',
+              messageCount);
           _startStopTimer();
         }
 
@@ -392,7 +393,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     );
   }
 
-  void _showSuccessDialog(String message,int score) {
+  void _showSuccessDialog(String message, int score) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -403,9 +404,8 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
             TextButton(
               onPressed: () {
                 context.read<ChallengesUsersBloc>().add(
-                  FinishChallengeUserEvent(
-                  widget.challengeUserModel!.id, userId!,score)
-                );
+                    FinishChallengeUserEvent(
+                        widget.challengeUserModel!.id, userId!, score));
                 Navigator.of(context).pop();
               },
               child: Text('OK'),
@@ -699,53 +699,9 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                   if (widget.challengeUserModel != null)
                     Column(
                       children: [
-                        Text(
-                          'Classement des Participants',
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold),
-                        ),
                         const SizedBox(height: 8),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: sortedParticipants.length,
-                          itemBuilder: (context, index) {
-                            final participant = sortedParticipants[index];
-                            final isOwner = participant.user.uid ==
-                                widget.challengeUserModel!.author.uid;
-                            final isCurrentUser =
-                                participant.user.uid == userId;
-
-                            return Container(
-                              color: isCurrentUser ? Colors.greenAccent : null,
-                              child: ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      participant.user.urlProfilePhoto),
-                                ),
-                                title: Row(
-                                  children: [
-                                    if (isOwner)
-                                      const Icon(Icons.star,
-                                          color: Colors.white),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                        '${participant.user.firstName} ${participant.user.lastName}')
-                                  ],
-                                ),
-                                trailing: Text(
-                                  'Score: ${participant.score}',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                tileColor:
-                                    isCurrentUser ? Colors.greenAccent : null,
-                              ),
-                            );
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        if (widget.challengeUserModel!.type == 'Timer' || widget.challengeUserModel!.type == 'Répétitions')
+                        if (widget.challengeUserModel!.type == 'Timer' ||
+                            widget.challengeUserModel!.type == 'Répétitions')
                           Column(
                             children: [
                               Text(
@@ -756,7 +712,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                                     fontWeight: FontWeight.bold),
                               ),
                               Text(
-                                "Durée pour faire l'exercice: ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}",
+                                "Durée pour faire l'exercice : ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}",
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -779,6 +735,15 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                                   ))
                               .toList(),
                         ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
                         GestureDetector(
                           onTap: () => _startStopTimer(),
                           child: Container(
@@ -821,15 +786,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: AppPallete.backgroundColorDarker,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 32.0, horizontal: 16.0),
-                    child: Column(
-                      children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -873,7 +829,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                             const SizedBox(height: 40),
                           ],
                         ),
-                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
