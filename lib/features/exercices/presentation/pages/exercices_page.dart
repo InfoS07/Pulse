@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
 import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -18,9 +20,15 @@ class ExercicesPage extends StatefulWidget {
 class _ExercicesPageState extends State<ExercicesPage> {
   final TextEditingController _searchController = TextEditingController();
 
+  String? userId;
+
   @override
   void initState() {
     super.initState();
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.uid;
+    }
     context.read<ExercicesBloc>().add(ExercicesLoad());
     _searchController.addListener(_onSearchChanged);
   }
@@ -78,9 +86,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 builder: (context, state) {
                   if (state is ExercicesLoading) {
                     return RefreshIndicator(
-                        onRefresh: _refreshExercises,
-                        child: _buildShimmerEffect() //_buildShimmerEffect(),
-                        );
+                      onRefresh: _refreshExercises,
+                      child: _buildShimmerEffect(),
+                    );
                   } else if (state is ExercicesLoaded) {
                     return RefreshIndicator(
                       onRefresh: _refreshExercises,
@@ -163,6 +171,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
                       context.push('/exercices/details/${exercise.id}',
                           extra: exercise);
                     },
+                    onLockedTap: () => _showPurchaseDialog(context, exercise),
                   ),
                 );
               }
@@ -296,6 +305,51 @@ class _ExercicesPageState extends State<ExercicesPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showPurchaseDialog(BuildContext context, Exercice exercise) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Acheter exercice'),
+          content: Text(
+              'Voulez-vous acheter cet exercice pour ${exercise.price} points ?'),
+          actions: [
+            Center(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Annuler'),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      context
+                      .read<ChallengesBloc>()
+                      .add(AchatExercice(exercise.id, userId!,exercise.price));
+                      
+                      Navigator.of(context).pop();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppPallete.primaryColor,
+                    ),
+                    child: const Text(
+                      'Acheter',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -14,6 +14,7 @@ abstract class ChallengesRemoteDataSource {
   Future<void> joinChallenge(int challengeId, String userId);
   Future<void> quitChallenge(int challengeId, String userId);
   Future<void> finishChallenge(int challengeId, String userId,int pointsGagnes);
+  Future<void> achatExercice(int exerciceId, String userId,int prix);
 }
 
 class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
@@ -94,7 +95,7 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
     }
   }
 
-    @override
+  @override
   Future<void> finishChallenge(int challengeId, String userId,int pointsGagnes) async {
     try {
       // Récupérer les données du challenge spécifique
@@ -125,6 +126,48 @@ class ChallengesRemoteDataSourceImpl extends ChallengesRemoteDataSource {
       
       int point = response2['points'];
       point += pointsGagnes;
+      
+      await supabaseClient.from('users').update(
+      {'points': point}).eq('uid', userId.toString());
+
+    } on PostgrestException catch (e) {
+      throw ServerException(); // Gérer les exceptions spécifiques à Supabase
+    } catch (e) {
+      throw ServerException(); // Gérer les autres exceptions
+    }
+  }
+
+    @override
+  Future<void> achatExercice(int exerciceId, String userId,int prix) async {
+    try {
+      // Récupérer les données du challenge spécifique
+      final response = await supabaseClient
+          .from('exercises')
+          .select('*')
+          .eq('id', exerciceId.toString())
+          .single();
+
+      // Récupérer les participants actuels
+      List<dynamic> premiums = response['premiums'];
+
+      // Vérifier si l'utilisateur est déjà dans la liste des participants
+      if (!premiums.contains(userId)) {
+        // Ajouter userId au tableau des participants
+        premiums.add(userId);
+
+        // Mettre à jour la base de données avec les nouveaux participants
+        await supabaseClient.from('exercises').update(
+            {'premiums': premiums}).eq('id', exerciceId.toString());
+      }
+
+      final response2 = await supabaseClient
+          .from('users')
+          .select('*')
+          .eq('uid', userId.toString())
+          .single();
+      
+      int point = response2['points'];
+      point -= prix;
       
       await supabaseClient.from('users').update(
       {'points': point}).eq('uid', userId.toString());

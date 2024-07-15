@@ -10,4 +10,5 @@ abstract class ChallengesRepository {
   Future<Either<Failure, void>> joinChallenge(int challengeId, String userId);
   Future<Either<Failure, void>> quitChallenge(int challengeId, String userId);
   Future<Either<Failure, void>> finishChallenge(int challengeId, String userId,int pointGagnes);
+    Future<Either<Failure, void>> achatExercice(int exerciceId, String userId,int prix);
 }

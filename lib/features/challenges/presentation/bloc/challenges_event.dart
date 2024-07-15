@@ -24,6 +24,14 @@ class FinishChallenge extends ChallengesEvent {
   FinishChallenge(this.challengeId, this.userId,this.pointsGagnes);
 }
 
+class AchatExercice extends ChallengesEvent {
+  final int exerciceId;
+  final String userId;
+  final int prix;
+
+  AchatExercice(this.exerciceId, this.userId,this.prix);
+}
+
 class QuitChallenge extends ChallengesEvent {
   final int challengeId;
   final String userId;
