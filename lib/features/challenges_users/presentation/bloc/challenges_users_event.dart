@@ -59,16 +59,16 @@ class CreateChallengeEvent extends ChallengesUsersEvent {
 
   @override
   List<Object?> get props => [
-    challengeName,
-    description,
-    endDate,
-    trainingId,
-    authorId,
-    type,
-    invites,
-    createdAt,
-    participant
-  ];
+        challengeName,
+        description,
+        endDate,
+        trainingId,
+        authorId,
+        type,
+        invites,
+        createdAt,
+        participant
+      ];
 }
 
 class AddInvitesToChallengeEvent extends ChallengesUsersEvent {
@@ -78,7 +78,6 @@ class AddInvitesToChallengeEvent extends ChallengesUsersEvent {
   AddInvitesToChallengeEvent(this.challengeId, this.userIds);
 }
 
-
-
-
-
+class StartListeningToChallengesEvent extends ChallengesUsersEvent {
+  StartListeningToChallengesEvent();
+}

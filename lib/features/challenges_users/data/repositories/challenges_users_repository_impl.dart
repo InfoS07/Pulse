@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:pulse/core/error/failures.dart';
@@ -28,5 +30,10 @@ class ChallengeUserRepositoryImpl implements ChallengeUserRepository {
       var message = "Erreur récupération challenges Users";
       return Left(Failure(message));
     }
+  }
+
+  @override
+  StreamSubscription<List<Map<String, dynamic>>> watchChallenges() {
+    return remoteDataSource.getChallengesStream();
   }
 }
