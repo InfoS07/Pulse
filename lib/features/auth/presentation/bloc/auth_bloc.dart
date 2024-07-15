@@ -41,6 +41,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthIsUserLoggedIn>(_isUserLoggedIn);
     on<AuthSignOut>(_onSignOut);
     on<AuthResetPassword>(_onResetPassword);
+    on<AuthReloadUser>(_reloadUser);
   }
 
   void _isUserLoggedIn(
@@ -52,6 +53,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     res.fold(
       (l) => emit(AuthFailure(l.message)),
       (r) => _emitAuthSuccess(r, emit),
+    );
+  }
+
+  void _reloadUser(
+    AuthReloadUser event,
+    Emitter<AuthState> emit,
+  ) async {
+    final res = await _currentUser(NoParams());
+
+    res.fold(
+      (l) => emit(AuthFailure(l.message)),
+      (r) => _appUserCubit.updateUser(r),
     );
   }
 

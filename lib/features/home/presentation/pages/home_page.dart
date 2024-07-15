@@ -7,6 +7,7 @@ import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
@@ -41,8 +42,22 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _updateUserInfo() {
+    context.read<AuthBloc>().add(AuthReloadUser());
+    final authState = context.read<AppUserCubit>().state;
+
+    if (authState is AppUserLoggedIn) {
+      setState(() {
+        userName = authState.user.firstName + " " + authState.user.lastName;
+        urlProfilePhoto = authState.user.urlProfilePhoto;
+        points = authState.user.points;
+      });
+    }
+  }
+
   Future<void> _refreshPosts() async {
     BlocProvider.of<HomeBloc>(context).add(LoadPosts());
+    _updateUserInfo();
   }
 
   String getTotalTimeForMyPosts(List<SocialMediaPost> posts) {
@@ -151,10 +166,6 @@ class _HomePageState extends State<HomePage> {
         body: BlocListener<ProfilBloc, ProfilState>(
           listener: (context, state) {
             if (state is ProfilSuccess) {
-              setState(() {
-                userName = state.profil.firstName + " " + state.profil.lastName;
-                urlProfilePhoto = state.profil.profilePhoto;
-              });
               _refreshPosts();
             }
           },
