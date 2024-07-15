@@ -35,21 +35,27 @@ class CommentsRemoteDataSourceImpl extends CommentsRemoteDataSource {
   @override
   Future<Comment> addComment(int trainingId, AddComment addComment) async {
     try {
-      final response = await supabaseClient.from('training_comments').upsert({
-        'user_id': supabaseClient.auth.currentSession?.user.id,
-        'training_id': trainingId,
-        'content': addComment.text
-      }).select('*, user:users(*)');
+      final response = await supabaseClient
+          .from('training_comments')
+          .insert({
+            'user_id': supabaseClient.auth.currentSession?.user.id,
+            'training_id': trainingId,
+            'content': addComment.text
+          })
+          .select('*, user:users(*)')
+          .single();
 
       /* if (response.error != null) {
         throw ServerException(response.error!.message);
       } */
 
-      final unit = CommentModel.fromJson(response.first);
+      response['user']['profile_photo'] = await supabaseClient.storage
+          .from('profil')
+          .getPublicUrl(response['user']['profile_photo']);
+
+      final unit = CommentModel.fromJson(response);
 
       return unit;
-    } on PostgrestException catch (e) {
-      throw ServerException(e.message);
     } catch (e) {
       throw ServerException(e.toString());
     }
