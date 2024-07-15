@@ -30,6 +30,7 @@ class ChallengesUsersBloc
         super(ChallengesUsersInitial()) {
     on<ChallengesUsersGetChallenges>(_onGetChallengesUsers);
     on<JoinChallengeEvent>(_onJoinChallenge);
+    on<FinishChallengeUserEvent>(_onFinishChallengUser);
     on<QuitChallengeEvent>(_onQuitChallenge);
     on<DeleteChallengeEvent>(_onDeleteChallenge);
     on<CreateChallengeEvent>(_onCreateChallenge);
@@ -66,6 +67,16 @@ class ChallengesUsersBloc
       JoinChallengeEvent event, Emitter<ChallengesUsersState> emit) async {
     try {
       await _remoteDataSource.joinChallenge(event.challengeId, event.userId);
+      add(ChallengesUsersGetChallenges());
+    } catch (_) {
+      emit(ChallengesUsersError("error"));
+    }
+  }
+
+    Future<void> _onFinishChallengUser(
+      FinishChallengeUserEvent event, Emitter<ChallengesUsersState> emit) async {
+    try {
+      await _remoteDataSource.finishChallengeUser(event.challengeId, event.userId,event.score);
       add(ChallengesUsersGetChallenges());
     } catch (_) {
       emit(ChallengesUsersError("error"));

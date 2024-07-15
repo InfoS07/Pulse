@@ -143,6 +143,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                           context.read<ChallengesUsersBloc>().add(
                               JoinChallengeEvent(
                                   widget.challengeUser.id, userId!));
+                          context.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppPallete.primaryColor,

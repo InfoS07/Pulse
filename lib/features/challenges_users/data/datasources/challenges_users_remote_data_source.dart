@@ -17,6 +17,7 @@ import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 abstract class ChallengesUsersRemoteDataSource {
   Future<List<ChallengeUserModel>> getChallengeUsers();
   Future<void> joinChallenge(int challengeId, String userId);
+  Future<void> finishChallengeUser(int challengeId, String userId,int score);
   Future<void> quitChallenge(int challengeId, String userId);
   Future<void> deleteChallenge(int challengeId);
   Future<void> createChallenge(CreateChallengeUser challengeUser);
@@ -273,6 +274,46 @@ class ChallengeUserRemoteDataSourceImpl
           "Error adding invites to challenge");
     }
   }
+
+
+@override
+Future<void> finishChallengeUser(int challengeId, String userId, int score) async {
+  try {
+    final response = await supabaseClient
+        .from('challenges_users')
+        .select()
+        .eq('id', challengeId)
+        .single();
+
+    if (response != null) {
+      final Map<String, dynamic> participants =
+          Map<String, dynamic>.from(response['participants']);
+
+      // Rechercher le participant avec l'idUser correspondant
+      bool userFound = false;
+      participants.forEach((key, value) {
+        if (value['idUser'] == userId) {
+          value['score'] = score;
+          userFound = true;
+        }
+      });
+
+      if (!userFound) {
+        throw pulse_exceptions.ServerException("User not found in participants");
+      }
+
+      // Mettre à jour les participants dans la base de données
+      await supabaseClient
+          .from('challenges_users')
+          .update({'participants': participants}).eq('id', challengeId);
+    }
+  } on PostgrestException catch (e) {
+    throw pulse_exceptions.ServerException("Error updating challenge participant");
+  } catch (e) {
+    throw pulse_exceptions.ServerException("Error updating challenge participant");
+  }
+}
+
 }
 
 //{"name": "dsqdq", "description": "qsdqs", "end_at": challengeUser.endDate.toIso8601String(), "training_id": 1, "author_id": "a2ee471c-b57b-4815-879e-5024b058abeb", "type": "Durée", "invites": ["a2ee471c-b57b-4815-879e-5024b058abeb"], "created_at": challengeUser.createdAt.toIso8601String()}
