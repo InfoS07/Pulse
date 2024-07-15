@@ -15,6 +15,8 @@ class Exercice {
   String difficulty = "Facile";
   int laps = 0;
   String hit_type = "Hand";
+  int price = 0;
+  List<String> premiums = [];
 
   Exercice(
       {required this.id,
@@ -32,7 +34,9 @@ class Exercice {
       required this.score,
       required this.difficulty,
       required this.laps,
-      required this.hit_type});
+      required this.hit_type,
+      required this.price,
+      required this.premiums});
 
   static Exercice empty() {
     return Exercice(
@@ -51,6 +55,8 @@ class Exercice {
         score: 0.0,
         difficulty: 'Facile',
         laps: 0,
-        hit_type: 'Hand');
+        hit_type: 'Hand',
+        price: 0,
+        premiums: []);
   }
 }

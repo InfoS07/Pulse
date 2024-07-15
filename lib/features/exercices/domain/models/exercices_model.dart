@@ -18,6 +18,8 @@ class ExercicesModel extends Exercice {
     required super.difficulty,
     required super.laps,
     required super.hit_type,
+    required super.price,
+    required super.premiums,
   });
 
   factory ExercicesModel.fromJson(Map<String, dynamic> map) {
@@ -49,6 +51,11 @@ class ExercicesModel extends Exercice {
       difficulty: map['difficulty'] ?? '',
       laps: map['laps'] ?? 0,
       hit_type: map['hit_type'] ?? '',
+      price: map['price_coin'] ?? 1,
+      premiums: (map['premiums'] as List<dynamic>?)
+              ?.map((item) => item as String)
+              .toList() ??
+          [],
     );
     return exo;
   }
@@ -64,6 +71,8 @@ class ExercicesModel extends Exercice {
     int? repetitions,
     int? podCount,
     int? playerCount,
+    int? price,
+    List<String>? premiums,
   }) {
     return ExercicesModel(
       id: id ?? this.id,
@@ -82,6 +91,8 @@ class ExercicesModel extends Exercice {
       difficulty: difficulty,
       laps: laps,
       hit_type: hit_type,
+      price: price ?? this.price,
+      premiums: premiums ?? this.premiums,
     );
   }
 }
