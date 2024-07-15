@@ -101,8 +101,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      widget.challengeUser
-                          .endAt, //_formatEndTime(widget.challengeUser.endAt),
+                      _formatEndTime(widget.challengeUser.endAt),
                       style: TextStyle(fontSize: 14, color: Colors.white70),
                     ),
                     const SizedBox(height: 20),
@@ -112,18 +111,25 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                     ),
                     const SizedBox(height: 20),
                     if (isParticipant && !isAchiever)
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigate to activity
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppPallete.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
+                      Container(
+                        child: SizedBox(
+                          width: double.infinity, // Button takes the full width
+                          child: ElevatedButton(
+                            onPressed: () => {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppPallete.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            child: const Text(
+                              'Participer',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14),
+                            ),
                           ),
                         ),
-                        child: Text('Participer',
-                            style: TextStyle(color: Colors.white)),
                       ),
                     if (!isParticipant)
                       ElevatedButton(
