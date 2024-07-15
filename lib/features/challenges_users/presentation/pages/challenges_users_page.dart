@@ -244,33 +244,37 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
-              Spacer(),
-              Expanded(
-                child: Text(
-                  challengeUser.endAt, //_formatEndTime(challengeUser.endAt),
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
+              const SizedBox(height: 10),
+              Text(
+                _formatEndTime(challengeUser.endAt),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
+              Text(
+                'pour battre ' + challengeUser.author.firstName,
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              const SizedBox(height: 8),
               if (isAuthor) ...[
-                /* SizedBox(
+                SizedBox(
                   width: double.infinity, // Button takes the full width
                   child: ElevatedButton(
                     onPressed: () {
                       _showDeleteConfirmationDialog(context, challengeUser);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppPallete.errorColor,
+                      backgroundColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      side: BorderSide(color: Colors.grey),
                       padding: const EdgeInsets.symmetric(vertical: 4),
                     ),
                     child: const Text(
-                      'Supprimer',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
+                      'Lancé',
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                   ),
-                ), */
+                ),
               ] else
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

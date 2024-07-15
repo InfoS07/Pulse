@@ -33,6 +33,7 @@ import 'package:pulse/features/challenges_users/data/datasources/challenges_user
 import 'package:pulse/features/challenges_users/data/repositories/challenges_users_repository_impl.dart';
 import 'package:pulse/features/challenges_users/domain/repository/challenges_users_repository.dart';
 import 'package:pulse/features/challenges_users/domain/usecases/get_challenges_users.dart';
+import 'package:pulse/features/challenges_users/domain/usecases/watch_challenges_insert.dart';
 import 'package:pulse/features/challenges_users/presentation/bloc/challenges_users_bloc.dart';
 import 'package:pulse/features/comments/data/datasources/comments_remote_data_source.dart';
 import 'package:pulse/features/comments/data/repositories/comments_repository_impl.dart';

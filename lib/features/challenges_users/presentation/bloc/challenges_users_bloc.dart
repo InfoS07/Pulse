@@ -20,12 +20,12 @@ part 'challenges_users_state.dart';
 class ChallengesUsersBloc
     extends Bloc<ChallengesUsersEvent, ChallengesUsersState> {
   final ChallengesUsersRemoteDataSource _remoteDataSource;
-  final WatchChallengesInsert _watchChallengesUseCase;
+  //final WatchChallengesInsert _watchChallengesUseCase;
 
-  ChallengesUsersBloc(
-      {required ChallengesUsersRemoteDataSource remoteDataSource,
-      required WatchChallengesInsert watchChallengesUseCase})
-      : _watchChallengesUseCase = watchChallengesUseCase,
+  ChallengesUsersBloc({
+    required ChallengesUsersRemoteDataSource remoteDataSource,
+    /* required WatchChallengesInsert watchChallengesUseCase */
+  })  : //_watchChallengesUseCase = watchChallengesUseCase,
         _remoteDataSource = remoteDataSource,
         super(ChallengesUsersInitial()) {
     on<ChallengesUsersGetChallenges>(_onGetChallengesUsers);

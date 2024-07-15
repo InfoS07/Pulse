@@ -9,7 +9,7 @@ class ChallengeUserModel {
   final String name;
   final String createdAt;
   final String? photo;
-  final String endAt;
+  final DateTime endAt;
   final TrainingChallenge training;
   final String description;
   final String type;
@@ -39,7 +39,7 @@ class ChallengeUserModel {
       name: json['name'] ?? '',
       createdAt: json['created_at'] ?? '',
       photo: json['photo'] ?? '',
-      endAt: json['end_at'] ?? '',
+      endAt: DateTime.parse(json['end_at']),
       training: TrainingChallenge.fromJson(json['training']),
       description: json['description'] ?? '',
       type: json['type'] ?? '',

@@ -146,16 +146,16 @@ class _ActivityPageState extends State<ActivityPage>
 
   void startScan() {
     if (!isScanning) {
-      setState(() {
+      /* setState(() {
         isScanning = true;
-      });
-      FlutterBluePlus.startScan(timeout: const Duration(seconds: 5));
+      }); */
+      FlutterBluePlus.startScan(/* timeout: const Duration(seconds: 5) */);
       FlutterBluePlus.scanResults.listen((results) {
         print('Scanning... $results');
 
         for (ScanResult r in results) {
-          print('Scanning... $r');
-          if (r.device.name == 'Pulse') {
+          print('Scanningnn... $r');
+          if (r.device.platformName == 'Pulse') {
             FlutterBluePlus.stopScan();
             connectToDevice(r.device);
             break;
