@@ -37,9 +37,9 @@ class _ActivityPageState extends State<ActivityPage>
   final player = AudioPlayer();
 
   final List<Map<String, String>> buzzerClass = [
-    {"color": "Colors.red", "stop": "a", "start": "1", "trigger": "z"},
-    {"color": "Colors.blue", "stop": "b", "start": "2", "trigger": "y"},
-    {"color": "Colors.green", "stop": "c", "start": "3", "trigger": "x"}
+    {"color": "red", "stop": "a", "start": "1", "trigger": "z"},
+    {"color": "blue", "stop": "b", "start": "2", "trigger": "y"},
+    {"color": "green", "stop": "c", "start": "3", "trigger": "x"}
   ];
 
   final sequence = [1, 2, 3];
@@ -239,6 +239,7 @@ class _ActivityPageState extends State<ActivityPage>
       String nextBuzzerStartCommand = buzzerClass.firstWhere((buzzer) =>
           buzzer['color']!.split('.').last == nextBuzzerColor)['start']!;
       sendDeviceNotification(nextBuzzerStartCommand);
+      buzzerActivatedNotifiers[nextBuzzerColor]!.value = true;
     }
   }
 
@@ -298,6 +299,7 @@ class _ActivityPageState extends State<ActivityPage>
 
         sendDeviceNotification(buzzer['stop']!);
 
+        buzzerActivatedNotifiers[color]!.value = false;
         currentBuzzerIndex = (currentBuzzerIndex + 1) % activeBuzzers.length;
 
         if (currentBuzzerIndex == 0) {
@@ -658,11 +660,18 @@ class _ActivityPageState extends State<ActivityPage>
                           children: activeBuzzers
                               .map((buzzerColor) => Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal:
-                                            8.0), // Adjust the spacing as needed
-                                    child: BuzzerIndicator(
-                                      isActive: true,
-                                      color: _getColor(buzzerColor),
+                                        horizontal: 8.0),
+                                    child: ValueListenableBuilder<bool>(
+                                      valueListenable: buzzerActivatedNotifiers[
+                                          buzzerColor]!,
+                                      builder: (context, isActive, child) {
+                                        return BuzzerIndicator(
+                                          isActive: isActive,
+                                          color: isActive
+                                              ? _getColor(buzzerColor!)
+                                              : Colors.grey,
+                                        );
+                                      },
                                     ),
                                   ))
                               .toList(),
