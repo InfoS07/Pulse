@@ -1,5 +1,7 @@
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:pulse/core/common/entities/training.dart';
 import 'package:pulse/core/error/exceptions.dart';
+import 'package:pulse/core/services/graphql_service.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/list_trainings/domain/models/create_challenge_user.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,6 +10,7 @@ import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pulse/core/common/entities/user.dart' as custom_user;
+import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
 
 abstract class ChallengesUsersRemoteDataSource {
   Future<List<ChallengeUserModel>> getChallengeUsers();
@@ -21,59 +24,123 @@ abstract class ChallengesUsersRemoteDataSource {
 class ChallengeUserRemoteDataSourceImpl
     extends ChallengesUsersRemoteDataSource {
   final SupabaseClient supabaseClient;
+  final GraphQLService graphQLService;
 
-  ChallengeUserRemoteDataSourceImpl(this.supabaseClient);
+  ChallengeUserRemoteDataSourceImpl(this.supabaseClient, this.graphQLService);
 
   @override
   Future<List<ChallengeUserModel>> getChallengeUsers() async {
     try {
-      final response = await supabaseClient
-          .from('challenges_users')
-          .select('*, training(*)');
-
-      final challenges = (response as List)
-          .map((json) => ChallengeUserModel.fromJson(json))
-          .toList();
-
-      // Fetch users data
-      final List<dynamic> userIds = challenges
-          .expand((challenge) => challenge.participants.values
-              .map((participant) => participant.idUser))
-          .toSet()
-          .toList();
-
-      if (userIds.isNotEmpty) {
-        final usersResponse = await supabaseClient
-            .from('users')
-            .select()
-            .inFilter('uid', userIds);
-
-        for (var data in usersResponse) {
-          final profile_photo = await supabaseClient.storage
-              .from('profil')
-              .getPublicUrl(data['profile_photo']);
-
-          data['profile_photo'] = profile_photo;
+      const String query = '''
+        {
+          challengesUser {
+            id
+            name
+            description
+            type
+            created_at
+            end_at
+            photo
+            training {
+              id
+              stats {
+                buzzer_expected
+                buzzer_pressed
+                reaction_time
+                pressed_at
+              }
+              repetitions
+              start_at
+              end_at
+              title
+              description
+              author {
+                    id
+                    uid
+                    email
+                    last_name
+                    first_name
+                    profile_photo
+                    birth_date
+                    points
+              }
+              exercise {
+                id
+                title
+                description
+                pod_count
+                calories_burned
+                photos
+                categories
+                photos
+                sequence
+              }
+            }
+            participants {
+                score
+                user {
+                    id
+                    uid
+                    email
+                    last_name
+                    first_name
+                    profile_photo
+                    birth_date
+                    points
+                }
+            }
+            invites {
+                id
+                uid
+                email
+                last_name
+                first_name
+                profile_photo
+                birth_date
+                points
+            }
+            author {
+                id
+                uid
+                email
+                last_name
+                first_name
+                profile_photo
+                birth_date
+                points
+            }
+          }
         }
+      ''';
 
-        final users = (usersResponse as List)
-            .map((json) => custom_user.User.fromJson(json))
-            .toList();
+      final result = await graphQLService.client.query(
+        QueryOptions(
+          document: gql(query),
+          fetchPolicy: FetchPolicy.noCache,
+        ),
+      );
 
-        final userMap = {for (var user in users) user.uid: user};
-
-        for (var challenge in challenges) {
-          challenge.participants.forEach((key, participant) {
-            participant.user = userMap[participant.idUser]!;
-          });
-        }
+      if (result.hasException) {
+        throw pulse_exceptions.ServerException(result.exception.toString());
       }
 
-      return challenges;
-    } on PostgrestException catch (e) {
-      throw ServerException("Error");
+      if (result.data == null) {
+        throw pulse_exceptions.ServerException("No data found");
+      }
+
+      if (result.data!.isEmpty) {
+        return [];
+      }
+
+      final challengesData = result.data!["challengesUser"] as List<dynamic>;
+
+      var data = challengesData.map((challenge) {
+        return ChallengeUserModel.fromJson(challenge);
+      }).toList();
+
+      return data;
     } catch (e) {
-      throw ServerException("Error fetching challenges");
+      throw pulse_exceptions.ServerException(e.toString());
     }
   }
 
@@ -85,9 +152,9 @@ class ChallengeUserRemoteDataSourceImpl
           .delete()
           .eq('id', challengeId);
     } on PostgrestException catch (e) {
-      throw ServerException("Error deleting challenge");
+      throw pulse_exceptions.ServerException("Error deleting challenge");
     } catch (e) {
-      throw ServerException("Error deleting challenge");
+      throw pulse_exceptions.ServerException("Error deleting challenge");
     }
   }
 
@@ -121,9 +188,9 @@ class ChallengeUserRemoteDataSourceImpl
             .update({'participants': participants}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
-      throw ServerException("Error joining challenge");
+      throw pulse_exceptions.ServerException("Error joining challenge");
     } catch (e) {
-      throw ServerException("Error joining challenge");
+      throw pulse_exceptions.ServerException("Error joining challenge");
     }
   }
 
@@ -146,9 +213,9 @@ class ChallengeUserRemoteDataSourceImpl
             .update({'participants': participants}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
-      throw ServerException(e.message);
+      throw pulse_exceptions.ServerException(e.message);
     } catch (e) {
-      throw ServerException("Error quitting challenge");
+      throw pulse_exceptions.ServerException("Error quitting challenge");
     }
   }
 
@@ -161,7 +228,7 @@ class ChallengeUserRemoteDataSourceImpl
       final response =
           await supabaseClient.from('challenges_users').insert([json]);
     } catch (e) {
-      throw ServerException("Error creating challenge");
+      throw pulse_exceptions.ServerException("Error creating challenge");
     }
   }
 
@@ -187,9 +254,11 @@ class ChallengeUserRemoteDataSourceImpl
             .update({'invites': currentInvites}).eq('id', challengeId);
       }
     } on PostgrestException catch (e) {
-      throw ServerException("Error adding invites to challenge");
+      throw pulse_exceptions.ServerException(
+          "Error adding invites to challenge");
     } catch (e) {
-      throw ServerException("Error adding invites to challenge");
+      throw pulse_exceptions.ServerException(
+          "Error adding invites to challenge");
     }
   }
 }

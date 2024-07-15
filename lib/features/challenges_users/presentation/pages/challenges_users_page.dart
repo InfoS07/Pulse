@@ -86,10 +86,12 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 if (state is ChallengesUsersLoading) {
                   return Center(child: CircularProgressIndicator());
                 } else if (state is ChallengesUsersSuccess) {
-                  final filteredChallenges =
-                      state.challenges.where((challengeUser) {
-                    return challengeUser!.invites.contains(userId);
-                  }).toList();
+                  final filteredChallenges = state.challenges
+                      .where((challenge) =>
+                          challenge!.participants.any((participant) =>
+                              participant.user.uid == userId) ||
+                          challenge.author.uid == userId)
+                      .toList();
 
                   return RefreshIndicator(
                     onRefresh: _refreshChallengesUsers,
@@ -187,15 +189,15 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
       ChallengeUserModel challengeUser,
       List<Profil> followers,
       List<Profil> followings) {
-    final isParticipant = challengeUser.participants.values
-        .any((participant) => participant.idUser == userId);
+    final isParticipant = challengeUser.participants
+        .any((participant) => participant.user.uid == userId);
     final isAchiever = isParticipant &&
-        challengeUser.participants.values
-                .firstWhere((participant) => participant.idUser == userId)
+        challengeUser.participants
+                .firstWhere((participant) => participant.user.uid == userId)
                 .score >
             0;
     final isAuthor =
-        challengeUser.authorId == userId; // Check if the user is the author
+        challengeUser.author.uid == userId; // Check if the user is the author
     String status;
     Color statusColor;
     Color buttonColor = AppPallete.primaryColorFade;
@@ -245,7 +247,7 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               Spacer(),
               Expanded(
                 child: Text(
-                  _formatEndTime(challengeUser.endAt),
+                  challengeUser.endAt, //_formatEndTime(challengeUser.endAt),
                   style: const TextStyle(color: Colors.white, fontSize: 12),
                 ),
               ),
@@ -306,12 +308,10 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                       ),
                       BlocBuilder<ExercicesBloc, ExercicesState>(
                         builder: (context, state) {
-                          print('isParticipant: $isParticipant');
-                          print('state: $state');
                           if (state is ExercicesLoaded) {
                             final exercise = _findExercise(
                                 state.exercisesByCategory,
-                                challengeUser.training.exerciseId);
+                                challengeUser.training.exercice.id);
                             if (exercise != null) {
                               return IconButton(
                                 onPressed: () {
@@ -400,20 +400,19 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
 
   void _showChallengeDetailsBottomSheet(
       BuildContext context, ChallengeUserModel challengeUser) {
-    final isParticipant = challengeUser.participants.values
-        .any((participant) => participant.idUser == userId);
+    final isParticipant = challengeUser.participants
+        .any((participant) => participant.user.uid == userId);
     final isAchiever = isParticipant &&
-        challengeUser.participants.values
-                .firstWhere((participant) => participant.idUser == userId)
+        challengeUser.participants
+                .firstWhere((participant) => participant.user.uid == userId)
                 .score >
             0;
     final isAuthor =
-        challengeUser.authorId == userId; // Check if the user is the author
+        challengeUser.author.uid == userId; // Check if the user is the author
 
     // Trier les participants par score décroissant
-    final sortedParticipants = challengeUser.participants.values.toList()
+    final sortedParticipants = challengeUser.participants.toList()
       ..sort((a, b) => b.score.compareTo(a.score));
-    print("sortedParticipants: $sortedParticipants");
 
     BottomSheetUtilUser.showCustomBottomSheet(
       context,
@@ -441,8 +440,8 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                   itemBuilder: (context, index) {
                     final participant = sortedParticipants[index];
                     final isOwner =
-                        participant.idUser == challengeUser.authorId;
-                    final isCurrentUser = participant.idUser == userId;
+                        participant.user.uid == challengeUser.author.uid;
+                    final isCurrentUser = participant.user.uid == userId;
 
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(16),

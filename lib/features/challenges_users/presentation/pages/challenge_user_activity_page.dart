@@ -303,9 +303,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
           currentRepetition++;
         }
 
-        // Vérification des objectifs atteints
-        print(
-            'widget.challengeUserModel!.type ${widget.challengeUserModel!.type}');
         if (widget.challengeUserModel!.type == 'Répétitions' &&
             messageCount >= widget.challengeUserModel!.training.repetitions!) {
           _showSuccessDialog('Bravo fdp');
@@ -316,7 +313,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                     seconds: _durationFromStartAndEndInSecondes(
                         widget.challengeUserModel!.training.startAt,
                         widget.challengeUserModel!.training.endAt!)!)) {
-          print('_timeElapsed.value ${_timeElapsed.value}');
           _showSuccessDialog('Bravo fdp');
           _startStopTimer();
         }
@@ -674,8 +670,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
 
   @override
   Widget build(BuildContext context) {
-    final sortedParticipants = widget.challengeUserModel!.participants.values
-        .toList()
+    final sortedParticipants = widget.challengeUserModel!.participants.toList()
       ..sort((a, b) => b.score.compareTo(a.score));
 
     return Scaffold(
@@ -716,9 +711,10 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                           itemCount: sortedParticipants.length,
                           itemBuilder: (context, index) {
                             final participant = sortedParticipants[index];
-                            final isOwner = participant.idUser ==
-                                widget.challengeUserModel!.authorId;
-                            final isCurrentUser = participant.idUser == userId;
+                            final isOwner = participant.user.uid ==
+                                widget.challengeUserModel!.author.uid;
+                            final isCurrentUser =
+                                participant.user.uid == userId;
 
                             return Container(
                               color: isCurrentUser ? Colors.greenAccent : null,
