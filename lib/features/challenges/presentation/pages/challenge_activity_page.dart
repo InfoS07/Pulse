@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -8,15 +9,20 @@ import 'dart:ui';
 import 'package:go_router/go_router.dart';
 import 'dart:io' show Platform;
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/core/utils/bottom_sheet_util.dart';
 import 'package:pulse/features/activity/presentation/bloc/activity_bloc.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
+import 'package:pulse/features/challenges/domain/models/data_challenge_activity.dart';
+import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
+import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
+import 'package:pulse/features/activity/presentation/widgets/buzzer_indicator.dart';
 
 class ActivityChallengePage extends StatefulWidget {
-  final Exercice exercise;
+  final DataChallengeActivity dataChallengeActivity;
 
-  const ActivityChallengePage(this.exercise);
+  const ActivityChallengePage(this.dataChallengeActivity);
 
   @override
   _ActivityChallengePageState createState() => _ActivityChallengePageState();
@@ -30,6 +36,20 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
   Timer _timer = Timer(Duration.zero, () {});
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> _reactionTime = ValueNotifier(Duration.zero);
+  //final player = AudioPlayer();
+
+  final List<Map<String, String>> buzzerClass = [
+    {"color": "Colors.red", "stop": "a", "start": "1", "trigger": "z"},
+    {"color": "Colors.blue", "stop": "b", "start": "2", "trigger": "y"},
+    {"color": "Colors.green", "stop": "c", "start": "3", "trigger": "x"}
+  ];
+
+  final sequence = [1, 2, 3];
+  final repetitions = 10;
+
+  int currentBuzzerIndex = 0;
+  int currentRepetition = 0;
+  bool isActive = false;
 
   late ActivityBloc _activityBloc;
 
@@ -38,56 +58,90 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? notifyCharacteristic;
   int messageCount = 0;
+  int errorCount = 0; // Variable pour compter les erreurs
   bool isScanning = false;
   DateTime? lastNotificationTime;
-  String connectionStatus = 'Déconnecté';
+  final ValueNotifier<String> connectionStatusNotifier =
+      ValueNotifier('Recherche d\'appareils');
+
+  // Dynamically created notifiers
+  final Map<String, ValueNotifier<bool>> buzzerActivatedNotifiers = {
+    "red": ValueNotifier(false),
+    "blue": ValueNotifier(false),
+    "green": ValueNotifier(false),
+  };
+
+  final Map<String, ValueNotifier<bool>> buzzerSyncedNotifiers = {
+    "red": ValueNotifier(false),
+    "blue": ValueNotifier(false),
+    "green": ValueNotifier(false),
+  };
+
+  List<String> activeBuzzers = [];
 
   @override
   void initState() {
     super.initState();
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.uid;
+    }
     WidgetsBinding.instance.addObserver(this);
     _initializeNotifications();
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
-    _activityBloc.add(StartActivity(widget.exercise));
-    checkBluetoothPermissionsAndState();
+    _activityBloc.add(StartActivity(widget.dataChallengeActivity.exercice));
+    _checkBluetoothState();
+  }
+
+  Future<void> _checkBluetoothState() async {
+    if (await FlutterBluePlus.isOn) {
+      checkBluetoothPermissionsAndState();
+    } else {
+      _showBluetoothActivationDialog();
+    }
   }
 
   Future<void> checkBluetoothPermissionsAndState() async {
     try {
-      PermissionStatus bluetoothScanPermission =
-          await Permission.bluetoothScan.request();
-      PermissionStatus bluetoothConnectPermission =
-          await Permission.bluetoothConnect.request();
+      Map<Permission, PermissionStatus> statuses = await [
+        Permission.bluetoothScan,
+        Permission.bluetoothConnect,
+        Permission.bluetooth,
+        Permission.location
+      ].request();
 
-      if (bluetoothScanPermission.isGranted &&
-          bluetoothConnectPermission.isGranted) {
-        bool isOn = await FlutterBluePlus.isOn;
-        if (isOn) {
-          reconnectIfNecessary();
-        } else {
-          print('Bluetooth is off. Requesting to turn it on...');
-          // Code to request user to turn on Bluetooth
-        }
+      if (statuses[Permission.bluetoothScan]!.isGranted &&
+          statuses[Permission.bluetoothConnect]!.isGranted &&
+          statuses[Permission.bluetooth]!.isGranted &&
+          statuses[Permission.location]!.isGranted) {
+        _startBluetoothStateListener();
+        reconnectIfNecessary();
       } else {
         print('Bluetooth permissions not granted.');
-        // Handle permission not granted
       }
     } catch (e) {
       print('Error checking Bluetooth permissions and state: $e');
     }
   }
 
+  void _startBluetoothStateListener() {
+    FlutterBluePlus.adapterState.listen((state) {
+      if (state == BluetoothAdapterState.off) {
+        _showBluetoothActivationDialog();
+      } else if (state == BluetoothAdapterState.on) {
+        reconnectIfNecessary();
+      }
+    });
+  }
+
   Future<void> reconnectIfNecessary() async {
     try {
-      FlutterBluePlus.connectedDevices.forEach((device) {
-        print('reconnectIfNecessary...');
-        print(device.platformName);
-        if (device.platformName == 'Pulse') {
-          print('Reconnecting to device...');
+      for (var device in await FlutterBluePlus.connectedDevices) {
+        if (device.name == 'Pulse') {
           connectToDevice(device);
           return;
         }
-      });
+      }
       startScan();
     } catch (e) {
       print('Error reconnecting to Bluetooth device: $e');
@@ -95,37 +149,41 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
   }
 
   void startScan() {
-    print('startScan...');
-    print(!isScanning);
     if (!isScanning) {
       setState(() {
         isScanning = true;
       });
-      FlutterBluePlus.startScan();
+      FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
       FlutterBluePlus.scanResults.listen((results) {
-        print('FlutterBluePlus...');
         for (ScanResult r in results) {
-          print('Device found: ${r.device.platformName}');
-          if (r.device.platformName == 'Pulse') {
+          if (r.device.name == 'Pulse') {
             FlutterBluePlus.stopScan();
             connectToDevice(r.device);
             break;
           }
         }
+      }).onDone(() {
+        setState(() {
+          isScanning = false;
+        });
+        if (connectedDevice == null) {
+          _showConnectionErrorDialog();
+        }
       });
     }
-    setState(() {
-      isScanning = false;
-    });
   }
 
   void connectToDevice(BluetoothDevice device) async {
-    await device.connect();
-    setState(() {
-      connectedDevice = device;
-      connectionStatus = 'Connecté';
-    });
-    discoverServices();
+    try {
+      await device.connect();
+      connectionStatusNotifier.value = 'Connexion à l\'appareil...';
+      setState(() {
+        connectedDevice = device;
+      });
+      discoverServices();
+    } catch (e) {
+      print('Error connecting to device: $e');
+    }
   }
 
   void discoverServices() async {
@@ -145,37 +203,122 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
             characteristic.value.listen((value) {
               handleNotification(value);
             });
-            print('Sending OK notification...');
-            characteristic.write(utf8.encode("ok"));
           }
         }
       }
     }
+    connectionStatusNotifier.value = 'Les buzzers ont été trouvés';
+    turnOffAllBuzzer();
+    _showSyncDialog();
   }
 
-  void sendDeviceNotification() async {
-    print('Sending device notification...');
+  void sendDeviceNotification(String value) async {
     if (notifyCharacteristic != null) {
-      await notifyCharacteristic!.write(utf8.encode("ok"));
+      await notifyCharacteristic!.write(utf8.encode(value));
+    }
+  }
+
+  void turnOffAllBuzzer() {
+    for (var buzzer in buzzerClass) {
+      sendDeviceNotification(buzzer['stop']!);
+    }
+  }
+
+  void startBuzzerSequence() {
+    turnOffAllBuzzer();
+    currentBuzzerIndex = 0;
+    currentRepetition = 0;
+    activateNextBuzzer();
+  }
+
+  void activateNextBuzzer() {
+    setState(() {
+      isActive = true;
+    });
+
+    if (activeBuzzers.isNotEmpty) {
+      String nextBuzzerColor = activeBuzzers[currentBuzzerIndex];
+      String nextBuzzerStartCommand = buzzerClass.firstWhere((buzzer) =>
+          buzzer['color']!.split('.').last == nextBuzzerColor)['start']!;
+      sendDeviceNotification(nextBuzzerStartCommand);
     }
   }
 
   void handleNotification(List<int> value) {
     String decodedValue = utf8.decode(value);
     DateTime currentTime = DateTime.now();
-    if (decodedValue == "ok" &&
-        (lastNotificationTime == null ||
-            currentTime.difference(lastNotificationTime!).inMilliseconds >
-                100)) {
-      setState(() {
-        messageCount++;
-        if (lastNotificationTime != null) {
-          _reactionTime.value = currentTime.difference(lastNotificationTime!);
+
+    // Synchronize buzzers
+    buzzerClass.forEach((buzzer) {
+      if (!buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value &&
+          decodedValue == buzzer["trigger"]) {
+        buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value = true;
+        if (!activeBuzzers.contains(buzzer["color"]!.split('.').last)) {
+          setState(() {
+            activeBuzzers.add(buzzer["color"]!.split('.').last);
+          });
+
+          if (activeBuzzers.length <= widget.dataChallengeActivity.exercice.podCount) {
+            Navigator.pop(context);
+            _showSyncDialog();
+          }
         }
-      });
-      lastNotificationTime = currentTime;
+      }
+    });
+
+    bool allSynced = activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount;
+
+    if (!_isRunning || !isActive || !allSynced) return;
+
+    if (["z", "y", "x"].contains(decodedValue)) {
+      final color = activeBuzzers[currentBuzzerIndex];
+      final buzzer = buzzerClass
+          .firstWhere((buzzer) => buzzer['color']!.split('.').last == color);
+      final trigger = buzzer['trigger']!;
+
+      final int reactionTime = lastNotificationTime != null
+          ? currentTime.difference(lastNotificationTime!).inMilliseconds
+          : 0;
+      _activityBloc.add(UpdateActivity(
+        reactionTime: reactionTime,
+        buzzerExpected: trigger,
+        buzzerPressed: decodedValue,
+        pressedAt: DateTime.now(),
+      ));
+
+      if (decodedValue == trigger) {
+        setState(() {
+          messageCount++;
+          if (lastNotificationTime != null) {
+            _reactionTime.value = currentTime.difference(lastNotificationTime!);
+          }
+          lastNotificationTime = currentTime;
+        });
+
+        sendDeviceNotification(buzzer['stop']!);
+
+        currentBuzzerIndex = (currentBuzzerIndex + 1) % activeBuzzers.length;
+
+        if (currentBuzzerIndex == 0) {
+          currentRepetition++;
+        }
+
+        if (
+            messageCount >= widget.dataChallengeActivity!.repetitions) {
+          _showSuccessDialog("Vous venez d'obtenir ${widget.dataChallengeActivity.points} points en complétant le challenge");
+          _startStopTimer();
+        }
+
+        activateNextBuzzer();
+      } else {
+        setState(() {
+          errorCount++;
+        });
+      }
     }
   }
+
+  String? userId;
 
   @override
   void dispose() {
@@ -183,8 +326,88 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
     _timer.cancel();
     _timeElapsed.dispose();
     _reactionTime.dispose();
+    connectionStatusNotifier.dispose();
+    buzzerActivatedNotifiers.forEach((key, notifier) => notifier.dispose());
+    buzzerSyncedNotifiers.forEach((key, notifier) => notifier.dispose());
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  void _startStopTimer() {
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+
+    if (_isRunning) {
+      setState(() {
+        _isPaused = false;
+        isActive = true;
+      });
+      _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+        _timeElapsed.value =
+            _timeElapsed.value + const Duration(milliseconds: 10);
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: errorCount,
+          caloriesBurned: 10,
+        ));
+      });
+      startBuzzerSequence();
+    } else {
+      setState(() {
+        _isPaused = true;
+        isActive = false;
+      });
+      _timer.cancel();
+      //_showDeleteDialog();
+    }
+  }
+
+  void _showDeleteDialog() {
+    BottomSheetUtil.showCustomBottomSheet(
+      context,
+      onConfirm: () {
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: errorCount, // Utilisation du compteur d'erreurs
+          caloriesBurned: 200,
+        ));
+        _activityBloc.add(StopActivity(_timeElapsed.value));
+        context.push('/activity/save');
+      },
+      onCancel: () {
+        _startStopTimer();
+      },
+      buttonText: 'Terminer',
+      buttonColor: AppPallete.primaryColor,
+      cancelText: 'Reprendre',
+      cancelTextColor: Colors.grey,
+    );
+  }
+
+  void _showSuccessDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Félicitations!'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                context
+                  .read<ChallengesBloc>()
+                  .add(FinishChallenge(widget.dataChallengeActivity.idChallenge, userId!,widget.dataChallengeActivity.points));
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _initializeNotifications() {
@@ -209,7 +432,6 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
         ongoing: true,
         playSound: false,
       );
-
       const NotificationDetails platformChannelSpecifics =
           NotificationDetails(android: androidPlatformChannelSpecifics);
       await flutterLocalNotificationsPlugin.show(
@@ -227,53 +449,26 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
     }
   }
 
-  void _startStopTimer() {
-    setState(() {
-      _isRunning = !_isRunning;
-    });
-
-    if (_isRunning) {
-      setState(() {
-        _isPaused = false;
-      });
-      _timer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-        _timeElapsed.value = _timeElapsed.value + Duration(milliseconds: 10);
-        _activityBloc.add(UpdateActivity(
-          timeElapsed: _timeElapsed.value,
-          touches: messageCount,
-          misses: 4, // Exemple de valeur
-          caloriesBurned: 200, // Exemple de valeur
-        ));
-      });
-    } else {
-      setState(() {
-        _isPaused = true;
-      });
-      _timer.cancel();
-      _showPauseModal();
-    }
-  }
-
   void _showPauseModal() {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
       builder: (BuildContext context) {
         return Container(
-          padding: EdgeInsets.fromLTRB(16, 16, 16, 62),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 62),
           color: Colors.black,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
                 onPressed: () {
-                  _closePauseModal();
-                  _startStopTimer(); // Reprendre
+                  _startStopTimer();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.transparent,
-                  side: BorderSide(color: AppPallete.primaryColor),
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  side: const BorderSide(color: AppPallete.primaryColor),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
                 child: const Text('Reprendre',
                     style: TextStyle(
@@ -284,21 +479,18 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
                   _activityBloc.add(UpdateActivity(
                     timeElapsed: _timeElapsed.value,
                     touches: messageCount,
-                    misses: 4, // Exemple de valeur
-                    caloriesBurned: 200, // Exemple de valeur
+                    misses: errorCount,
+                    caloriesBurned: 200,
                   ));
-
-                  _activityBloc.add(StopActivity(
-                    _timeElapsed.value,
-                  ));
-
+                  _activityBloc.add(StopActivity(_timeElapsed.value));
                   context.push('/activity/save');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppPallete.primaryColor,
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 ),
-                child: Text('Terminer',
+                child: const Text('Terminer',
                     style: TextStyle(fontSize: 18, color: Colors.black)),
               ),
             ],
@@ -306,12 +498,6 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
         );
       },
     );
-  }
-
-  void _closePauseModal() {
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    }
   }
 
   String _formatTime(Duration duration) {
@@ -323,20 +509,168 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
     return '$minutes:$seconds:$milliseconds';
   }
 
+  String _durationFromStartAndEnd(String start, String end) {
+    final start2 = DateTime.parse(start);
+    final end2 = DateTime.parse(end);
+    final duration = end2.difference(start2);
+    return _formatTime(duration);
+  }
+
+  int _durationFromStartAndEndInSecondes(String start, String end) {
+    final start2 = DateTime.parse(start);
+    final end2 = DateTime.parse(end);
+    final duration = end2.difference(start2);
+    return duration.inSeconds;
+  }
+
   String _formatReactionTime(Duration duration) {
     final milliseconds = duration.inMilliseconds;
     return '${milliseconds}ms';
   }
 
+  void _showBluetoothActivationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Activer le Bluetooth'),
+          content: const Text(
+              'Veuillez activer le Bluetooth pour pouvoir continuer.'),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                await FlutterBluePlus.turnOn();
+                checkBluetoothPermissionsAndState();
+              },
+              child: const Text('Activer'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Quitter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSyncDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text(
+                'Synchronisation des buzzers',
+                style: TextStyle(color: Colors.white),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Veuillez allumer ${widget.dataChallengeActivity.exercice.podCount} buzzers nécessaires pour cet exercice.',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(widget.dataChallengeActivity.exercice.podCount, (index) {
+                      return CircleAvatar(
+                        radius: 30,
+                        backgroundColor: activeBuzzers.length > index
+                            ? _getColor(activeBuzzers[index])
+                            : Colors.grey,
+                        child: activeBuzzers.length > index
+                            ? Icon(Icons.check, color: Colors.white)
+                            : const SizedBox.shrink(),
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount
+                        ? 'Tous les buzzers sont synchronisés.'
+                        : 'Synchronisation des buzzers en cours...',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
+              actions: [
+                activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount
+                    ? TextButton(
+                        onPressed: () {
+                          turnOffAllBuzzer();
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Lancer l\'exercice'),
+                      )
+                    : Container(),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Color _getColor(String color) {
+    switch (color) {
+      case "red":
+        return Colors.red;
+      case "blue":
+        return Colors.blue;
+      case "green":
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  void _showConnectionErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Erreur de connexion'),
+          content: const Text(
+              'Impossible de connecter aux buzzers. Veuillez réessayer.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                startScan();
+              },
+              child: const Text('Réessayer'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.of(context).pop();
+              },
+              child: const Text('Quitter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: Text(widget.exercise.title),
-        backgroundColor: Colors.black,
+        title: Text(widget.dataChallengeActivity.exercice.title),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             showExitConfirmationDialog(
               context,
@@ -352,144 +686,136 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
           return Stack(
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  const SizedBox(height: 16),
+                  if (widget.dataChallengeActivity.exercice != null)
+                    Column(
+                      children: [
+                        const SizedBox(height: 8),
+                        if (true)
+                          Text(
+                            'Répétitions nécessaires : ${widget.dataChallengeActivity.repetitions}',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold),
+                          ),
+                      ],
+                    ),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Column(
-                          children: [
-                            ValueListenableBuilder<Duration>(
-                              valueListenable: _timeElapsed,
-                              builder: (context, value, child) {
-                                return Text(
-                                  _formatTime(value),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 48,
-                                      fontWeight: FontWeight.bold),
-                                );
-                              },
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: activeBuzzers
+                              .map((buzzerColor) => BuzzerIndicator(
+                                    isActive: true,
+                                    color: _getColor(buzzerColor),
+                                  ))
+                              .toList(),
+                        ),
+                        GestureDetector(
+                          onTap: () => _startStopTimer(),
+                          child: Container(
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: AppPallete.primaryColor,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            Text(
-                              'Tour 1/${widget.exercise.laps}',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 16),
-                            ),
-                            SizedBox(height: 32),
-                            GestureDetector(
-                              onTap: () => _startStopTimer(),
-                              child: CircleAvatar(
-                                radius: 32,
-                                backgroundColor: AppPallete.primaryColor,
-                                child: Icon(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 16),
+                            margin: const EdgeInsets.only(top: 32),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ConstrainedBox(
+                                  constraints: BoxConstraints(minWidth: 100),
+                                  child: ValueListenableBuilder<Duration>(
+                                    valueListenable: _timeElapsed,
+                                    builder: (context, value, child) {
+                                      return Text(
+                                        _formatTime(value),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Icon(
                                   _isRunning ? Icons.pause : Icons.play_arrow,
                                   color: Colors.black,
                                   size: 32,
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    color: Colors.red,
-                    height: MediaQuery.of(context).size.height *
-                        0.5, // Définit une hauteur fixe pour le tiroir
-                    child: DraggableScrollableSheet(
-                      initialChildSize: 1.0,
-                      minChildSize: 0.2,
-                      maxChildSize: 1.0,
-                      builder: (BuildContext context,
-                          ScrollController scrollController) {
-                        return Container(
-                          color: Colors.blueAccent,
-                          padding: EdgeInsets.all(16.0),
-                          child: ListView(
-                            controller: scrollController,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Voir exercices',
-                                    style: TextStyle(
-                                        color: AppPallete.primaryColor,
-                                        fontSize: 16),
-                                  ),
-                                  const Row(
-                                    children: [
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.greenAccent),
-                                      SizedBox(width: 4),
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.grey),
-                                      SizedBox(width: 4),
-                                      CircleAvatar(
-                                          radius: 6,
-                                          backgroundColor: Colors.grey),
-                                    ],
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.notifications_active,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      sendDeviceNotification();
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.refresh,
-                                        color: Colors.white),
-                                    onPressed: () {
-                                      print('Reconnecting...');
-                                      print(connectedDevice);
-                                      if (connectedDevice == null) {
-                                        reconnectIfNecessary();
-                                      } else {
-                                        discoverServices();
-                                      }
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'État de la connexion : $connectionStatus',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              SizedBox(height: 16),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  _buildInfoCard(
-                                      messageCount.toString(), 'Touches',
-                                      highlight: true),
-                                  ValueListenableBuilder<Duration>(
-                                    valueListenable: _reactionTime,
-                                    builder: (context, value, child) {
-                                      return _buildInfoCard(
-                                          _formatReactionTime(value),
-                                          'Temps de réaction');
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 32.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.bluetooth,
+                                  color: Colors.white),
+                              onPressed: () {
+                                _showConnectionDialog(
+                                    context, connectionStatusNotifier);
+                                if (connectedDevice == null) {
+                                  reconnectIfNecessary();
+                                } else {
+                                  discoverServices();
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildInfoCard(errorCount.toString(),
+                                    'Erreurs'), // Affichage des erreurs
+                                _buildInfoCard(
+                                    messageCount.toString(), 'Touches',
+                                    highlight: true),
+                                ValueListenableBuilder<Duration>(
+                                  valueListenable: _reactionTime,
+                                  builder: (context, value, child) {
+                                    return _buildInfoCard(
+                                        _formatReactionTime(value), 'Réaction');
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
                   ),
                 ],
               ),
-              if (_isPaused) // Appliquer le flou seulement si le chronomètre est en pause
+              if (_isPaused)
                 BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: Container(
@@ -505,7 +831,7 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
 
   Widget _buildInfoCard(String value, String label, {bool highlight = false}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: highlight ? Colors.grey[800] : Colors.transparent,
         borderRadius: BorderRadius.circular(8),
@@ -514,12 +840,12 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
         children: [
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
                 color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
           ),
           Text(
             label,
-            style: TextStyle(color: Colors.grey, fontSize: 14),
+            style: const TextStyle(color: Colors.grey, fontSize: 14),
           ),
         ],
       ),
@@ -533,11 +859,11 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     builder: (BuildContext context) {
       return AlertDialog(
         backgroundColor: Colors.black,
-        title: Text(
+        title: const Text(
           'Confirmation',
           style: TextStyle(color: Colors.white),
         ),
-        content: Text(
+        content: const Text(
           'Êtes-vous sûr de vouloir quitter l\'activité ?',
           style: TextStyle(color: Colors.white),
         ),
@@ -546,7 +872,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
             onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Text(
+            child: const Text(
               'Annuler',
               style: TextStyle(color: Colors.greenAccent),
             ),
@@ -556,10 +882,39 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
               Navigator.of(context).pop();
               onConfirm();
             },
-            child: Text(
+            child: const Text(
               'Confirmer',
               style: TextStyle(color: Colors.red),
             ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _showConnectionDialog(
+    BuildContext context, ValueListenable<String> connectionStatusNotifier) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: ValueListenableBuilder<String>(
+          valueListenable: connectionStatusNotifier,
+          builder: (context, value, child) {
+            return Text('État de la connexion : $value');
+          },
+        ),
+        content: const Text(
+            'Veuillez patienter, nous tentons de connecter votre appareil aux buzzers.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'CANCEL'),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('OK'),
           ),
         ],
       );

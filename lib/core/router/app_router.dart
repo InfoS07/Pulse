@@ -12,6 +12,7 @@ import 'package:pulse/features/activity/presentation/pages/save_activity_page.da
 import 'package:pulse/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
+import 'package:pulse/features/challenges/domain/models/data_challenge_activity.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenge_user_activity_page.dart';
@@ -94,6 +95,16 @@ final GoRouter goRouterProvider = GoRouter(
         return DialogPage(
           builder: (_) => ActivityChallengeUserPage(exercise,
               challengeUserModel: challengeUser),
+        );
+      },
+    ),
+    GoRoute(
+      path: "/activityClassicChallenge",
+      pageBuilder: (BuildContext context, GoRouterState state) {
+        final DataChallengeActivity extra = state.extra as DataChallengeActivity;
+        return DialogPage(
+          builder: (_) => ActivityChallengePage(
+              extra),
         );
       },
     ),

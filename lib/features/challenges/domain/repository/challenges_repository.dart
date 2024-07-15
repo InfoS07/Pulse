@@ -9,4 +9,5 @@ abstract class ChallengesRepository {
   Future<Either<Failure, List<ChallengesModel?>>> getChallenges();
   Future<Either<Failure, void>> joinChallenge(int challengeId, String userId);
   Future<Either<Failure, void>> quitChallenge(int challengeId, String userId);
+  Future<Either<Failure, void>> finishChallenge(int challengeId, String userId,int pointGagnes);
 }
