@@ -9,6 +9,7 @@ class ChallengesModel {
   final int? exerciceId;
   final DateTime? endAt;
   final DateTime? startAt;
+  final int numbers;
   final List<String>? participants;
   final List<String>? achievers;
 
@@ -25,11 +26,13 @@ class ChallengesModel {
     this.startAt,
     this.participants,
     this.achievers,
+    required this.numbers,
   });
 
   factory ChallengesModel.fromJson(Map<String, dynamic> map) {
     return ChallengesModel(
       id: map['id'] ?? 0,
+      numbers: map['numbers'] ?? 0,
       name: map['name'] ?? '',
       description: map['description'] ?? '',
       points: map['points'] ?? 0,
@@ -57,6 +60,7 @@ class ChallengesModel {
       'id': id,
       'type': type,
       'name': name,
+      'numbers': numbers,
       'description': description,
       'points': points,
       'created_at': createdAt.toIso8601String(),
@@ -82,6 +86,7 @@ class ChallengesModel {
     DateTime? startAt,
     List<String>? participants,
     List<String>? achievers,
+    int? numbers,
   }) {
     return ChallengesModel(
       id: id ?? this.id,
@@ -96,6 +101,7 @@ class ChallengesModel {
       startAt: startAt ?? this.startAt,
       participants: participants ?? this.participants,
       achievers: achievers ?? this.achievers,
+      numbers: numbers ?? this.numbers,
     );
   }
 }
