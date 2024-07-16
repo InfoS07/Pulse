@@ -125,27 +125,6 @@ class _LoginPageState extends State<LoginPage> {
                                       }
                                     },
                             ),
-                            const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () {
-                                context.go('/forgot_password');
-                              },
-                              child: Center(
-                                child: RichText(
-                                  textAlign: TextAlign.center,
-                                  text: TextSpan(
-                                    text: 'Mot de passe oublié ?',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: AppPallete.primaryColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                ),
-                              ),
-                            ),
                             const SizedBox(height: 60),
                             GestureDetector(
                               onTap: () {
