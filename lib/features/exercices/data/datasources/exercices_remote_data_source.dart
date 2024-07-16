@@ -145,15 +145,7 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
       List<dynamic> premiums = response['premiums'];
 
       // Vérifier si l'utilisateur est déjà dans la liste des participants
-      if (!premiums.contains(userId)) {
-        // Ajouter userId au tableau des participants
-        premiums.add(userId);
-
-        // Mettre à jour la base de données avec les nouveaux participants
-        await supabaseClient
-            .from('exercises')
-            .update({'premiums': premiums}).eq('id', exerciceId.toString());
-      }
+      
 
       final response2 = await supabaseClient
           .from('users')
@@ -162,15 +154,28 @@ class ExercicesRemoteDataSourceImpl extends ExercicesRemoteDataSource {
           .single();
 
       int point = response2['points'];
-      point -= prix;
+      if (point < prix) {
+        throw const pulse_exceptions.ServerException('Vous n\'avez pas assez de points');
+      }
+      else {
+        point -= prix;
+        if (!premiums.contains(userId)) {
+        premiums.add(userId);
+
+        await supabaseClient
+            .from('exercises')
+            .update({'premiums': premiums}).eq('id', exerciceId.toString());
+      }
+      }
+      
 
       await supabaseClient
           .from('users')
           .update({'points': point}).eq('uid', userId.toString());
     } on PostgrestException catch (e) {
-      throw ServerException(); // Gérer les exceptions spécifiques à Supabase
+      throw const ServerException(); // Gérer les exceptions spécifiques à Supabase
     } catch (e) {
-      throw ServerException(); // Gérer les autres exceptions
+      throw const ServerException(); // Gérer les autres exceptions
     }
     return unit;
   }

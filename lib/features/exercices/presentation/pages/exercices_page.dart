@@ -5,9 +5,12 @@ import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
 import 'package:pulse/core/common/widgets/search_input.dart';
+import 'package:pulse/core/error/exceptions.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;
+
 import 'package:shimmer/shimmer.dart';
 import 'package:toasty_box/toast_enums.dart';
 import 'package:toasty_box/toasty_box.dart';
@@ -336,12 +339,31 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   ),
                   const SizedBox(width: 16),
                   ElevatedButton(
-                    onPressed: () {
-                      context.read<ExercicesBloc>().add(
-                          AchatExercice(exercise.id, userId!, exercise.price));
+                    onPressed: () async {
+  try {
+      context.read<ExercicesBloc>().add(
+      await AchatExercice(exercise.id, userId!, exercise.price),
+    );
 
-                      Navigator.of(context).pop();
-                    },
+    
+
+    Navigator.of(context).pop();
+  } on pulse_exceptions.ServerException catch (e) {
+    ToastService.showErrorToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: e.message,
+      );
+  } catch (e) {
+    ToastService.showErrorToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: "Une erreure est survenue",
+      );
+  }
+},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppPallete.primaryColor,
                     ),

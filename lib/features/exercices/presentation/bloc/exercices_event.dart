@@ -15,6 +15,5 @@ final class AchatExercice extends ExercicesEvent {
   final int exerciceId;
   final String userId;
   final int prix;
-
   AchatExercice(this.exerciceId, this.userId, this.prix);
 }
