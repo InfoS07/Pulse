@@ -258,10 +258,6 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                 _formatEndTime(challengeUser.endAt),
                 style: const TextStyle(color: Colors.white, fontSize: 12),
               ),
-              Text(
-                'pour battre ' + challengeUser.author.firstName,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
               const SizedBox(height: 8),
               if (isAuthor) ...[
                 SizedBox(

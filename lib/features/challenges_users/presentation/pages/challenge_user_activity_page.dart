@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -37,7 +38,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
   Timer _timer = Timer(Duration.zero, () {});
   final ValueNotifier<Duration> _timeElapsed = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> _reactionTime = ValueNotifier(Duration.zero);
-  //final player = AudioPlayer();
+  final player = AudioPlayer();
 
   final List<Map<String, String>> buzzerClass = [
     {"color": "Colors.red", "stop": "a", "start": "1", "trigger": "z"},
@@ -59,13 +60,12 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? notifyCharacteristic;
   int messageCount = 0;
-  int errorCount = 0; // Variable pour compter les erreurs
+  int errorCount = 0;
   bool isScanning = false;
   DateTime? lastNotificationTime;
   final ValueNotifier<String> connectionStatusNotifier =
       ValueNotifier('Recherche d\'appareils');
 
-  // Dynamically created notifiers
   final Map<String, ValueNotifier<bool>> buzzerActivatedNotifiers = {
     "red": ValueNotifier(false),
     "blue": ValueNotifier(false),
@@ -92,14 +92,21 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
     _activityBloc.add(StartActivity(widget.exercise));
     _checkBluetoothState();
+    _preloadSound();
+  }
+
+  Future<void> _preloadSound() async {
+    await player.setSource(AssetSource('sounds/notif.mp3'));
   }
 
   Future<void> _checkBluetoothState() async {
-    if (await FlutterBluePlus.isOn) {
-      checkBluetoothPermissionsAndState();
-    } else {
-      _showBluetoothActivationDialog();
-    }
+    FlutterBluePlus.adapterState.listen((state) {
+      if (state == BluetoothAdapterState.off) {
+        _showBluetoothActivationDialog();
+      } else if (state == BluetoothAdapterState.on) {
+        checkBluetoothPermissionsAndState();
+      }
+    });
   }
 
   Future<void> checkBluetoothPermissionsAndState() async {
@@ -151,10 +158,10 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
 
   void startScan() {
     if (!isScanning) {
-      setState(() {
+      /* setState(() {
         isScanning = true;
-      });
-      FlutterBluePlus.startScan(timeout: Duration(seconds: 5));
+      }); */
+      FlutterBluePlus.startScan(/* timeout: const Duration(seconds: 5) */);
       FlutterBluePlus.scanResults.listen((results) {
         for (ScanResult r in results) {
           if (r.device.name == 'Pulse') {
@@ -242,6 +249,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
       String nextBuzzerStartCommand = buzzerClass.firstWhere((buzzer) =>
           buzzer['color']!.split('.').last == nextBuzzerColor)['start']!;
       sendDeviceNotification(nextBuzzerStartCommand);
+      buzzerActivatedNotifiers[nextBuzzerColor]!.value = true;
     }
   }
 
@@ -249,7 +257,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     String decodedValue = utf8.decode(value);
     DateTime currentTime = DateTime.now();
 
-    // Synchronize buzzers
     buzzerClass.forEach((buzzer) {
       if (!buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value &&
           decodedValue == buzzer["trigger"]) {
@@ -261,6 +268,10 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
 
           if (activeBuzzers.length <= widget.exercise.podCount) {
             Navigator.pop(context);
+
+            setState(() {
+              isScanning = true;
+            });
             _showSyncDialog();
           }
         }
@@ -288,6 +299,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
       ));
 
       if (decodedValue == trigger) {
+        player.play(AssetSource('sounds/notif.mp3'));
         setState(() {
           messageCount++;
           if (lastNotificationTime != null) {
@@ -298,21 +310,27 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
 
         sendDeviceNotification(buzzer['stop']!);
 
+        buzzerActivatedNotifiers[color]!.value = false;
         currentBuzzerIndex = (currentBuzzerIndex + 1) % activeBuzzers.length;
 
         if (currentBuzzerIndex == 0) {
           currentRepetition++;
         }
 
+        final dure = Duration(
+            seconds: _durationFromStartAndEndInSecondes(
+                widget.challengeUserModel!.training.startAt,
+                widget.challengeUserModel!.training.endAt));
+        print("duree : $dure");
         if (_timeElapsed.value >=
             Duration(
                 seconds: _durationFromStartAndEndInSecondes(
                     widget.challengeUserModel!.training.startAt,
-                    widget.challengeUserModel!.training.endAt!)!)) {
+                    widget.challengeUserModel!.training.endAt))) {
           _showSuccessDialog(
               'Bravo tu viens de finir le défi lancé par ton ami',
               messageCount);
-          _startStopTimer();
+          _stopTimer();
         }
 
         activateNextBuzzer();
@@ -339,6 +357,37 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     super.dispose();
   }
 
+  void _stopTimer() {
+    setState(() {
+      _isRunning = !_isRunning;
+    });
+
+    if (_isRunning) {
+      setState(() {
+        _isPaused = false;
+        isActive = true;
+      });
+      _timer = Timer.periodic(const Duration(milliseconds: 10), (timer) {
+        _timeElapsed.value =
+            _timeElapsed.value + const Duration(milliseconds: 10);
+        _activityBloc.add(UpdateActivity(
+          timeElapsed: _timeElapsed.value,
+          touches: messageCount,
+          misses: errorCount,
+          caloriesBurned: 0,
+        ));
+      });
+      startBuzzerSequence();
+    } else {
+      setState(() {
+        _isPaused = true;
+        isActive = false;
+      });
+      _timer.cancel();
+      //_showDeleteDialog();
+    }
+  }
+
   void _startStopTimer() {
     setState(() {
       _isRunning = !_isRunning;
@@ -356,7 +405,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
           misses: errorCount,
-          caloriesBurned: 10,
+          caloriesBurned: 0,
         ));
       });
       startBuzzerSequence();
@@ -366,7 +415,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
         isActive = false;
       });
       _timer.cancel();
-      //_showDeleteDialog();
+      _showDeleteDialog();
     }
   }
 
@@ -377,8 +426,8 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
         _activityBloc.add(UpdateActivity(
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
-          misses: errorCount, // Utilisation du compteur d'erreurs
-          caloriesBurned: 200,
+          misses: errorCount,
+          caloriesBurned: 0,
         ));
         _activityBloc.add(StopActivity(_timeElapsed.value));
         context.push('/activity/save');
@@ -398,7 +447,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Félicitations!'),
+          title: const Text('Félicitations!'),
           content: Text(message),
           actions: [
             TextButton(
@@ -408,7 +457,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                         widget.challengeUserModel!.id, userId!, score));
                 Navigator.of(context).pop();
               },
-              child: Text('OK'),
+              child: const Text('Terminer'),
             ),
           ],
         );
@@ -426,7 +475,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
     }
   }
 
-  void _showPersistentNotification() async {
+  /* void _showPersistentNotification() async {
     if (Platform.isAndroid) {
       const AndroidNotificationDetails androidPlatformChannelSpecifics =
           AndroidNotificationDetails(
@@ -447,15 +496,9 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
         platformChannelSpecifics,
       );
     }
-  }
+  } */
 
-  void _cancelNotification() async {
-    if (Platform.isAndroid) {
-      await flutterLocalNotificationsPlugin.cancel(0);
-    }
-  }
-
-  void _showPauseModal() {
+  /* void _showPauseModal() {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -486,7 +529,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                     timeElapsed: _timeElapsed.value,
                     touches: messageCount,
                     misses: errorCount,
-                    caloriesBurned: 200,
+                    caloriesBurned: 0,
                   ));
                   _activityBloc.add(StopActivity(_timeElapsed.value));
                   context.push('/activity/save');
@@ -505,7 +548,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
       },
     );
   }
-
+ */
   String _formatTime(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     final minutes = twoDigits(duration.inMinutes.remainder(60));
@@ -582,7 +625,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                 children: [
                   Text(
                     'Veuillez allumer ${widget.exercise.podCount} buzzers nécessaires pour cet exercice.',
-                    style: TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -594,7 +637,7 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                             ? _getColor(activeBuzzers[index])
                             : Colors.grey,
                         child: activeBuzzers.length > index
-                            ? Icon(Icons.check, color: Colors.white)
+                            ? const Icon(Icons.check, color: Colors.white)
                             : const SizedBox.shrink(),
                       );
                     }),
@@ -609,6 +652,12 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                 ],
               ),
               actions: [
+                TextButton(
+                  onPressed: () => {
+                    Navigator.pop(context, 'CANCEL'),
+                  },
+                  child: const Text('Annuler'),
+                ),
                 activeBuzzers.length == widget.exercise.podCount
                     ? TextButton(
                         onPressed: () {
@@ -671,9 +720,6 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
 
   @override
   Widget build(BuildContext context) {
-    final sortedParticipants = widget.challengeUserModel!.participants.toList()
-      ..sort((a, b) => b.score.compareTo(a.score));
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exercise.title),
@@ -695,57 +741,126 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
             children: [
               Column(
                 children: [
-                  const SizedBox(height: 16),
-                  if (widget.challengeUserModel != null)
-                    Column(
-                      children: [
-                        const SizedBox(height: 8),
-                        if (widget.challengeUserModel!.type == 'Timer' ||
-                            widget.challengeUserModel!.type == 'Répétitions')
-                          Column(
-                            children: [
-                              Text(
-                                'Nombre de répétitions à battre : ${widget.challengeUserModel!.training.repetitions}',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                "Durée pour faire l'exercice : ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                      ],
-                    ),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: activeBuzzers
-                              .map((buzzerColor) => BuzzerIndicator(
-                                    isActive: true,
-                                    color: _getColor(buzzerColor),
-                                  ))
-                              .toList(),
-                        ),
+                        const SizedBox(height: 30),
+                        if (widget.challengeUserModel!.type == 'Timer' ||
+                            widget.challengeUserModel!.type == 'Répétitions')
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Nombre de répétitions à battre : ${widget.challengeUserModel!.training.repetitions}',
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Durée pour faire l'exercice : ${_durationFromStartAndEnd(widget.challengeUserModel!.training.startAt, widget.challengeUserModel!.training.endAt!)}",
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (activeBuzzers.isEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Mise en place : ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      widget.exercise.description,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Une fois mis en place, appuyez sur le bouton ci-dessous pour commencer l\'exercice.',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (activeBuzzers.isNotEmpty)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 30.0,
+                            runSpacing: 10.0,
+                            children: activeBuzzers
+                                .map((buzzerColor) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: ValueListenableBuilder<bool>(
+                                        valueListenable:
+                                            buzzerActivatedNotifiers[
+                                                buzzerColor]!,
+                                        builder: (context, isActive, child) {
+                                          return BuzzerIndicator(
+                                            isActive: isActive,
+                                            color: isActive
+                                                ? _getColor(buzzerColor!)
+                                                : Colors.grey,
+                                          );
+                                        },
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
                   Container(
                     color: AppPallete.backgroundColorDarker,
                     padding: const EdgeInsets.symmetric(
-                        vertical: 10.0, horizontal: 16.0),
+                        vertical: 20.0, horizontal: 16.0),
                     child: Column(
                       children: [
                         GestureDetector(
-                          onTap: () => _startStopTimer(),
+                          onTap: () => {
+                            if (isScanning)
+                              {_startStopTimer()}
+                            else
+                              {
+                                _showConnectionDialog(
+                                    context, connectionStatusNotifier),
+                                startScan()
+                              }
+                          },
                           child: Container(
                             width: 300,
                             decoration: BoxDecoration(
@@ -760,7 +875,8 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ConstrainedBox(
-                                  constraints: BoxConstraints(minWidth: 100),
+                                  constraints:
+                                      const BoxConstraints(minWidth: 100),
                                   child: ValueListenableBuilder<Duration>(
                                     valueListenable: _timeElapsed,
                                     builder: (context, value, child) {
@@ -786,34 +902,15 @@ class _ActivityChallengePageState extends State<ActivityChallengeUserPage>
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.bluetooth,
-                                  color: Colors.white),
-                              onPressed: () {
-                                _showConnectionDialog(
-                                    context, connectionStatusNotifier);
-                                if (connectedDevice == null) {
-                                  reconnectIfNecessary();
-                                } else {
-                                  discoverServices();
-                                }
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 30),
                         Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                _buildInfoCard(errorCount.toString(),
-                                    'Erreurs'), // Affichage des erreurs
+                                _buildInfoCard(
+                                    errorCount.toString(), 'Erreurs'),
                                 _buildInfoCard(
                                     messageCount.toString(), 'Touches',
                                     highlight: true),
@@ -877,7 +974,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: AppPallete.backgroundColor,
         title: const Text(
           'Confirmation',
           style: TextStyle(color: Colors.white),
@@ -893,7 +990,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
             },
             child: const Text(
               'Annuler',
-              style: TextStyle(color: Colors.greenAccent),
+              style: TextStyle(color: Colors.grey),
             ),
           ),
           TextButton(

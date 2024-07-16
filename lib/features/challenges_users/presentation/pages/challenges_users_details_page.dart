@@ -132,7 +132,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                             child: const Text(
                               'Participer',
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 14),
+                                  TextStyle(color: Colors.black, fontSize: 14),
                             ),
                           ),
                         ),
@@ -375,7 +375,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                                 style: TextStyle(
                                     color: isAlreadyInvited
                                         ? Colors.grey
-                                        : Colors.black),
+                                        : Colors.grey),
                               ),
                               value: selectedFriends.contains(friend.uid),
                               onChanged: isAlreadyInvited
