@@ -51,8 +51,11 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               BlocListener<ChallengesUsersBloc, ChallengesUsersState>(
                 listener: (context, state) {
                   if (state is ChallengesUsersError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${state.message}')),
+                    ToastService.showErrorToast(
+                      context,
+                      length: ToastLength.long,
+                      expandedHeight: 100,
+                      message: state.message,
                     );
                   }
                 },
@@ -60,8 +63,11 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
               BlocListener<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
                   if (state is ExercicesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${state.message}')),
+                    ToastService.showErrorToast(
+                      context,
+                      length: ToastLength.long,
+                      expandedHeight: 100,
+                      message: state.message,
                     );
                   }
                 },
@@ -74,8 +80,11 @@ class _ChallengeUserPageState extends State<ChallengeUserPage> {
                     setState(() {});
                     // Appeler setState ici pour mettre à jour les variables d'état si nécessaire
                   } else if (state is ProfilFailure) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: ${state.message}')),
+                    ToastService.showErrorToast(
+                      context,
+                      length: ToastLength.long,
+                      expandedHeight: 100,
+                      message: state.message,
                     );
                   }
                 },

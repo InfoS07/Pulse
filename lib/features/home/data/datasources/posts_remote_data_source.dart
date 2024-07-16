@@ -46,6 +46,8 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
               categories
               photos
               sequence
+              price_coin
+              premiums
             }
             stats {
                 buzzer_expected

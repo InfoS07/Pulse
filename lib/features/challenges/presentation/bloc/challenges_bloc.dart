@@ -25,7 +25,6 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     on<JoinChallenge>(_onJoinChallenge);
     on<QuitChallenge>(_onQuitChallenge);
     on<FinishChallenge>(_onFinishChallenge);
-    on<AchatExercice>(_onAchatExercice);
   }
 
   void _onGetChallenges(
@@ -48,7 +47,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     final currentState = state;
     if (currentState is ChallengesSuccess) {
       final result = await _challengesRepository.finishChallenge(
-          event.challengeId, event.userId,event.pointsGagnes);
+          event.challengeId, event.userId, event.pointsGagnes);
       result.fold(
         (l) => emit(ChallengesError(l.message)),
         (r) {
@@ -57,35 +56,6 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
           else {
             final updatedChallenges = currentState.challenges
                 .map((challenge) => challenge!.id == event.challengeId
-                    ? challenge!.copyWith(participants: [
-                        ...challenge.participants!,
-                        event.userId
-                      ])
-                    : challenge)
-                .toList();
-            emit(ChallengesSuccess(updatedChallenges));
-          }
-        } /* => add(ChallengesGetChallenges()) */,
-      );
-    }
-  }
-
-  void _onAchatExercice(
-    AchatExercice event,
-    Emitter<ChallengesState> emit,
-  ) async {
-    final currentState = state;
-    if (currentState is ChallengesSuccess) {
-      final result = await _challengesRepository.achatExercice(
-          event.exerciceId, event.userId,event.prix);
-      result.fold(
-        (l) => emit(ChallengesError(l.message)),
-        (r) {
-          if (currentState.challenges.isEmpty)
-            return;
-          else {
-            final updatedChallenges = currentState.challenges
-                .map((challenge) => challenge!.id == event.exerciceId
                     ? challenge!.copyWith(participants: [
                         ...challenge.participants!,
                         event.userId
@@ -123,7 +93,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
                 .toList();
             emit(ChallengesSuccess(updatedChallenges));
           }
-        } /* => add(ChallengesGetChallenges()) */,
+        },
       );
     }
   }
@@ -132,14 +102,6 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     QuitChallenge event,
     Emitter<ChallengesState> emit,
   ) async {
-    /* final result = await _challengesRepository.quitChallenge(
-        event.challengeId, event.userId);
-    result.fold(
-      (l) => emit(ChallengesError(l.message)),
-      (r) => add(ChallengesGetChallenges()),
-    );
- */
-
     final currentState = state;
     if (currentState is ChallengesSuccess) {
       final result = await _challengesRepository.quitChallenge(

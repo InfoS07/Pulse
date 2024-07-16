@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,6 +8,7 @@ import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 
 class ExercicePage extends StatefulWidget {
   final Exercice exercice;
@@ -20,6 +22,8 @@ class ExercicePage extends StatefulWidget {
 class _ExercicePageState extends State<ExercicePage> {
   int _currentIndex = 0;
   List<ChewieController>? _chewieControllers;
+
+  String? userId;
 
   @override
   void initState() {
@@ -35,6 +39,11 @@ class _ExercicePageState extends State<ExercicePage> {
         looping: true,
       );
     }).toList();
+
+    final authState = context.read<AppUserCubit>().state;
+    if (authState is AppUserLoggedIn) {
+      userId = authState.user.uid;
+    }
   }
 
   @override
@@ -220,29 +229,31 @@ class _ExercicePageState extends State<ExercicePage> {
                         ),
                       ),
                       const SizedBox(height: 60),
-                      Center(
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.push('/activity', extra: widget.exercice);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppPallete.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                      if (widget.exercice.premiums.contains(userId) ||
+                          widget.exercice.price == 0)
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              context.push('/activity', extra: widget.exercice);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppPallete.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 36, vertical: 14),
                             ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 36, vertical: 14),
-                          ),
-                          child: const Text(
-                            'Pulser',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                            child: const Text(
+                              'Pulser',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       const SizedBox(height: 60),
                     ],
                   ),

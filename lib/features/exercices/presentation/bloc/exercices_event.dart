@@ -10,3 +10,11 @@ final class ExercicesSearch extends ExercicesEvent {
 
   ExercicesSearch(this.searchTerm);
 }
+
+final class AchatExercice extends ExercicesEvent {
+  final int exerciceId;
+  final String userId;
+  final int prix;
+
+  AchatExercice(this.exerciceId, this.userId, this.prix);
+}

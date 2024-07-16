@@ -9,6 +9,8 @@ import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -78,8 +80,11 @@ class _ExercicesPageState extends State<ExercicesPage> {
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
                   if (state is ExercicesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
+                    ToastService.showErrorToast(
+                      context,
+                      length: ToastLength.long,
+                      expandedHeight: 100,
+                      message: state.message,
                     );
                   }
                 },
@@ -166,6 +171,8 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 return Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: ExerciseCard(
+                    isLocked: exercise.price > 0 &&
+                        !exercise.premiums.contains(userId),
                     exercise: exercise,
                     onTap: () {
                       context.push('/exercices/details/${exercise.id}',
@@ -330,10 +337,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context
-                      .read<ChallengesBloc>()
-                      .add(AchatExercice(exercise.id, userId!,exercise.price));
-                      
+                      context.read<ExercicesBloc>().add(
+                          AchatExercice(exercise.id, userId!, exercise.price));
+
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
@@ -341,7 +347,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
                     ),
                     child: const Text(
                       'Acheter',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ],

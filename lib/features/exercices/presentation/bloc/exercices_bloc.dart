@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/usecase/usercase.dart';
+import 'package:pulse/features/exercices/domain/usecases/achat_exercise.dart';
 import 'package:pulse/features/exercices/domain/usecases/get_exercices.dart';
 import 'package:pulse/features/exercices/domain/usecases/search_exercices.dart';
 
@@ -11,15 +12,19 @@ part 'exercices_state.dart';
 class ExercicesBloc extends Bloc<ExercicesEvent, ExercicesState> {
   final GetExercices _getExercices;
   final SearchExercices _searchExercices;
+  final AchatExercise _achatExercise;
 
   ExercicesBloc(
       {required GetExercices getExercices,
-      required SearchExercices searchExercices})
+      required SearchExercices searchExercices,
+      required AchatExercise achatExercise})
       : _getExercices = getExercices,
         _searchExercices = searchExercices,
+        _achatExercise = achatExercise,
         super(ExercicesInitial()) {
     on<ExercicesLoad>(_onGetExercices);
     on<ExercicesSearch>(_onSearchExercices);
+    on<AchatExercice>(_onAchatExercice);
   }
 
   void _onGetExercices(
@@ -51,6 +56,19 @@ class ExercicesBloc extends Bloc<ExercicesEvent, ExercicesState> {
           emit(ExercicesLoaded(r));
         }
       },
+    );
+  }
+
+  void _onAchatExercice(
+    AchatExercice event,
+    Emitter<ExercicesState> emit,
+  ) async {
+    final res = await _achatExercise(AchatExerciseParams(
+        exerciceId: event.exerciceId, userId: event.userId, prix: event.prix));
+
+    res.fold(
+      (l) => emit(ExercicesError(l.message)),
+      (r) => add(ExercicesLoad()),
     );
   }
 }

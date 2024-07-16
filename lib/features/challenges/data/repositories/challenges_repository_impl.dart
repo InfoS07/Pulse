@@ -52,22 +52,12 @@ class ChallengesRepositoryImpl implements ChallengesRepository {
     }
   }
 
-    @override
-  Future<Either<Failure, void>> finishChallenge(
-      int challengeId, String userId,int pointGagnes) async {
-    try {
-      await challengesDataSource.finishChallenge(challengeId, userId,pointGagnes);
-      return Right(null);
-    } on ServerException catch (e) {
-      return Left(Failure(e.message));
-    }
-  }
-  
   @override
-  Future<Either<Failure, void>> achatExercice(
-      int challengeId, String userId,int pointGagnes) async {
+  Future<Either<Failure, void>> finishChallenge(
+      int challengeId, String userId, int pointGagnes) async {
     try {
-      await challengesDataSource.achatExercice(challengeId, userId,pointGagnes);
+      await challengesDataSource.finishChallenge(
+          challengeId, userId, pointGagnes);
       return Right(null);
     } on ServerException catch (e) {
       return Left(Failure(e.message));

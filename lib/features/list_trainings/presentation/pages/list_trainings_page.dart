@@ -6,6 +6,8 @@ import 'package:pulse/core/common/entities/social_media_post.dart';
 import 'package:pulse/core/common/entities/trainingList.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class TrainingListScreen extends StatefulWidget {
   const TrainingListScreen({super.key});
@@ -43,10 +45,12 @@ class _TrainingListScreenState extends State<TrainingListScreen> {
       ),
       body: BlocConsumer<HomeBloc, HomeState>(
         listener: (context, state) {
-          // Écouter les états pour afficher des messages, rediriger, etc.
           if (state is HomeError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+            ToastService.showErrorToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: state.message,
             );
           }
         },

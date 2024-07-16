@@ -56,12 +56,8 @@ class _SearchUsersViewState extends State<SearchUsersView> {
           ),
           Expanded(
             child: Container(
-              //color: Colors.grey[900],
               child: BlocBuilder<SearchUsersBloc, SearchUsersState>(
                 builder: (context, state) {
-                  /*  if (state is SearchUsersLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else */
                   if (state is SearchUsersLoaded) {
                     if (state.profils.isEmpty) {
                       return const Center(

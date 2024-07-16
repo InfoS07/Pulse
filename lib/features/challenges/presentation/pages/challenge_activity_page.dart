@@ -258,7 +258,8 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
             activeBuzzers.add(buzzer["color"]!.split('.').last);
           });
 
-          if (activeBuzzers.length <= widget.dataChallengeActivity.exercice.podCount) {
+          if (activeBuzzers.length <=
+              widget.dataChallengeActivity.exercice.podCount) {
             Navigator.pop(context);
             _showSyncDialog();
           }
@@ -266,7 +267,8 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
       }
     });
 
-    bool allSynced = activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount;
+    bool allSynced =
+        activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount;
 
     if (!_isRunning || !isActive || !allSynced) return;
 
@@ -303,9 +305,9 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
           currentRepetition++;
         }
 
-        if (
-            messageCount >= widget.dataChallengeActivity!.repetitions) {
-          _showSuccessDialog("Vous venez d'obtenir ${widget.dataChallengeActivity.points} points en complétant le challenge");
+        if (messageCount >= widget.dataChallengeActivity!.repetitions) {
+          _showSuccessDialog(
+              "Vous venez d'obtenir ${widget.dataChallengeActivity.points} points en complétant le challenge");
           _startStopTimer();
         }
 
@@ -397,9 +399,10 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
           actions: [
             TextButton(
               onPressed: () {
-                context
-                  .read<ChallengesBloc>()
-                  .add(FinishChallenge(widget.dataChallengeActivity.idChallenge, userId!,widget.dataChallengeActivity.points));
+                context.read<ChallengesBloc>().add(FinishChallenge(
+                    widget.dataChallengeActivity.idChallenge,
+                    userId!,
+                    widget.dataChallengeActivity.points));
                 Navigator.of(context).pop();
               },
               child: Text('OK'),
@@ -581,7 +584,9 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: List.generate(widget.dataChallengeActivity.exercice.podCount, (index) {
+                    children: List.generate(
+                        widget.dataChallengeActivity.exercice.podCount,
+                        (index) {
                       return CircleAvatar(
                         radius: 30,
                         backgroundColor: activeBuzzers.length > index
@@ -595,7 +600,8 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount
+                    activeBuzzers.length ==
+                            widget.dataChallengeActivity.exercice.podCount
                         ? 'Tous les buzzers sont synchronisés.'
                         : 'Synchronisation des buzzers en cours...',
                     style: const TextStyle(color: Colors.white),
@@ -603,7 +609,8 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
                 ],
               ),
               actions: [
-                activeBuzzers.length == widget.dataChallengeActivity.exercice.podCount
+                activeBuzzers.length ==
+                        widget.dataChallengeActivity.exercice.podCount
                     ? TextButton(
                         onPressed: () {
                           turnOffAllBuzzer();
@@ -665,7 +672,6 @@ class _ActivityChallengePageState extends State<ActivityChallengePage>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.dataChallengeActivity.exercice.title),
@@ -858,7 +864,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: AppPallete.backgroundColor,
         title: const Text(
           'Confirmation',
           style: TextStyle(color: Colors.white),

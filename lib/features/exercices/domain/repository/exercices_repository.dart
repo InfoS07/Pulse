@@ -6,4 +6,6 @@ abstract interface class ExercicesRepository {
   Future<Either<Failure, Map<String, List<Exercice?>>>> getExercices();
   Future<Either<Failure, Map<String, List<Exercice?>>>> searchExercices(
       String searchTerm);
+  Future<Either<Failure, Unit>> achatExercice(
+      int exerciceId, String userId, int prix);
 }
