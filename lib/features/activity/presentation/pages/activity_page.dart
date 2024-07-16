@@ -62,7 +62,6 @@ class _ActivityPageState extends State<ActivityPage>
   final ValueNotifier<String> connectionStatusNotifier =
       ValueNotifier('Recherche d\'appareils');
 
-  // Dynamically created notifiers
   final Map<String, ValueNotifier<bool>> buzzerActivatedNotifiers = {
     "red": ValueNotifier(false),
     "blue": ValueNotifier(false),
@@ -85,7 +84,7 @@ class _ActivityPageState extends State<ActivityPage>
     _activityBloc = BlocProvider.of<ActivityBloc>(context);
     _activityBloc.add(StartActivity(widget.exercise));
     _checkBluetoothState();
-    _preloadSound(); // Préchargement du son
+    _preloadSound();
   }
 
   Future<void> _preloadSound() async {
@@ -143,7 +142,7 @@ class _ActivityPageState extends State<ActivityPage>
           return;
         }
       }
-      startScan();
+      //startScan();
     } catch (e) {
       print('Error reconnecting to Bluetooth device: $e');
     }
@@ -151,9 +150,6 @@ class _ActivityPageState extends State<ActivityPage>
 
   void startScan() {
     if (!isScanning) {
-      setState(() {
-        isScanning = true;
-      });
       FlutterBluePlus.startScan(/* timeout: const Duration(seconds: 5) */);
       FlutterBluePlus.scanResults.listen((results) {
         for (ScanResult r in results) {
@@ -247,7 +243,6 @@ class _ActivityPageState extends State<ActivityPage>
     String decodedValue = utf8.decode(value);
     DateTime currentTime = DateTime.now();
 
-    // Synchronize buzzers
     buzzerClass.forEach((buzzer) {
       if (!buzzerSyncedNotifiers[buzzer["color"]!.split('.').last]!.value &&
           decodedValue == buzzer["trigger"]) {
@@ -260,6 +255,10 @@ class _ActivityPageState extends State<ActivityPage>
 
           if (activeBuzzers.length <= widget.exercise.podCount) {
             Navigator.pop(context);
+
+            setState(() {
+              isScanning = true;
+            });
             _showSyncDialog();
           }
         }
@@ -345,7 +344,7 @@ class _ActivityPageState extends State<ActivityPage>
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
           misses: errorCount,
-          caloriesBurned: 10,
+          caloriesBurned: 0,
         ));
       });
       startBuzzerSequence();
@@ -366,7 +365,7 @@ class _ActivityPageState extends State<ActivityPage>
         _activityBloc.add(UpdateActivity(
           timeElapsed: _timeElapsed.value,
           touches: messageCount,
-          misses: errorCount, // Utilisation du compteur d'erreurs
+          misses: errorCount,
           caloriesBurned: 200,
         ));
         _activityBloc.add(StopActivity(_timeElapsed.value));
@@ -393,7 +392,7 @@ class _ActivityPageState extends State<ActivityPage>
     }
   }
 
-  void _showPersistentNotification() async {
+  /* void _showPersistentNotification() async {
     if (Platform.isAndroid) {
       const AndroidNotificationDetails androidPlatformChannelSpecifics =
           AndroidNotificationDetails(
@@ -415,14 +414,13 @@ class _ActivityPageState extends State<ActivityPage>
       );
     }
   }
-
-  void _cancelNotification() async {
+ */
+  /* void _cancelNotification() async {
     if (Platform.isAndroid) {
       await flutterLocalNotificationsPlugin.cancel(0);
     }
-  }
-
-  void _showPauseModal() {
+  } */
+  /* void _showPauseModal() {
     showModalBottomSheet(
       context: context,
       isDismissible: false,
@@ -453,7 +451,7 @@ class _ActivityPageState extends State<ActivityPage>
                     timeElapsed: _timeElapsed.value,
                     touches: messageCount,
                     misses: errorCount,
-                    caloriesBurned: 200,
+                    caloriesBurned: 0,
                   ));
                   _activityBloc.add(StopActivity(_timeElapsed.value));
                   context.push('/activity/save');
@@ -471,7 +469,7 @@ class _ActivityPageState extends State<ActivityPage>
         );
       },
     );
-  }
+  } */
 
   String _formatTime(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -559,14 +557,15 @@ class _ActivityPageState extends State<ActivityPage>
                         : 'Synchronisation des buzzers en cours...',
                     style: const TextStyle(color: Colors.white),
                   ),
-                  const SizedBox(height: 20),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'CANCEL'),
-                    child: const Text('Annuler'),
-                  ),
                 ],
               ),
               actions: [
+                TextButton(
+                  onPressed: () => {
+                    Navigator.pop(context, 'CANCEL'),
+                  },
+                  child: const Text('Annuler'),
+                ),
                 activeBuzzers.length == widget.exercise.podCount
                     ? TextButton(
                         onPressed: () {
@@ -654,126 +653,165 @@ class _ActivityPageState extends State<ActivityPage>
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        const SizedBox(height: 16),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: activeBuzzers
-                              .map((buzzerColor) => Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: ValueListenableBuilder<bool>(
-                                      valueListenable: buzzerActivatedNotifiers[
-                                          buzzerColor]!,
-                                      builder: (context, isActive, child) {
-                                        return BuzzerIndicator(
-                                          isActive: isActive,
-                                          color: isActive
-                                              ? _getColor(buzzerColor!)
-                                              : Colors.grey,
-                                        );
-                                      },
+                        const SizedBox(height: 30),
+                        if (activeBuzzers.isEmpty)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Mise en place : ',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ))
-                              .toList(),
-                        ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      widget.exercise.description,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Une fois mis en place, appuyez sur le bouton ci-dessous pour commencer l\'exercice.',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (activeBuzzers.isNotEmpty)
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 30.0,
+                            runSpacing: 10.0,
+                            children: activeBuzzers
+                                .map((buzzerColor) => Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8.0),
+                                      child: ValueListenableBuilder<bool>(
+                                        valueListenable:
+                                            buzzerActivatedNotifiers[
+                                                buzzerColor]!,
+                                        builder: (context, isActive, child) {
+                                          return BuzzerIndicator(
+                                            isActive: isActive,
+                                            color: isActive
+                                                ? _getColor(buzzerColor!)
+                                                : Colors.grey,
+                                          );
+                                        },
+                                      ),
+                                    ))
+                                .toList(),
+                          ),
                         const SizedBox(height: 40),
                       ],
                     ),
                   ),
-                  RippleAnimation(
-                    color: AppPallete.primaryColor,
-                    delay: const Duration(milliseconds: 300),
-                    repeat: true,
-                    ripplesCount: 6,
-                    duration: const Duration(milliseconds: 6 * 300),
-                    child: Container(
-                      color: AppPallete.backgroundColorDarker,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 32.0, horizontal: 16.0),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () => {
-                              if (isScanning)
-                                {_startStopTimer()}
-                              else
-                                {
-                                  _showConnectionDialog(
-                                      context, connectionStatusNotifier),
-                                  startScan()
-                                }
-                            },
-                            child: Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                color: AppPallete.primaryColor,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 16),
-                              margin: const EdgeInsets.only(top: 32),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  ConstrainedBox(
-                                    constraints:
-                                        const BoxConstraints(minWidth: 100),
-                                    child: ValueListenableBuilder<Duration>(
-                                      valueListenable: _timeElapsed,
-                                      builder: (context, value, child) {
-                                        return Text(
-                                          _formatTime(value),
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Icon(
-                                    _isRunning ? Icons.pause : Icons.play_arrow,
-                                    color: Colors.black,
-                                    size: 32,
-                                  ),
-                                ],
-                              ),
+                  Container(
+                    color: AppPallete.backgroundColorDarker,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 20.0, horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () => {
+                            if (isScanning)
+                              {_startStopTimer()}
+                            else
+                              {
+                                _showConnectionDialog(
+                                    context, connectionStatusNotifier),
+                                startScan()
+                              }
+                          },
+                          child: Container(
+                            width: 300,
+                            decoration: BoxDecoration(
+                              color: AppPallete.primaryColor,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  _buildInfoCard(errorCount.toString(),
-                                      'Erreurs'), // Affichage des erreurs
-                                  _buildInfoCard(
-                                      messageCount.toString(), 'Touches',
-                                      highlight: true),
-                                  ValueListenableBuilder<Duration>(
-                                    valueListenable: _reactionTime,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 16),
+                            margin: const EdgeInsets.only(top: 32),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ConstrainedBox(
+                                  constraints:
+                                      const BoxConstraints(minWidth: 100),
+                                  child: ValueListenableBuilder<Duration>(
+                                    valueListenable: _timeElapsed,
                                     builder: (context, value, child) {
-                                      return _buildInfoCard(
-                                          _formatReactionTime(value),
-                                          'Réaction');
+                                      return Text(
+                                        _formatTime(value),
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      );
                                     },
                                   ),
-                                ],
-                              ),
-                              const SizedBox(height: 40),
-                            ],
+                                ),
+                                const SizedBox(width: 16),
+                                Icon(
+                                  _isRunning ? Icons.pause : Icons.play_arrow,
+                                  color: Colors.black,
+                                  size: 32,
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 30),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 30),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                _buildInfoCard(
+                                    errorCount.toString(), 'Erreurs'),
+                                _buildInfoCard(
+                                    messageCount.toString(), 'Touches',
+                                    highlight: true),
+                                ValueListenableBuilder<Duration>(
+                                  valueListenable: _reactionTime,
+                                  builder: (context, value, child) {
+                                    return _buildInfoCard(
+                                        _formatReactionTime(value), 'Réaction');
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 40),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                      ],
                     ),
                   ),
                 ],
@@ -872,12 +910,10 @@ void _showConnectionDialog(
             'Veuillez patienter, nous tentons de connecter votre appareil aux buzzers.'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, 'CANCEL'),
+            onPressed: () => {
+              Navigator.pop(context, 'CANCEL'),
+            },
             child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, 'OK'),
-            child: const Text('OK'),
           ),
         ],
       );
