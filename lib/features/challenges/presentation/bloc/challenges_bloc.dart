@@ -93,7 +93,7 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
                 .toList();
             emit(ChallengesSuccess(updatedChallenges));
           }
-        } /* => add(ChallengesGetChallenges()) */,
+        },
       );
     }
   }
@@ -102,14 +102,6 @@ class ChallengesBloc extends Bloc<ChallengesEvent, ChallengesState> {
     QuitChallenge event,
     Emitter<ChallengesState> emit,
   ) async {
-    /* final result = await _challengesRepository.quitChallenge(
-        event.challengeId, event.userId);
-    result.fold(
-      (l) => emit(ChallengesError(l.message)),
-      (r) => add(ChallengesGetChallenges()),
-    );
- */
-
     final currentState = state;
     if (currentState is ChallengesSuccess) {
       final result = await _challengesRepository.quitChallenge(

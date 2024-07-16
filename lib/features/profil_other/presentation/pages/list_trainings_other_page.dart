@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/features/list_trainings/presentation/bloc/list_trainings_bloc.dart';
 import 'package:pulse/features/list_trainings/presentation/pages/list_trainings_page.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class TrainingListOtherScreen extends StatefulWidget {
   final String userId;
@@ -40,10 +42,12 @@ class _TrainingListOtherScreenState extends State<TrainingListOtherScreen> {
       ),
       body: BlocConsumer<ListTrainingsBloc, ListTtrainingsState>(
         listener: (context, state) {
-          // Écouter les états pour afficher des messages, rediriger, etc.
           if (state is ListTrainingsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+            ToastService.showErrorToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: state.message,
             );
           }
         },

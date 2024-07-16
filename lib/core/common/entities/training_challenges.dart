@@ -27,29 +27,6 @@ class TrainingChallenge {
     required this.author,
   });
 
-  /*factory TrainingChallenge.fromTraining(
-      Training training, String authorId, List<String> photosFileName) {
-    return TrainingChallenge(
-      id: training.id,
-      title: training.title,
-      description: training.description,
-      exerciseId: training.activity.exercise.id,
-      startAt: training.activity.startAt.toIso8601String(),
-      endAt: training.activity.endAt.toIso8601String(),
-      authorId: authorId,
-      repetitions: training.activity.touches,
-      exercice: "",
-      stats: training.activity.stats
-          .map((e) => TrainingStats(
-                buzzerExpected: e.buzzerExpected,
-                buzzerPressed: e.buzzerPressed,
-                reactionTime: e.reactionTime,
-                pressedAt: e.pressedAt.toIso8601String(),
-              ))
-          .toList(),
-    );
-  }*/
-
   factory TrainingChallenge.fromJson(Map<String, dynamic> json) {
     final stats = (json['stats'] as List)
         .map((e) => TrainingStats(

@@ -56,7 +56,7 @@ class _ActivityPageState extends State<ActivityPage>
   BluetoothDevice? connectedDevice;
   BluetoothCharacteristic? notifyCharacteristic;
   int messageCount = 0;
-  int errorCount = 0; // Variable pour compter les erreurs
+  int errorCount = 0;
   bool isScanning = false;
   DateTime? lastNotificationTime;
   final ValueNotifier<String> connectionStatusNotifier =
@@ -821,13 +821,13 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        backgroundColor: Colors.black,
+        backgroundColor: AppPallete.backgroundColor,
         title: const Text(
           'Confirmation',
           style: TextStyle(color: Colors.white),
         ),
         content: const Text(
-          'Êtes-vous sûr de vouloir quitter l\'activité ?',
+          'Êtes-vous sûr de vouloir quitter l\'entrainement ?',
           style: TextStyle(color: Colors.white),
         ),
         actions: <Widget>[
@@ -837,7 +837,7 @@ void showExitConfirmationDialog(BuildContext context, VoidCallback onConfirm) {
             },
             child: const Text(
               'Annuler',
-              style: TextStyle(color: Colors.greenAccent),
+              style: TextStyle(color: Colors.grey),
             ),
           ),
           TextButton(

@@ -9,6 +9,8 @@ import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class ExercicesPage extends StatefulWidget {
   const ExercicesPage({super.key});
@@ -78,8 +80,11 @@ class _ExercicesPageState extends State<ExercicesPage> {
               child: BlocConsumer<ExercicesBloc, ExercicesState>(
                 listener: (context, state) {
                   if (state is ExercicesError) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(state.message)),
+                    ToastService.showErrorToast(
+                      context,
+                      length: ToastLength.long,
+                      expandedHeight: 100,
+                      message: state.message,
                     );
                   }
                 },

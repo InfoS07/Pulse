@@ -161,8 +161,11 @@ class _SettingsPageState extends State<SettingsPage> {
         child: BlocConsumer<ProfilBloc, ProfilState>(
           listener: (context, state) {
             if (state is ProfilFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+              ToastService.showErrorToast(
+                context,
+                length: ToastLength.long,
+                expandedHeight: 100,
+                message: state.message,
               );
             }
           },

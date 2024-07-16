@@ -8,6 +8,8 @@ import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/auth/presentation/widgets/auth_field.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pulse/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,7 +51,12 @@ class _LoginPageState extends State<LoginPage> {
                   child: BlocConsumer<AuthBloc, AuthState>(
                     listener: (context, state) {
                       if (state is AuthFailure) {
-                        showSnackBar(context, state.message);
+                        ToastService.showErrorToast(
+                          context,
+                          length: ToastLength.long,
+                          expandedHeight: 100,
+                          message: state.message,
+                        );
                       } else if (state is AuthSuccess) {
                         context.go('/home');
                       }

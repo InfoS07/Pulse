@@ -36,11 +36,6 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
 
   Future<void> _pickPhotos() async {
     final statusCamera = await Permission.camera.status;
-    //final statusGallery = await Permission.photos.status;
-
-    /* if (!statusGallery.isGranted) {
-      await Permission.photos.request();
-    } */
 
     if (!statusCamera.isGranted) {
       await Permission.camera.request();
@@ -48,10 +43,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
     if (await Permission.camera.isGranted) {
       _showPickerDialog();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text("Permission d'accès à la galerie et à la caméra refusée")),
+      ToastService.showErrorToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: "Permission d'accès à la galerie et à la caméra refusée",
       );
     }
   }
@@ -117,8 +113,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
         ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Veuillez ajouter un titre")),
+      ToastService.showWarningToast(
+        context,
+        length: ToastLength.long,
+        expandedHeight: 100,
+        message: "Veuillez ajouter un titre",
       );
     }
   }

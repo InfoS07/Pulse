@@ -11,6 +11,8 @@ import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenges_users_page.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class GroupPage extends StatefulWidget {
   @override
@@ -76,8 +78,11 @@ class _GroupPageState extends State<GroupPage> {
                   BlocListener<ChallengesBloc, ChallengesState>(
                     listener: (context, state) {
                       if (state is ChallengesError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${state.message}')),
+                        ToastService.showErrorToast(
+                          context,
+                          length: ToastLength.long,
+                          expandedHeight: 100,
+                          message: state.message,
                         );
                       }
                     },
@@ -85,8 +90,11 @@ class _GroupPageState extends State<GroupPage> {
                   BlocListener<ExercicesBloc, ExercicesState>(
                     listener: (context, state) {
                       if (state is ExercicesError) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${state.message}')),
+                        ToastService.showErrorToast(
+                          context,
+                          length: ToastLength.long,
+                          expandedHeight: 100,
+                          message: state.message,
                         );
                       }
                     },

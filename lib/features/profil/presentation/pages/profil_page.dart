@@ -15,6 +15,8 @@ import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/features/profil_follow/presentation/widgets/follow_button_widget.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:toasty_box/toast_enums.dart';
+import 'package:toasty_box/toasty_box.dart';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -95,8 +97,11 @@ class _ProfilPageState extends State<ProfilPage> {
       body: BlocConsumer<ProfilBloc, ProfilState>(
         listener: (context, state) {
           if (state is ProfilFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
+            ToastService.showErrorToast(
+              context,
+              length: ToastLength.long,
+              expandedHeight: 100,
+              message: state.message,
             );
           }
         },
@@ -253,8 +258,11 @@ class _ProfilPageState extends State<ProfilPage> {
     return BlocConsumer<HomeBloc, HomeState>(
       listener: (context, state) {
         if (state is HomeError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+          ToastService.showErrorToast(
+            context,
+            length: ToastLength.long,
+            expandedHeight: 100,
+            message: state.message,
           );
         }
       },
