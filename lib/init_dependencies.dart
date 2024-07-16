@@ -45,6 +45,7 @@ import 'package:pulse/features/comments/presentation/bloc/comment_bloc.dart';
 import 'package:pulse/features/exercices/data/datasources/exercices_remote_data_source.dart';
 import 'package:pulse/features/exercices/data/repositories/exercices_repository_impl.dart';
 import 'package:pulse/features/exercices/domain/repository/exercices_repository.dart';
+import 'package:pulse/features/exercices/domain/usecases/achat_exercise.dart';
 import 'package:pulse/features/exercices/domain/usecases/get_exercices.dart';
 import 'package:pulse/features/exercices/domain/usecases/search_exercices.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';

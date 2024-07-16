@@ -21,15 +21,7 @@ class FinishChallenge extends ChallengesEvent {
   final String userId;
   final int pointsGagnes;
 
-  FinishChallenge(this.challengeId, this.userId,this.pointsGagnes);
-}
-
-class AchatExercice extends ChallengesEvent {
-  final int exerciceId;
-  final String userId;
-  final int prix;
-
-  AchatExercice(this.exerciceId, this.userId,this.prix);
+  FinishChallenge(this.challengeId, this.userId, this.pointsGagnes);
 }
 
 class QuitChallenge extends ChallengesEvent {

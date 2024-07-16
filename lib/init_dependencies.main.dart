@@ -361,6 +361,7 @@ void _initExercices() {
     ..registerFactory<ExercicesRemoteDataSource>(
       () => ExercicesRemoteDataSourceImpl(
         serviceLocator(),
+        serviceLocator(),
       ),
     )
     // Repository
@@ -380,11 +381,17 @@ void _initExercices() {
         serviceLocator(),
       ),
     )
+    ..registerFactory(
+      () => AchatExercise(
+        serviceLocator(),
+      ),
+    )
     // Bloc
     ..registerLazySingleton(
       () => ExercicesBloc(
         getExercices: serviceLocator(),
         searchExercices: serviceLocator(),
+        achatExercise: serviceLocator(),
       ),
     );
 }

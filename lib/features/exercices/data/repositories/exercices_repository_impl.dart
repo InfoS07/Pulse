@@ -36,4 +36,31 @@ class ExercicesRepositoryImpl implements ExercicesRepository {
       () async => await exercicesDataSource.searchExercices(searchTerm),
     );
   }
+
+  @override
+  Future<Either<Failure, Unit>> achatExercice(
+      int exerciceId, String userId, int prix) async {
+    return _achatExercice(
+      exerciceId,
+      userId,
+      prix,
+      () async =>
+          await exercicesDataSource.achatExercice(exerciceId, userId, prix),
+    );
+  }
+
+  Future<Either<Failure, Unit>> _achatExercice(
+    int exerciceId,
+    String userId,
+    int prix,
+    Future<Unit> Function() fn,
+  ) async {
+    try {
+      await fn();
+
+      return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(Failure(e.message));
+    }
+  }
 }

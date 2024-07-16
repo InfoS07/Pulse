@@ -166,6 +166,8 @@ class _ExercicesPageState extends State<ExercicesPage> {
                 return Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: ExerciseCard(
+                    isLocked: exercise.price > 0 &&
+                        !exercise.premiums.contains(userId),
                     exercise: exercise,
                     onTap: () {
                       context.push('/exercices/details/${exercise.id}',
@@ -330,10 +332,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context
-                      .read<ChallengesBloc>()
-                      .add(AchatExercice(exercise.id, userId!,exercise.price));
-                      
+                      context.read<ExercicesBloc>().add(
+                          AchatExercice(exercise.id, userId!, exercise.price));
+
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(
@@ -341,7 +342,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
                     ),
                     child: const Text(
                       'Acheter',
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                 ],
