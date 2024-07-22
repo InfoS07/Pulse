@@ -57,7 +57,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Défis', style: TextStyle(color: Colors.white)),
+        title: const Text('Défis', style: TextStyle(color: Colors.white)),
         actions: [
           if (userId == widget.challengeUser.author.uid)
             PopupMenuButton<String>(
@@ -89,7 +89,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                   children: [
                     Text(
                       widget.challengeUser.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
@@ -98,17 +98,50 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                     const SizedBox(height: 20),
                     Text(
                       widget.challengeUser.description,
-                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Détails de l'exercice",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      _formatEndTime(widget.challengeUser.endAt),
-                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                      widget.challengeUser.training.exercice.description,
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Conditions",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 20),
                     Text(
                       "${widget.challengeUser.training.repetitions} ${widget.challengeUser.type} nécessaires",
-                      style: TextStyle(fontSize: 14, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.white70),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      "Temps restant",
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      _formatEndTime(widget.challengeUser.endAt),
+                      style:
+                          const TextStyle(fontSize: 14, color: Colors.white70),
                     ),
                     const SizedBox(height: 20),
                     if (isParticipant && !isAchiever)
@@ -152,7 +185,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        child: Text('Accepter',
+                        child: const Text('Accepter',
                             style: TextStyle(color: Colors.black)),
                       ),
                     if (isAchiever)
@@ -162,7 +195,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                           child: ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: AppPallete.primaryColor,
+                              backgroundColor: AppPallete.primaryColorFade,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -170,8 +203,8 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                             ),
                             child: const Text(
                               'Terminé',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 14),
+                              style: TextStyle(
+                                  color: AppPallete.primaryColor, fontSize: 14),
                             ),
                           ),
                         ),
@@ -201,6 +234,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                       ),
                     const SizedBox(height: 30),
                     ExerciseCardWidget(
+                      paddingCard: const EdgeInsets.all(0.0),
                       exerciseTitle: widget.challengeUser.training.title,
                       exerciseUrlPhoto:
                           widget.challengeUser.training.exercice.photos.first,
@@ -215,7 +249,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               'Classement',
               style: TextStyle(
                 fontSize: 16,
@@ -225,7 +259,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
             ),
             const SizedBox(height: 16),
             ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               itemCount: widget.challengeUser.participants.length,
               itemBuilder: (context, index) {
@@ -261,11 +295,11 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                     ),
                     title: Text(
                       '${participant.user.firstName} ${participant.user.lastName}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                     trailing: Text(
                       'Score: ${participant.score}',
-                      style: TextStyle(color: AppPallete.primaryColor),
+                      style: const TextStyle(color: AppPallete.primaryColor),
                     ),
                   ),
                 );
@@ -377,9 +411,9 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: Text('Ajouter des amis au défis'),
+                title: const Text('Ajouter des amis au défis'),
                 content: mutualFollowers.isEmpty
-                    ? Text(
+                    ? const Text(
                         'Vous devez suivre mutuellement des amis pour les inviter à des défis.')
                     : Form(
                         key: _formKey,
@@ -417,7 +451,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text('Annuler'),
+                    child: const Text('Annuler'),
                   ),
                   if (mutualFollowers.isNotEmpty)
                     TextButton(
@@ -433,7 +467,7 @@ class _ChallengeUserDetailsPageState extends State<ChallengeUserDetailsPage> {
                           Navigator.of(context).pop();
                         }
                       },
-                      child: Text('Ajouter'),
+                      child: const Text('Ajouter'),
                     ),
                 ],
               );

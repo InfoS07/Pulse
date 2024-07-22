@@ -13,6 +13,7 @@ import 'package:pulse/features/home/presentation/bloc/home_bloc.dart';
 import 'package:pulse/features/home/presentation/widgets/achievement_badge_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/exercice_card_widget.dart';
 import 'package:pulse/features/home/presentation/widgets/social_media_post_widget.dart';
+import 'package:pulse/features/home/presentation/widgets/week_days_widget.dart';
 import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:shimmer/shimmer.dart';
 
