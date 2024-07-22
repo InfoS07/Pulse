@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:pulse/core/common/entities/user.dart';
 import 'package:pulse/core/error/exceptions.dart' as pulse_exceptions;

@@ -51,7 +51,7 @@ class ExercicesModel extends Exercice {
       difficulty: map['difficulty'] ?? '',
       laps: map['laps'] ?? 0,
       hit_type: map['hit_type'] ?? '',
-      price: map['price_coin'] ?? 1,
+      price: map['price_coin'] ?? 0,
       premiums: (map['premiums'] as List<dynamic>?)
               ?.map((item) => item as String)
               .toList() ??

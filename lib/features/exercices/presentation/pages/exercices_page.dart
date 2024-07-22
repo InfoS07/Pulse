@@ -6,6 +6,7 @@ import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
 import 'package:pulse/core/common/widgets/search_input.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
+import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -23,6 +24,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
   final TextEditingController _searchController = TextEditingController();
 
   String? userId;
+  int? points;
 
   @override
   void initState() {
@@ -30,6 +32,7 @@ class _ExercicesPageState extends State<ExercicesPage> {
     final authState = context.read<AppUserCubit>().state;
     if (authState is AppUserLoggedIn) {
       userId = authState.user.uid;
+      points = authState.user.points;
     }
     context.read<ExercicesBloc>().add(ExercicesLoad());
     _searchController.addListener(_onSearchChanged);
@@ -337,9 +340,13 @@ class _ExercicesPageState extends State<ExercicesPage> {
                   const SizedBox(width: 16),
                   ElevatedButton(
                     onPressed: () {
-                      context.read<ExercicesBloc>().add(
-                          AchatExercice(exercise.id, userId!, exercise.price));
-
+                      if(points! >= exercise.price){
+                        context.read<ExercicesBloc>().add(
+                        AchatExercice(exercise.id, userId!, exercise.price));
+                      }
+                      else{
+                        
+                      }
                       Navigator.of(context).pop();
                     },
                     style: ElevatedButton.styleFrom(

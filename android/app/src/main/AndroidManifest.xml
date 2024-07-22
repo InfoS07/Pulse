@@ -34,7 +34,7 @@
  
 
     <application
-        android:label="Pulse"
+        android:label="pulse"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

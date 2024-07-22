@@ -11,7 +11,7 @@ class AppUserCubit extends Cubit<AppUserState> {
     if (user == null) {
       emit(AppUserLoggedOut());
     } else {
-      OneSignal.login(user.uid);
+      //OneSignal.login(user.uid);
       emit(AppUserLoggedIn(user));
     }
   }

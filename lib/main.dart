@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
+//import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/formatters.dart';
@@ -22,13 +22,14 @@ import 'package:pulse/init_dependencies.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //await Firebase.initializeApp();
 
   await initDependencies();
 
   await initializeDateFormattingForLocale();
 
-  OneSignal.initialize("300b20c3-d537-46ee-b600-aca8dd2c8ae4");
-  OneSignal.Notifications.requestPermission(true);
+  //OneSignal.initialize("300b20c3-d537-46ee-b600-aca8dd2c8ae4");
+  //OneSignal.Notifications.requestPermission(true);
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((value) => runApp(MultiBlocProvider(
