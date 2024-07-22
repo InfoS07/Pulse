@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'pulse-413fe.appspot.com',
     iosBundleId: 'com.infos07.pulse',
   );
+
 }
