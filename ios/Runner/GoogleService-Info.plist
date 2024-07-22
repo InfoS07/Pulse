@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAAQIl5yFemcrHEkJPxzRp4PUTzMiQMyqA</string>
+	<string>AIzaSyBWbzN08rjAVgaLWTSyDTNarl_2bdGRHc4</string>
 	<key>GCM_SENDER_ID</key>
-	<string>1010628606758</string>
+	<string>445055589016</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.nicolaslacoste.pulse</string>
+	<string>com.infos07.pulse</string>
 	<key>PROJECT_ID</key>
-	<string>pulse-309fd</string>
+	<string>pulse-413fe</string>
 	<key>STORAGE_BUCKET</key>
-	<string>pulse-309fd.appspot.com</string>
+	<string>pulse-413fe.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1010628606758:ios:a20aa20ea637af9eacdfe7</string>
+	<string>1:445055589016:ios:7343015b9a246597a10eed</string>
 </dict>
 </plist>

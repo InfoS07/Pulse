@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "445055589016",
+    "project_id": "pulse-413fe",
+    "storage_bucket": "pulse-413fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:445055589016:android:53c6a9e177f13fe1a10eed",
+        "android_client_info": {
+          "package_name": "com.nicolaslacoste.pulse"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQkJ_um8y0L5pTu33ZTeTjZVn-xPTvDg0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

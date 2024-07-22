@@ -60,6 +60,19 @@ class ActivitySaved extends ActivityState {
   List<Object> get props => [activity, training];
 }
 
+class ActivitySaveLoading extends ActivityState {
+  @override
+  final Activity activity;
+  final Training training;
+  final ActivityState previousState;
+
+  const ActivitySaveLoading(this.activity, this.training, this.previousState)
+      : super(activity);
+
+  @override
+  List<Object> get props => [activity, training, previousState];
+}
+
 class ActivitySavedError extends ActivityState {
   final String message;
   @override

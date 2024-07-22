@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -163,8 +164,27 @@ class _CommentsPageState extends State<CommentsPage> {
                                     const EdgeInsets.fromLTRB(8.0, 8.0, 0, 0),
                                 child: ListTile(
                                   leading: CircleAvatar(
-                                    backgroundImage: NetworkImage(
-                                        comment.user.urlProfilePhoto),
+                                    radius: 20,
+                                    backgroundColor: Colors.grey,
+                                    child: CachedNetworkImage(
+                                      imageUrl: comment.user.urlProfilePhoto,
+                                      imageBuilder: (context, imageProvider) =>
+                                          Container(
+                                        width: 40.0,
+                                        height: 40.0,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                      placeholder: (context, url) =>
+                                          const CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.person, size: 40),
+                                    ),
                                   ),
                                   title: Text(
                                     comment.user.lastName +
@@ -315,7 +335,25 @@ class UserProfilePostHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundImage: NetworkImage(profileImageUrl),
+        radius: 20,
+        backgroundColor: Colors.grey,
+        child: CachedNetworkImage(
+          imageUrl: profileImageUrl,
+          imageBuilder: (context, imageProvider) => Container(
+            width: 40.0,
+            height: 40.0,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          placeholder: (context, url) => const CircularProgressIndicator(),
+          errorWidget: (context, url, error) =>
+              const Icon(Icons.person, size: 40),
+        ),
       ),
       title: Text(
         lastnName,

@@ -166,6 +166,7 @@ class _FollowItemState extends State<FollowItem> {
           children: [
             CircleAvatar(
               radius: 20,
+              backgroundColor: Colors.grey,
               child: CachedNetworkImage(
                 imageUrl: widget.profile.profilePhoto,
                 imageBuilder: (context, imageProvider) => Container(

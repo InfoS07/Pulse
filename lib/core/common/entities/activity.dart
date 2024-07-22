@@ -1,8 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
-import 'package:pulse/core/theme/app_pallete.dart';
 
 Duration calculateReactionTime(DateTime start, DateTime end) {
   return end.difference(start);

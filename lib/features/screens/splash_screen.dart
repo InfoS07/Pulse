@@ -23,7 +23,7 @@ class SplashScreen extends StatelessWidget {
         },
         builder: (context, state) {
           return Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/background.png'),
                 fit: BoxFit.cover,
@@ -33,7 +33,7 @@ class SplashScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  RippleAnimation(
+                  const RippleAnimation(
                     child: CircleAvatar(
                       minRadius: 75,
                       maxRadius: 75,
