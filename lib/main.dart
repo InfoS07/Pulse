@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:isolate';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,31 +40,44 @@ void main() async {
   OneSignal.initialize("300b20c3-d537-46ee-b600-aca8dd2c8ae4");
   OneSignal.Notifications.requestPermission(true);
 
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-      .then((value) => runApp(MultiBlocProvider(
-            providers: [
-              BlocProvider(
-                create: (_) => serviceLocator<AppUserCubit>(),
-              ),
-              BlocProvider(
-                create: (_) => serviceLocator<AuthBloc>(),
-              ),
-              BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
-              BlocProvider(create: (_) => serviceLocator<CommentBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
-              BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>()),
-              BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>()),
-              BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
-              BlocProvider(
-                  create: (_) => serviceLocator<ChallengesUsersBloc>()),
-              BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>())
-            ],
-            child: const MyApp(),
-          )));
+  runZonedGuarded<Future<void>>(() async {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+
+    Isolate.current.addErrorListener(RawReceivePort((pair) async {
+      final List<dynamic> errorAndStacktrace = pair;
+      await FirebaseCrashlytics.instance.recordError(
+        errorAndStacktrace.first,
+        errorAndStacktrace.last,
+      );
+    }).sendPort);
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+        .then((value) => runApp(MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (_) => serviceLocator<AppUserCubit>(),
+                ),
+                BlocProvider(
+                  create: (_) => serviceLocator<AuthBloc>(),
+                ),
+                BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
+                BlocProvider(create: (_) => serviceLocator<CommentBloc>()),
+                BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
+                BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
+                BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
+                BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
+                BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
+                BlocProvider(
+                    create: (_) => serviceLocator<ListTrainingsBloc>()),
+                BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>()),
+                BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
+                BlocProvider(
+                    create: (_) => serviceLocator<ChallengesUsersBloc>()),
+                BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>())
+              ],
+              child: const MyApp(),
+            )));
+  }, FirebaseCrashlytics.instance.recordError);
 }
 
 class MyApp extends StatefulWidget {
@@ -77,10 +94,15 @@ class _MyAppState extends State<MyApp> {
     context.read<AuthBloc>().add(AuthIsUserLoggedIn());
   }
 
+  void _crash() {
+    throw Exception("WAHOU, voici un beau test de bug !");
+  }
+
   @override
   Widget build(BuildContext context) {
     //router provider
     final appRouter = serviceLocator<GoRouter>();
+    //_crash();
 
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
