@@ -374,9 +374,11 @@ class _SaveActivityPageState extends State<SaveActivityPage> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 80, vertical: 14),
                             ),
-                            child: const Text(
-                              'Enregistrer',
-                              style: TextStyle(
+                            child: Text(
+                              state is ActivitySaveLoading
+                                  ? 'Enregistrement en cours...'
+                                  : 'Enregistrer',
+                              style: const TextStyle(
                                 fontSize: 14,
                                 color: Colors.black,
                               ),

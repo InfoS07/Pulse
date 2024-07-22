@@ -12,6 +12,7 @@ import 'package:pulse/features/activity/presentation/pages/save_activity_page.da
 import 'package:pulse/features/auth/presentation/pages/forgot_password_page.dart';
 import 'package:pulse/features/auth/presentation/pages/login_page.dart';
 import 'package:pulse/features/auth/presentation/pages/signup_page.dart';
+import 'package:pulse/features/calendar/presentation/pages/calendar_page.dart';
 import 'package:pulse/features/challenges/domain/models/data_challenge_activity.dart';
 import 'package:pulse/features/challenges/presentation/pages/challenge_activity_page.dart';
 import 'package:pulse/features/challenges_users/domain/models/challenges_users_model.dart';
@@ -53,6 +54,7 @@ enum RoutePath {
   follow(path: 'follow'),
   followOther(path: 'followOther'),
   searchUser(path: 'searchUser'),
+  calendar(path: 'calendar'),
   settings(path: 'settings'),
   introSlider(path: '/intro-slider'),
   challengeUserDetails(path: 'challenges_users_details');
@@ -101,10 +103,10 @@ final GoRouter goRouterProvider = GoRouter(
     GoRoute(
       path: "/activityClassicChallenge",
       pageBuilder: (BuildContext context, GoRouterState state) {
-        final DataChallengeActivity extra = state.extra as DataChallengeActivity;
+        final DataChallengeActivity extra =
+            state.extra as DataChallengeActivity;
         return DialogPage(
-          builder: (_) => ActivityChallengePage(
-              extra),
+          builder: (_) => ActivityChallengePage(extra),
         );
       },
     ),
@@ -172,6 +174,11 @@ final GoRouter goRouterProvider = GoRouter(
               builder: (context, state) => HomePage(),
               routes: [
                 GoRoute(
+                  path: RoutePath.calendar.path,
+                  name: RoutePath.calendar.name,
+                  builder: (context, state) => CalendarPage(),
+                ),
+                GoRoute(
                   path: 'details/:postIndex',
                   builder: (context, state) {
                     final postIndex =
@@ -199,9 +206,6 @@ final GoRouter goRouterProvider = GoRouter(
                   path: RoutePath.searchUser.path,
                   name: RoutePath.searchUser.name,
                   builder: (context, state) => SearchUsersPage(),
-                  /* builder: (context, state) => DialogPage(
-                          builder: (_) => SearchUsersPage(),
-                        );, */
                 )
               ],
             ),

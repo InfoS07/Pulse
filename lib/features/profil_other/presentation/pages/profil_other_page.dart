@@ -275,7 +275,7 @@ class _ProfilOtherPageState extends State<ProfilOtherPage> {
       builder: (context, state) {
         if (!isFollowing) {
           return const Center(
-            child: Text('Vous devez suivre.',
+            child: Text('Vous devez suivre pour voir les entraînements.',
                 style: TextStyle(color: Colors.white)),
           );
         }

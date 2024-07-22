@@ -98,6 +98,7 @@ class ActivityBloc extends Bloc<ActivityEvent, ActivityState> {
         activity: state.activity,
         photos: event.photos,
       );
+      emit(ActivitySaveLoading(state.activity, training, state));
 
       final res = await _saveActivityUC(training);
 

@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     placeholder: (context, url) =>
                         const CircularProgressIndicator(),
                     errorWidget: (context, url, error) =>
-                        const Icon(Icons.person),
+                        const Icon(Icons.person, size: 40),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -127,6 +127,12 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.search),
               onPressed: () {
                 context.push('/home/searchUser');
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.calendar_month),
+              onPressed: () {
+                context.push('/home/calendar');
               },
             ),
             const Stack(
@@ -377,7 +383,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       SliverToBoxAdapter(
                         child: AchievementBadgeWidget(
-                          message: 'Vous avez 10,000 points',
+                          message: 'Vous avez 0 points',
                         ),
                       ),
                       const SliverToBoxAdapter(

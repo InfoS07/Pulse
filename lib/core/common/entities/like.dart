@@ -9,8 +9,8 @@ class Like {
 
   factory Like.fromJson(Map<String, dynamic> json) {
     return Like(
-      profileImageUrl: json['user']['profile_photo'],
-      createdAt: json['created_at'],
+      profileImageUrl: json['user']['profile_photo'] ?? '',
+      createdAt: json['created_at'] ?? '',
     );
   }
 

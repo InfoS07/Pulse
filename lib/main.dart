@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,6 +19,7 @@ import 'package:pulse/features/profil/presentation/bloc/profil_bloc.dart';
 import 'package:pulse/features/profil_follow/presentation/bloc/profil_follow_bloc.dart';
 import 'package:pulse/features/profil_other/presentation/bloc/profil_other_bloc.dart';
 import 'package:pulse/features/search_users/presentation/bloc/search_users_bloc.dart';
+import 'package:pulse/firebase_options.dart';
 import 'package:pulse/init_dependencies.dart';
 
 void main() async {
@@ -26,6 +28,10 @@ void main() async {
   await initDependencies();
 
   await initializeDateFormattingForLocale();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   OneSignal.initialize("300b20c3-d537-46ee-b600-aca8dd2c8ae4");
   OneSignal.Notifications.requestPermission(true);

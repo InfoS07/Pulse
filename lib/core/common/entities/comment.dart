@@ -1,5 +1,4 @@
 import 'package:pulse/core/common/entities/user.dart';
-import 'package:pulse/features/auth/domain/models/user_model.dart';
 
 class Comment {
   final int id;

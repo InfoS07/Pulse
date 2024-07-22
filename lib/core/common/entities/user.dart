@@ -17,18 +17,6 @@ class User {
     required this.points,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      uid: json['uid'],
-      email: json['email'],
-      lastName: json['last_name'],
-      firstName: json['first_name'],
-      birthDate: DateTime.parse(json['birth_date']),
-      urlProfilePhoto: json['profile_photo'],
-      points: json['points'] ?? 0,
-    );
-  }
-
   static User empty() {
     return User(
       uid: '',
