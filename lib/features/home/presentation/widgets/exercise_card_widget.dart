@@ -5,31 +5,30 @@ class ExerciseCardWidget extends StatelessWidget {
   final String exerciseTitle;
   final String exerciseUrlPhoto;
   final VoidCallback onTap;
+  final paddingCard;
 
-  const ExerciseCardWidget({
+  ExerciseCardWidget({
     super.key,
     required this.exerciseTitle,
     required this.exerciseUrlPhoto,
     required this.onTap,
+    this.paddingCard = const EdgeInsets.symmetric(horizontal: 20.0),
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Text(
+    return Padding(
+      padding: paddingCard,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
             'Exercice',
             style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          const SizedBox(height: 8),
+          GestureDetector(
+            onTap: onTap,
             child: Card(
               color: const Color.fromARGB(255, 38, 38, 38),
               child: ListTile(
@@ -51,8 +50,8 @@ class ExerciseCardWidget extends StatelessWidget {
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

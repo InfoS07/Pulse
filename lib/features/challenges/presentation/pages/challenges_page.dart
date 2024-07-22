@@ -300,7 +300,6 @@ class _GroupPageState extends State<GroupPage> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 5),
                         ),
                         child: Text(
                           status,
@@ -310,20 +309,20 @@ class _GroupPageState extends State<GroupPage> {
                     ),
                   ],
                   if (isAchiever) ...[
-                    ElevatedButton(
-                      onPressed: null, // bouton désactivé
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: statusColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: onPressed,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: statusColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30.0, vertical: 8.0),
-                      ),
-                      child: Text(
-                        status,
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        child: Text(
+                          status,
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -409,9 +408,13 @@ class _GroupPageState extends State<GroupPage> {
                 ),
                 const SizedBox(height: 8),
               ],
-              Text(
-                'Points: $points',
-                style: const TextStyle(fontSize: 16, color: Colors.white),
+              Chip(
+                backgroundColor: AppPallete.secondaryColorFade,
+                label: Text('+ $points points',
+                    style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 24),
               if (isParticipant && !isAchiever) ...[
@@ -495,7 +498,7 @@ class _GroupPageState extends State<GroupPage> {
                   ),
                   child: const Text(
                     'Accepter',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(color: Colors.black, fontSize: 16),
                   ),
                 ),
               ],

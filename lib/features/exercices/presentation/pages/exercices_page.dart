@@ -319,41 +319,55 @@ class _ExercicesPageState extends State<ExercicesPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Acheter exercice'),
-          content: Text(
-              'Voulez-vous acheter cet exercice pour ${exercise.price} points ?'),
-          actions: [
-            Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Annuler'),
+        return BlocProvider.value(
+          value: context.read<ExercicesBloc>(),
+          child: BlocListener<ExercicesBloc, ExercicesState>(
+            listener: (context, state) {
+              if (state is ExercicesError) {
+                ToastService.showErrorToast(
+                  context,
+                  length: ToastLength.long,
+                  expandedHeight: 100,
+                  message: state.message,
+                );
+              }
+            },
+            child: AlertDialog(
+              title: const Text('Acheter exercice'),
+              content: Text(
+                  'Voulez-vous acheter cet exercice pour ${exercise.price} points ?'),
+              actions: [
+                Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Annuler'),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          context.read<ExercicesBloc>().add(AchatExercice(
+                              exercise.id, userId!, exercise.price));
+                          Navigator.of(context).pop();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppPallete.primaryColor,
+                        ),
+                        child: const Text(
+                          'Acheter',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<ExercicesBloc>().add(
-                          AchatExercice(exercise.id, userId!, exercise.price));
-
-                      Navigator.of(context).pop();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppPallete.primaryColor,
-                    ),
-                    child: const Text(
-                      'Acheter',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

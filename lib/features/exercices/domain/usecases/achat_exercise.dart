@@ -1,5 +1,4 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/error/failures.dart';
 import 'package:pulse/core/usecase/usercase.dart';
 import 'package:pulse/features/exercices/domain/repository/exercices_repository.dart';
