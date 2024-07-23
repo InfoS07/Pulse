@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/common/widgets/exercise_card.dart';
@@ -175,6 +176,9 @@ class _ExercicesPageState extends State<ExercicesPage> {
                         !exercise.premiums.contains(userId),
                     exercise: exercise,
                     onTap: () {
+                      AnalyticsManager.of(context).logEvent(
+                          name: "press_exercice",
+                          parameters: {'exerice_title': exercise.title});
                       context.push('/exercices/details/${exercise.id}',
                           extra: exercise);
                     },

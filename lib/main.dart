@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:isolate';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/formatters.dart';
@@ -51,32 +53,36 @@ void main() async {
       );
     }).sendPort);
 
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
-        .then((value) => runApp(MultiBlocProvider(
-              providers: [
-                BlocProvider(
-                  create: (_) => serviceLocator<AppUserCubit>(),
-                ),
-                BlocProvider(
-                  create: (_) => serviceLocator<AuthBloc>(),
-                ),
-                BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
-                BlocProvider(create: (_) => serviceLocator<CommentBloc>()),
-                BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
-                BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
-                BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
-                BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
-                BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
-                BlocProvider(
-                    create: (_) => serviceLocator<ListTrainingsBloc>()),
-                BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>()),
-                BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
-                BlocProvider(
-                    create: (_) => serviceLocator<ChallengesUsersBloc>()),
-                BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>())
-              ],
-              child: const MyApp(),
-            )));
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then(
+      (value) => runApp(
+        MultiBlocProvider(
+          providers: [
+            BlocProvider(
+              create: (_) => serviceLocator<AppUserCubit>(),
+            ),
+            BlocProvider(
+              create: (_) => serviceLocator<AuthBloc>(),
+            ),
+            BlocProvider(create: (_) => serviceLocator<HomeBloc>()),
+            BlocProvider(create: (_) => serviceLocator<CommentBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ProfilBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ExercicesBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ActivityBloc>()),
+            BlocProvider(create: (_) => serviceLocator<OtherProfilBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ProfilFollowBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ListTrainingsBloc>()),
+            BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ChallengesBloc>()),
+            BlocProvider(create: (_) => serviceLocator<ChallengesUsersBloc>()),
+            BlocProvider(create: (_) => serviceLocator<SearchUsersBloc>())
+          ],
+          child: AnalyticsManager(
+            analytics: FirebaseAnalytics.instance,
+            child: MyApp(),
+          ),
+        ),
+      ),
+    );
   }, FirebaseCrashlytics.instance.recordError);
 }
 

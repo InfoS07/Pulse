@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/features/auth/presentation/bloc/auth_bloc.dart';
@@ -16,6 +17,10 @@ class SplashScreen extends StatelessWidget {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
+            AnalyticsManager.of(context)
+                .analytics
+                .setUserProperty(name: "role", value: "user");
+            AnalyticsManager.of(context).analytics.logAppOpen();
             context.go('/home');
           } else if (state is AuthFailure) {
             context.go('/login');
