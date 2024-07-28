@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/entities/exercice.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/bottom_sheet.dart';
@@ -11,6 +12,7 @@ import 'package:pulse/features/challenges/presentation/bloc/challenges_bloc.dart
 import 'package:pulse/core/common/cubits/app_user/app_user_cubit.dart';
 import 'package:pulse/features/challenges_users/presentation/pages/challenges_users_page.dart';
 import 'package:pulse/features/exercices/presentation/bloc/exercices_bloc.dart';
+import 'package:pulse/features/home/presentation/widgets/exercise_card_widget.dart';
 import 'package:toasty_box/toast_enums.dart';
 import 'package:toasty_box/toasty_box.dart';
 
@@ -257,6 +259,9 @@ class _GroupPageState extends State<GroupPage> {
 
     return GestureDetector(
       onTap: () {
+        AnalyticsManager.of(context).logEvent(
+            name: "press_challenge",
+            parameters: {'challenge_name': challenge.name});
         _showChallengeDetailsBottomSheet(context, challenge);
       },
       child: Card(
@@ -382,7 +387,7 @@ class _GroupPageState extends State<GroupPage> {
       isDismissible: true,
       builder: (BuildContext context) {
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +421,6 @@ class _GroupPageState extends State<GroupPage> {
                         fontSize: 14,
                         fontWeight: FontWeight.bold)),
               ),
-              const SizedBox(height: 24),
               if (isParticipant && !isAchiever) ...[
                 SizedBox(
                   width: double.infinity, // Button takes the full width

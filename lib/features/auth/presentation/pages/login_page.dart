@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/show_snackbar.dart';
@@ -113,6 +114,8 @@ class _LoginPageState extends State<LoginPage> {
                                   ? () {}
                                   : () {
                                       if (formKey.currentState!.validate()) {
+                                        AnalyticsManager.of(context)
+                                            .logEvent(name: "press_login");
                                         context.read<AuthBloc>().add(
                                               AuthLogin(
                                                 email:

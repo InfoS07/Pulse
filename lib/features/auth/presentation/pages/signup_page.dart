@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pulse/analytics.dart';
 import 'package:pulse/core/common/widgets/loader.dart';
 import 'package:pulse/core/theme/app_pallete.dart';
 import 'package:pulse/core/utils/show_snackbar.dart';
@@ -108,6 +109,10 @@ class _SignUpPageState extends State<SignUpPage> {
                                   ? () {}
                                   : () {
                                       if (formKey.currentState!.validate()) {
+                                        AnalyticsManager.of(context)
+                                            .analytics
+                                            .setUserProperty(
+                                                name: "role", value: "new");
                                         context.read<AuthBloc>().add(
                                               AuthSignUp(
                                                 email:
